@@ -1,0 +1,50 @@
+id: logging-in-except-requires-exc-info
+valid:
+  - |
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        do_work()
+    except Exception:
+        logger.exception("work failed")
+
+  - |
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        do_work()
+    except ValueError:
+        logger.error("bad value", exc_info=True)
+
+  - |
+    logger.error("not inside except")
+
+invalid:
+  - |
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        do_work()
+    except Exception:
+        logger.error("work failed")
+
+  - |
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        do_work()
+    except:
+        logger.warning("something bad happened")
+
+  - |
+    import logging
+    logger = logging.getLogger(__name__)
+
+    try:
+        do_work()
+    except RuntimeError:
+        logger.critical("boom")

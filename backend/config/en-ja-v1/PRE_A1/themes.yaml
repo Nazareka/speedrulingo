@@ -1,0 +1,13 @@
+themes:
+  primary:
+    - code: "SELF_AND_PEOPLE"
+      name: "Self and people"
+    - code: "REFERENCE_AND_QUESTIONS"
+      name: "Reference and questions"
+    - code: "EVERYDAY_THINGS"
+      name: "Everyday things"
+  secondary:
+    - code: "PLACES_AND_LOCATIONS"
+      name: "Places and locations"
+    - code: "FOOD_AND_PREFERENCES"
+      name: "Food and preferences"

@@ -1,0 +1,37 @@
+id: no-db-commit-in-branch
+
+valid:
+  - |
+    def build_tile_sets(db):
+        db.add(tile_set)
+        db.flush()
+        db.commit()
+
+  - |
+    def run(db):
+        try:
+            db.add(item)
+            db.flush()
+            db.commit()
+        except Exception:
+            db.rollback()
+            raise
+
+invalid:
+  - |
+    def build_tile_sets(db, existing_tile_set_ids):
+        if existing_tile_set_ids:
+            db.execute(delete(ItemSentenceTiles))
+            db.commit()
+        db.commit()
+
+  - |
+    def f(db, items):
+        for item in items:
+            if item.ready:
+                db.commit()
+
+  - |
+    def f(db, condition):
+        while condition():
+            db.commit()

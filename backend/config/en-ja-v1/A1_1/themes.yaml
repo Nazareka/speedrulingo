@@ -1,0 +1,13 @@
+themes:
+  primary:
+    - code: "HOME_AND_ROOMS"
+      name: "Home and rooms"
+    - code: "DAILY_LIFE_AND_TIME"
+      name: "Daily life and time"
+    - code: "DESCRIPTION"
+      name: "Description"
+  secondary:
+    - code: "FAMILY_AND_PEOPLE"
+      name: "Family and people"
+    - code: "NEARBY_PLACES"
+      name: "Nearby places"

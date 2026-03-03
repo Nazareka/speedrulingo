@@ -1,0 +1,7 @@
+section:
+  title: "Home and daily life"
+  description: "Elementary Japanese for describing homes and rooms, saying what exists and where it is, describing things and places with simple adjectives, telling time, talking about daily routines, and saying what day or time is convenient."
+  generation_description: "Guarantee that time-and-schedule core words appear in this section, especially 何時, 今日, 今, and いつ. Keep vocabulary centered on rooms, family, school, nearby places, daily routine, clocks, days of the week, and simple descriptive adjectives. This section should make location, daily routine, and schedule coordination feel usable."
+  section_planning:
+    min_sentence_introductions_per_normal_lesson: 2
+    max_sentence_introductions_per_normal_lesson: 3

@@ -1,0 +1,37 @@
+id: no-membership-via-constructed-set
+
+valid:
+  - |
+    introduced_word_lemmas_set = set(planned_lesson.introduced_word_lemmas)
+    target_word_ids = [
+        word.id
+        for word in lesson_words
+        if word.canonical_writing_ja in introduced_word_lemmas_set
+    ]
+
+  - |
+    eligible_sentence_ids_set = set(eligible_sentence_ids)
+    overflow_sentence_ids = [
+        sentence_id for sentence_id in sentence_ids if sentence_id not in eligible_sentence_ids_set
+    ]
+
+  - |
+    if needle in haystack:
+        print("ok")
+
+invalid:
+  - |
+    target_word_ids = [
+        word.id
+        for word in lesson_words
+        if word.canonical_writing_ja in set(planned_lesson.introduced_word_lemmas)
+    ]
+
+  - |
+    overflow_sentence_ids = [
+        sentence_id for sentence_id in sentence_ids if sentence_id not in set(eligible_sentence_ids)
+    ]
+
+  - |
+    if value in set(values):
+        print("bad")

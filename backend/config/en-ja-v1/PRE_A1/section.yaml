@@ -1,0 +1,8 @@
+section:
+  title: "Starter basics"
+  description: "Starter Japanese for self-introduction, simple identity statements, yes/no questions, possession with の, simple negation, first polite verbs, everyday actions, basic likes and dislikes, and saying where someone lives."
+  generation_description: "Prioritize the beginner reference-and-question toolkit very early. This section should introduce basic personal/object/location reference language. Keep examples concrete, short, and usable for identity, object identification, location questions, and possession."
+  section_planning:
+    min_sentence_introductions_per_normal_lesson: 4
+    max_sentence_introductions_per_normal_lesson: 5
+    bootstrap_mode: "support_only"

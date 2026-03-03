@@ -1,0 +1,44 @@
+id: logging-in-except-requires-exc-info
+language: Python
+severity: warning
+message: "Inside except blocks, prefer logger.exception(...) or logger.<level>(..., exc_info=True)."
+
+utils:
+  log-method:
+    regex: "^(error|warning|critical)$"
+
+rule:
+  all:
+    - pattern: $LOGGER.$METHOD($$$ARGS)
+    - inside:
+        any:
+          - pattern:
+              context: |
+                try:
+                  $$$TRY
+                except:
+                  $$$EXCEPT_BODY
+              selector: except_clause
+          - pattern:
+              context: |
+                try:
+                  $$$TRY
+                except $ERR:
+                  $$$EXCEPT_BODY
+              selector: except_clause
+        stopBy: end
+    - not:
+        has:
+          kind: keyword_argument
+          all:
+            - has:
+                field: name
+                pattern: exc_info
+            - has:
+                field: value
+                pattern: "True"
+          stopBy: end
+
+constraints:
+  METHOD:
+    matches: log-method

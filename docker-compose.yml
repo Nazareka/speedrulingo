@@ -1,0 +1,40 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: speedrulingo
+      POSTGRES_PASSWORD: speedrulingo
+      POSTGRES_DB: speedrulingo
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  api:
+    build:
+      context: ./backend
+    working_dir: /app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src
+    environment:
+      SPEEDRULINGO_DATABASE_URL: postgresql+psycopg://speedrulingo:speedrulingo@db:5432/speedrulingo
+      SPEEDRULINGO_JWT_SECRET: dev-secret-change-me-minimum-32-chars
+    volumes:
+      - ./backend:/app
+    ports:
+      - '8000:8000'
+    depends_on:
+      - db
+
+  web:
+    image: node:22-alpine
+    working_dir: /app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    volumes:
+      - ./frontend:/app
+    ports:
+      - '5173:5173'
+    depends_on:
+      - api
+
+volumes:
+  pgdata:

@@ -1,0 +1,124 @@
+/* biome-ignore lint/suspicious/noUnknownAtRules: Tailwind CSS directives are handled by PostCSS. */
+@tailwind base;
+/* biome-ignore lint/suspicious/noUnknownAtRules: Tailwind CSS directives are handled by PostCSS. */
+@tailwind components;
+/* biome-ignore lint/suspicious/noUnknownAtRules: Tailwind CSS directives are handled by PostCSS. */
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply box-border;
+  }
+
+  :root {
+    --lesson-bg: #eef4ff;
+    --lesson-bg-secondary: #e3edff;
+    --lesson-surface: #ffffff;
+    --lesson-surface-muted: #f6f9ff;
+    --lesson-surface-subtle: #f0f5ff;
+
+    --lesson-text: #1d2a3a;
+    --lesson-text-muted: #4d6078;
+    --lesson-text-soft: #61748d;
+    --lesson-text-faint: #7d8ba0;
+
+    --lesson-border: #cfdcf2;
+    --lesson-border-strong: #bfd0eb;
+    --lesson-border-soft: #dce7f8;
+    --lesson-border-hover: #adc3e3;
+
+    --lesson-accent: #2563eb;
+    --lesson-accent-hover: #1d4ed8;
+    --lesson-accent-soft: #eaf2ff;
+
+    --lesson-success-border: #9fd5bf;
+    --lesson-success-bg: #ebfbf2;
+
+    --lesson-error-border: #efb5b0;
+    --lesson-error-bg: #fff0ef;
+    --lesson-error-accent: #d45b57;
+
+    --lesson-disabled-bg: #c9d3e3;
+    --lesson-muted-bg: #f3f6fb;
+    --lesson-muted-text: #748196;
+
+    --lesson-icon-muted-bg: #dfe7f5;
+    --lesson-icon-muted-text: #8794aa;
+
+    color: var(--lesson-text);
+    background:
+      radial-gradient(circle at top left, rgba(23, 122, 109, 0.08), transparent 26%),
+      linear-gradient(180deg, var(--lesson-bg) 0%, var(--lesson-bg-secondary) 100%);
+  }
+
+  html {
+    @apply min-h-full;
+  }
+
+  body {
+    @apply m-0 min-h-screen antialiased;
+    font-family:
+      Inter, "SF Pro Text", "SF Pro Display", "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  }
+
+  a {
+    @apply text-inherit no-underline;
+  }
+
+  button,
+  input,
+  textarea {
+    font: inherit;
+  }
+}
+
+@layer utilities {
+  @keyframes lessonFadeUp {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes lessonTrayIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes lessonPulseBar {
+    from {
+      transform: scaleX(0.88);
+      opacity: 0.75;
+    }
+
+    to {
+      transform: scaleX(1);
+      opacity: 1;
+    }
+  }
+
+  .animate-lesson-fade-up {
+    animation: lessonFadeUp 160ms ease-out;
+  }
+
+  .animate-lesson-tray-in {
+    animation: lessonTrayIn 180ms ease-out;
+  }
+
+  .animate-lesson-pulse-bar {
+    transform-origin: left center;
+    animation: lessonPulseBar 180ms ease-out;
+  }
+}

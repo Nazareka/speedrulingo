@@ -1,0 +1,107 @@
+id: no-del-function-parameter
+
+valid:
+  - |
+    def format_prompt_word_line(
+        *,
+        canonical_writing_ja: str,
+        reading_kana: str,
+        gloss_primary_en: str,
+        gloss_alternatives_en: list[str],
+        usage_note_en: str | None,
+        pos: str | None = None,
+    ) -> str:
+        return " | ".join(
+            [
+                canonical_writing_ja,
+                reading_kana,
+                gloss_primary_en,
+                pos.replace("_", " ") if pos is not None else "",
+                ", ".join(gloss_alternatives_en),
+                usage_note_en or "",
+            ]
+        )
+
+  - |
+    def format_prompt_word_line(
+        *,
+        canonical_writing_ja: str,
+        reading_kana: str,
+        gloss_primary_en: str,
+        gloss_alternatives_en: list[str],
+        _usage_note_en: str | None,
+        pos: str | None = None,
+    ) -> str:
+        return " | ".join(
+            [
+                canonical_writing_ja,
+                reading_kana,
+                gloss_primary_en,
+                pos.replace("_", " ") if pos is not None else "",
+                ", ".join(gloss_alternatives_en),
+            ]
+        )
+
+  - |
+    def f(x: int, y: int) -> int:
+        z = x + y
+        del z
+        return x + y
+
+  - |
+    async def f(x: int, y: int) -> int:
+        return x + y
+
+invalid:
+  - |
+    def format_prompt_word_line(
+        *,
+        canonical_writing_ja: str,
+        reading_kana: str,
+        gloss_primary_en: str,
+        gloss_alternatives_en: list[str],
+        usage_note_en: str | None,
+        pos: str | None = None,
+    ) -> str:
+        del usage_note_en
+        return " | ".join(
+            [
+                canonical_writing_ja,
+                reading_kana,
+                gloss_primary_en,
+                pos.replace("_", " ") if pos is not None else "",
+                ", ".join(gloss_alternatives_en),
+            ]
+        )
+
+  - |
+    def f(x: int, y: int) -> int:
+        del x
+        return y
+
+  - |
+    def f(x: int, y: int) -> int:
+        del y
+        return x
+
+  - |
+    def f(
+        x: int,
+        *,
+        y: int,
+        z: int | None = None,
+    ) -> int:
+        del z
+        return x + y
+
+  - |
+    def outer(x: int) -> int:
+        def inner(y: int) -> int:
+            del y
+            return 1
+        return x
+
+  - |
+    async def f(x: int) -> int:
+        del x
+        return 1

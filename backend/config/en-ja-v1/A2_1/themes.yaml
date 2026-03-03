@@ -1,0 +1,13 @@
+themes:
+  primary:
+    - code: "REQUESTS_AND_HELP"
+      name: "Requests and help"
+    - code: "PERMISSION_AND_RULES"
+      name: "Permission and rules"
+    - code: "DAILY_ACTION_FLOW"
+      name: "Daily action flow"
+  secondary:
+    - code: "HOME_SCHOOL_WORK"
+      name: "Home, school, and work"
+    - code: "REASONS_AND_SITUATIONS"
+      name: "Reasons and situations"

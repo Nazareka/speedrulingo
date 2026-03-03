@@ -1,0 +1,181 @@
+patterns:
+  - code: WA_DESU_STATEMENT
+    name: X は Y です
+    templates:
+    - X は Y です
+    required_support_lexeme_refs:
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+    short_description: Basic polite noun statement for identity or classification.
+
+  - code: KA_QUESTION
+    name: '... か'
+    templates:
+    - X ですか
+    - X は Y ですか
+    - '... か'
+    required_support_lexeme_refs:
+    - canonical_writing_ja: か
+      reading_kana: か
+      pos: particle
+    short_description: Basic polite question marking.
+  - code: NO_LINKER
+    name: A の B
+    templates:
+    - A の B
+    required_support_lexeme_refs:
+    - canonical_writing_ja: の
+      reading_kana: の
+      pos: particle
+    short_description: Simple possession and noun linking.
+
+  - code: MO_ALSO
+    name: X も Y
+    min_extra_words: 1
+    max_extra_words: 2
+    templates:
+    - X も Y です
+    - X も Vます
+    required_support_lexeme_refs:
+    - canonical_writing_ja: も
+      reading_kana: も
+      pos: particle
+    short_description: Also / too marking.
+
+  - code: WA_NEGATIVE_DESU
+    min_extra_words: 1
+    max_extra_words: 2
+    name: X は Y じゃないです / ではありません
+    templates:
+    - X は Y じゃないです
+    - X は Y ではありません
+    required_support_lexeme_refs:
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    anchor_match_mode: any_of
+    anchor_lexeme_refs:
+    - canonical_writing_ja: じゃないです
+      reading_kana: じゃないです
+      pos: expression
+    - canonical_writing_ja: ではありません
+      reading_kana: ではありません
+      pos: expression
+    short_description: Polite negative noun statement.
+
+  - code: VERB_MASU_PRESENT
+    min_extra_words: 4
+    max_extra_words: 8
+    name: Vます
+    templates:
+    - Vます
+    required_support_lexeme_refs:
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+    short_description: Basic polite non-past verb form.
+
+  - code: WO_OBJECT
+    min_extra_words: 4
+    max_extra_words: 8
+    name: X を Vます
+    templates:
+    - X を Vます
+    required_support_lexeme_refs:
+    - canonical_writing_ja: を
+      reading_kana: を
+      pos: particle
+    short_description: Direct object marking.
+
+  - code: DE_ACTION_LOCATION
+    min_extra_words: 3
+    max_extra_words: 5
+    name: X で Vます
+    templates:
+    - PLACE で Vます
+    required_support_lexeme_refs:
+    - canonical_writing_ja: で
+      reading_kana: で
+      pos: particle
+    short_description: Location where an action happens.
+
+  - code: GA_SUKI_DESU
+    min_extra_words: 4
+    max_extra_words: 7
+    name: X が 好きです / 嫌いです
+    templates:
+    - X が 好きです
+    - X が 嫌いです
+    required_support_lexeme_refs:
+    - canonical_writing_ja: が
+      reading_kana: が
+      pos: particle
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+    anchor_match_mode: any_of
+    anchor_lexeme_refs:
+    - canonical_writing_ja: 好き
+      reading_kana: すき
+      pos: adjective_na
+    - canonical_writing_ja: 嫌い
+      reading_kana: きらい
+      pos: adjective_na
+    short_description: Basic preference or dislike pattern.
+
+  - code: SUKINA_WA_DESU
+    min_extra_words: 1
+    max_extra_words: 3
+    name: 好きな N は X です / 嫌いな N は X です
+    templates:
+    - 好きな N は X です
+    - 嫌いな N は X です
+    required_support_lexeme_refs:
+    - canonical_writing_ja: な
+      reading_kana: な
+      pos: particle
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+    anchor_match_mode: any_of
+    anchor_lexeme_refs:
+    - canonical_writing_ja: 好き
+      reading_kana: すき
+      pos: adjective_na
+    - canonical_writing_ja: 嫌い
+      reading_kana: きらい
+      pos: adjective_na
+    short_description: Favorite or disliked item within a category.
+
+  - code: NI_SUNDE_IMASU
+    min_extra_words: 2
+    max_extra_words: 4
+    name: X に 住んでいます
+    templates:
+    - PLACE に 住んでいます
+    required_support_lexeme_refs:
+    - canonical_writing_ja: に
+      reading_kana: に
+      pos: particle
+    anchor_match_mode: all_of
+    anchor_lexeme_refs:
+    - canonical_writing_ja: 住む
+      reading_kana: すむ
+      pos: verb
+    - canonical_writing_ja: て
+      reading_kana: て
+      pos: particle
+    - canonical_writing_ja: いる
+      reading_kana: いる
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+    short_description: Living in a place.

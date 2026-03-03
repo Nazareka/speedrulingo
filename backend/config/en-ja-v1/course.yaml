@@ -1,0 +1,63 @@
+course:
+  code: "en-ja"
+  version: 1
+  seed: 1337
+  config_version: "course_config_v2"
+
+sections:
+  - "PRE_A1"
+  - "A1_1"
+  - "A1_2"
+  - "A2_1"
+
+lessons:
+  normal_lessons_per_unit: 3
+  review_previous_units_lessons_per_unit: 2
+  exam_lessons_per_unit: 1
+
+items:
+  word_translation:
+    item_count: 12
+    direction_ratio:
+      ja_to_en: 0.50
+      en_to_ja: 0.50
+  sentence_translation:
+    item_count: 12
+    direction_ratio:
+      ja_to_en: 0.50
+      en_to_ja: 0.50
+  review_previous_units:
+    item_count: 12
+    direction_ratio:
+      ja_to_en: 0.50
+      en_to_ja: 0.50
+  exam:
+    item_count: 12
+    direction_ratio:
+      ja_to_en: 0.50
+      en_to_ja: 0.50
+
+generation:
+  words:
+    batch_size: 2
+    max_total_per_build: 300
+
+  lessons:
+    seed_word_translation_items_per_word: 2
+    generated_word_sentence_count_per_word: 2
+    pattern_sentence_count_per_pattern: 3
+    reinforcement_sentence_count_per_lesson: 4
+    max_sentences_per_normal_lesson: 6
+    max_new_words_per_normal_lesson: 2
+    max_new_patterns_per_normal_lesson: 1
+
+runtime_distractors:
+  word_choice:
+    option_count: 4
+
+  sentence_tiles:
+    distractor_count: 4
+
+llm:
+  pattern_vocab_generation_model: "gpt-5.4"
+  unit_metadata_generation_model: "gpt-5.4"

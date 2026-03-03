@@ -1,0 +1,9 @@
+id: no-membership-via-constructed-set
+language: Python
+severity: error
+message: "Do not construct a set directly inside a membership test. Precompute the set once, or use an ordered structure intentionally."
+
+rule:
+  any:
+    - pattern: $NEEDLE in set($HAYSTACK)
+    - pattern: $NEEDLE not in set($HAYSTACK)

@@ -1,0 +1,558 @@
+pattern_examples:
+  - code: ADJ_I_PREDICATE
+    examples:
+      - ja: 私の部屋は小さいです。
+        en: My room is small.
+        lexicon_used:
+          - canonical_writing_ja: 私
+            reading_kana: わたし
+            pos: pronoun
+          - canonical_writing_ja: の
+            reading_kana: の
+            pos: particle
+          - canonical_writing_ja: 部屋
+            reading_kana: へや
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 小さい
+            reading_kana: ちいさい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: 学校は大きいです。
+        en: The school is big.
+        lexicon_used:
+          - canonical_writing_ja: 学校
+            reading_kana: がっこう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 大きい
+            reading_kana: おおきい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: この本は新しいです。
+        en: This book is new.
+        lexicon_used:
+          - canonical_writing_ja: この
+            reading_kana: この
+            pos: determiner
+          - canonical_writing_ja: 本
+            reading_kana: ほん
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 新しい
+            reading_kana: あたらしい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+  - code: ADJ_NA_PREDICATE
+    examples:
+      - ja: 部屋は静かです。
+        en: The room is quiet.
+        lexicon_used:
+          - canonical_writing_ja: 部屋
+            reading_kana: へや
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 静か
+            reading_kana: しずか
+            pos: adjective_na
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: 学校はきれいです。
+        en: The school is clean.
+        lexicon_used:
+          - canonical_writing_ja: 学校
+            reading_kana: がっこう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: きれい
+            reading_kana: きれい
+            pos: adjective_na
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: 山田さんは元気です。
+        en: Yamada is well.
+        lexicon_used:
+          - canonical_writing_ja: 山田
+            reading_kana: やまだ
+            pos: proper_noun
+          - canonical_writing_ja: さん
+            reading_kana: さん
+            pos: suffix
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 元気
+            reading_kana: げんき
+            pos: adjective_na
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+  - code: ARIMASU_EXISTENCE
+    examples:
+      - ja: 本があります。
+        en: There is a book.
+        lexicon_used:
+          - canonical_writing_ja: 本
+            reading_kana: ほん
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: ある
+            reading_kana: ある
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 机があります。
+        en: There is a desk.
+        lexicon_used:
+          - canonical_writing_ja: 机
+            reading_kana: つくえ
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: ある
+            reading_kana: ある
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 水があります。
+        en: There is water.
+        lexicon_used:
+          - canonical_writing_ja: 水
+            reading_kana: みず
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: ある
+            reading_kana: ある
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+  - code: IMASU_EXISTENCE
+    examples:
+      - ja: 猫がいます。
+        en: There is a cat.
+        lexicon_used:
+          - canonical_writing_ja: 猫
+            reading_kana: ねこ
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: いる
+            reading_kana: いる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 先生がいます。
+        en: There is a teacher.
+        lexicon_used:
+          - canonical_writing_ja: 先生
+            reading_kana: せんせい
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: いる
+            reading_kana: いる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 友達がいます。
+        en: There is a friend.
+        lexicon_used:
+          - canonical_writing_ja: 友達
+            reading_kana: ともだち
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: いる
+            reading_kana: いる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+  - code: NI_LOCATION_EXISTENCE
+    examples:
+      - ja: 部屋に机があります。
+        en: There is a desk in the room.
+        lexicon_used:
+          - canonical_writing_ja: 部屋
+            reading_kana: へや
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 机
+            reading_kana: つくえ
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: ある
+            reading_kana: ある
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 家に猫がいます。
+        en: There is a cat at home.
+        lexicon_used:
+          - canonical_writing_ja: 家
+            reading_kana: いえ
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 猫
+            reading_kana: ねこ
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: いる
+            reading_kana: いる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 学校に先生がいます。
+        en: There is a teacher at school.
+        lexicon_used:
+          - canonical_writing_ja: 学校
+            reading_kana: がっこう
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 先生
+            reading_kana: せんせい
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: いる
+            reading_kana: いる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+  - code: WA_LOCATION_EXISTENCE
+    examples:
+      - ja: 本は机の上にあります。
+        en: The book is on the desk.
+        lexicon_used:
+          - canonical_writing_ja: 本
+            reading_kana: ほん
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 机
+            reading_kana: つくえ
+            pos: noun
+          - canonical_writing_ja: の
+            reading_kana: の
+            pos: particle
+          - canonical_writing_ja: 上
+            reading_kana: うえ
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: ある
+            reading_kana: ある
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 山田さんは学校にいます。
+        en: Yamada is at school.
+        lexicon_used:
+          - canonical_writing_ja: 山田
+            reading_kana: やまだ
+            pos: proper_noun
+          - canonical_writing_ja: さん
+            reading_kana: さん
+            pos: suffix
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 学校
+            reading_kana: がっこう
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: いる
+            reading_kana: いる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 猫は部屋にいます。
+        en: The cat is in the room.
+        lexicon_used:
+          - canonical_writing_ja: 猫
+            reading_kana: ねこ
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 部屋
+            reading_kana: へや
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: いる
+            reading_kana: いる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+  - code: NI_TIME
+    examples:
+      - ja: 私は七時に起きます。
+        en: I get up at seven.
+        lexicon_used:
+          - canonical_writing_ja: 私
+            reading_kana: わたし
+            pos: pronoun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 七時
+            reading_kana: しちじ
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 起きる
+            reading_kana: おきる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: ケンさんは九時に寝ます。
+        en: Ken goes to bed at nine.
+        lexicon_used:
+          - canonical_writing_ja: ケン
+            reading_kana: けん
+            pos: proper_noun
+          - canonical_writing_ja: さん
+            reading_kana: さん
+            pos: suffix
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 九時
+            reading_kana: くじ
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 寝る
+            reading_kana: ねる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: アンナさんは土曜日に勉強します。
+        en: Anna studies on Saturday.
+        lexicon_used:
+          - canonical_writing_ja: アンナ
+            reading_kana: あんな
+            pos: proper_noun
+          - canonical_writing_ja: さん
+            reading_kana: さん
+            pos: suffix
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 土曜日
+            reading_kana: どようび
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 勉強する
+            reading_kana: べんきょうする
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+  - code: KARA_MADE_RANGE
+    examples:
+      - ja: 学校は九時から三時までです。
+        en: School is from nine to three.
+        lexicon_used:
+          - canonical_writing_ja: 学校
+            reading_kana: がっこう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 九時
+            reading_kana: くじ
+            pos: noun
+          - canonical_writing_ja: から
+            reading_kana: から
+            pos: particle
+          - canonical_writing_ja: 三時
+            reading_kana: さんじ
+            pos: noun
+          - canonical_writing_ja: まで
+            reading_kana: まで
+            pos: particle
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: パーティーは七時から九時までです。
+        en: The party is from seven to nine.
+        lexicon_used:
+          - canonical_writing_ja: パーティー
+            reading_kana: ぱーてぃー
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 七時
+            reading_kana: しちじ
+            pos: noun
+          - canonical_writing_ja: から
+            reading_kana: から
+            pos: particle
+          - canonical_writing_ja: 九時
+            reading_kana: くじ
+            pos: noun
+          - canonical_writing_ja: まで
+            reading_kana: まで
+            pos: particle
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: 休みは土曜日から日曜日までです。
+        en: The break is from Saturday to Sunday.
+        lexicon_used:
+          - canonical_writing_ja: 休み
+            reading_kana: やすみ
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 土曜日
+            reading_kana: どようび
+            pos: noun
+          - canonical_writing_ja: から
+            reading_kana: から
+            pos: particle
+          - canonical_writing_ja: 日曜日
+            reading_kana: にちようび
+            pos: noun
+          - canonical_writing_ja: まで
+            reading_kana: まで
+            pos: particle
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+  - code: GA_II_DESU
+    examples:
+      - ja: 金曜日がいいです。
+        en: Friday is good for me.
+        lexicon_used:
+          - canonical_writing_ja: 金曜日
+            reading_kana: きんようび
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: いい
+            reading_kana: いい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: 七時がいいです。
+        en: Seven o'clock is good.
+        lexicon_used:
+          - canonical_writing_ja: 七時
+            reading_kana: しちじ
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: いい
+            reading_kana: いい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: 日曜日がいいです。
+        en: Sunday is good.
+        lexicon_used:
+          - canonical_writing_ja: 日曜日
+            reading_kana: にちようび
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: いい
+            reading_kana: いい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula

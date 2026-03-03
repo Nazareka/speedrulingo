@@ -1,0 +1,124 @@
+[project]
+name = "speedrulingo"
+version = "0.1.0"
+description = "Speedrulingo PoC API"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.129.0",
+  "fugashi>=1.4.0",
+  "langchain-community>=0.3.31",
+  "langchain-openai>=0.3.33",
+  "uvicorn[standard]>=0.30.0",
+  "langgraph>=0.6.7",
+  "sqlalchemy>=2.0.36",
+  "psycopg[binary]>=3.2.9",
+  "pydantic-settings>=2.6.1",
+  "pyyaml>=6.0.2",
+  "passlib>=1.7.4",
+  "pyjwt>=2.10.1",
+  "unidic-lite>=1.0.8",
+  "langchain-openrouter>=0.1.0",
+]
+
+[dependency-groups]
+dev = [
+  "httpx>=0.28.1",
+  "mypy>=1.15.0",
+  "pytest>=8.3.4",
+  "ruff>=0.9.7",
+  "ty>=0.0.23",
+  "types-PyYAML>=6.0.12.20250516",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+fix = true
+extend-exclude = ["src/app/**"]
+
+[tool.ruff.lint]
+select = [
+  "E", "W",
+  "F",
+  "I",
+  "B",
+  "UP",
+  "SIM",
+  "C4",
+  "N",
+  "A",
+  "S",
+  "BLE",
+  "ASYNC",
+  "DTZ",
+  "T20",
+  "RET",
+  "RUF",
+  "PLR",
+  "ARG"
+]
+preview = true
+ignore = [
+  "E501",
+  "PLR0914",
+  "PLR0915",
+  "PLR0912",
+  "PLR0913",
+  "PLR0911",
+  "PLR0904",
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["speedrulingo"]
+combine-as-imports = true
+force-sort-within-sections = true
+
+[tool.ruff.lint.mccabe]
+max-complexity = 12
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**.py" = [
+  "S101", "T201", "PLR", "ARG"
+]
+"src/main.py" = ["RUF029"]
+
+[tool.mypy]
+python_version = "3.12"
+warn_unused_configs = true
+mypy_path = "src"
+strict = true
+show_error_codes = true
+pretty = true
+ignore_missing_imports = false
+warn_unreachable = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+plugins = [
+  "pydantic.mypy",
+  "sqlalchemy.ext.mypy.plugin",
+]
+exclude = '(^\.venv/|^build/|^dist/|^src/app/)'
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+check_untyped_defs = false
+warn_return_any = false
+
+[[tool.mypy.overrides]]
+module = ["passlib.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["jwt.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["fugashi", "fugashi.*"]
+ignore_missing_imports = true
+
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+addopts = "-rA --tb=short"
+console_output_style = "classic"

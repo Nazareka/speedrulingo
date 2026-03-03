@@ -1,0 +1,172 @@
+patterns:
+  - code: "ADJ_I_PREDICATE"
+    min_extra_words: 4
+    max_extra_words: 8
+    name: "X は Aいです"
+    templates:
+      - "X は Aいです"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+      - canonical_writing_ja: "です"
+        reading_kana: "です"
+        pos: "copula"
+    short_description: "Polite i-adjective predicate."
+
+  - code: "ADJ_NA_PREDICATE"
+    min_extra_words: 3
+    max_extra_words: 6
+    name: "X は Aです"
+    templates:
+      - "X は Aです"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+      - canonical_writing_ja: "です"
+        reading_kana: "です"
+        pos: "copula"
+    short_description: "Polite na-adjective predicate."
+
+  - code: "ARIMASU_EXISTENCE"
+    min_extra_words: 4
+    max_extra_words: 7
+    name: "X が あります"
+    templates:
+      - "X が あります"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "が"
+        reading_kana: "が"
+        pos: "particle"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "ある"
+        reading_kana: "ある"
+        pos: "verb"
+      - canonical_writing_ja: "ます"
+        reading_kana: "ます"
+        pos: "auxiliary"
+    short_description: "Existence of non-animate things."
+
+  - code: "IMASU_EXISTENCE"
+    min_extra_words: 2
+    max_extra_words: 5
+    name: "X が います"
+    templates:
+      - "X が います"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "が"
+        reading_kana: "が"
+        pos: "particle"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "いる"
+        reading_kana: "いる"
+        pos: "verb"
+      - canonical_writing_ja: "ます"
+        reading_kana: "ます"
+        pos: "auxiliary"
+    short_description: "Existence of animate beings."
+
+  - code: "NI_LOCATION_EXISTENCE"
+    min_extra_words: 3
+    max_extra_words: 6
+    name: "X に Y が あります / います"
+    templates:
+      - "PLACE に THING が あります"
+      - "PLACE に PERSON_OR_ANIMAL が います"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "に"
+        reading_kana: "に"
+        pos: "particle"
+      - canonical_writing_ja: "が"
+        reading_kana: "が"
+        pos: "particle"
+    anchor_match_mode: "any_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "ある"
+        reading_kana: "ある"
+        pos: "verb"
+      - canonical_writing_ja: "いる"
+        reading_kana: "いる"
+        pos: "verb"
+      - canonical_writing_ja: "ます"
+        reading_kana: "ます"
+        pos: "auxiliary"
+    short_description: "Existence at a location."
+
+  - code: "WA_LOCATION_EXISTENCE"
+    min_extra_words: 3
+    max_extra_words: 5
+    name: "X は Y に あります / います"
+    templates:
+      - "THING は PLACE に あります"
+      - "PERSON_OR_ANIMAL は PLACE に います"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+      - canonical_writing_ja: "に"
+        reading_kana: "に"
+        pos: "particle"
+    anchor_match_mode: "any_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "ある"
+        reading_kana: "ある"
+        pos: "verb"
+      - canonical_writing_ja: "いる"
+        reading_kana: "いる"
+        pos: "verb"
+      - canonical_writing_ja: "ます"
+        reading_kana: "ます"
+        pos: "auxiliary"
+    short_description: "Topic plus location-of-existence statement."
+
+  - code: "NI_TIME"
+    min_extra_words: 4
+    max_extra_words: 8
+    name: "X に Vます"
+    templates:
+      - "TIME に Vます"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "に"
+        reading_kana: "に"
+        pos: "particle"
+    short_description: "Specific time marking."
+
+  - code: "KARA_MADE_RANGE"
+    min_extra_words: 2
+    max_extra_words: 4
+    name: "X から Y まで"
+    templates:
+      - "TIME から TIME まで"
+      - "PLACE から PLACE まで"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "から"
+        reading_kana: "から"
+        pos: "particle"
+      - canonical_writing_ja: "まで"
+        reading_kana: "まで"
+        pos: "particle"
+    short_description: "Range from A to B."
+
+  - code: "GA_II_DESU"
+    min_extra_words: 3
+    max_extra_words: 6
+    name: "X が いいです"
+    templates:
+      - "X が いいです"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "が"
+        reading_kana: "が"
+        pos: "particle"
+      - canonical_writing_ja: "です"
+        reading_kana: "です"
+        pos: "copula"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "いい"
+        reading_kana: "いい"
+        pos: "adjective_i"
+    short_description: "Saying what day, time, or option is good or convenient."

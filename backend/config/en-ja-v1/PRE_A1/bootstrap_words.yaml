@@ -1,0 +1,47 @@
+bootstrap_words:
+  # particles / copula used directly by WA_DESU_STATEMENT, KA_QUESTION, NO_LINKER
+  - { canonical_writing_ja: "は", reading_kana: "は", gloss_primary_en: "topic particle", gloss_alternatives_en: [], usage_note_en: "particle", pos: "particle" }
+  - { canonical_writing_ja: "か", reading_kana: "か", gloss_primary_en: "question particle", gloss_alternatives_en: [], usage_note_en: "particle", pos: "particle" }
+  - { canonical_writing_ja: "の", reading_kana: "の", gloss_primary_en: "linker, of", gloss_alternatives_en: ["possessive linker"], usage_note_en: "particle", pos: "particle" }
+  - { canonical_writing_ja: "です", reading_kana: "です", gloss_primary_en: "is, am, are", gloss_alternatives_en: ["polite copula"], usage_note_en: "copula", pos: "copula" }
+
+  # core pronouns / reference words
+  - { canonical_writing_ja: "私", reading_kana: "わたし", gloss_primary_en: "I", gloss_alternatives_en: [], usage_note_en: null, pos: "pronoun" }
+  - { canonical_writing_ja: "あなた", reading_kana: "あなた", gloss_primary_en: "you", gloss_alternatives_en: [], usage_note_en: "use carefully; often omitted in natural Japanese", pos: "pronoun" }
+  - { canonical_writing_ja: "これ", reading_kana: "これ", gloss_primary_en: "this", gloss_alternatives_en: [], usage_note_en: "pronoun", pos: "pronoun" }
+  - { canonical_writing_ja: "それ", reading_kana: "それ", gloss_primary_en: "that", gloss_alternatives_en: [], usage_note_en: "pronoun", pos: "pronoun" }
+  - { canonical_writing_ja: "何", reading_kana: "なに", gloss_primary_en: "what", gloss_alternatives_en: [], usage_note_en: "question word", pos: "pronoun" }
+  - { canonical_writing_ja: "どこ", reading_kana: "どこ", gloss_primary_en: "where", gloss_alternatives_en: [], usage_note_en: "question word", pos: "pronoun" }
+  - { canonical_writing_ja: "どれ", reading_kana: "どれ", gloss_primary_en: "which one", gloss_alternatives_en: [], usage_note_en: "question word", pos: "pronoun" }
+  - { canonical_writing_ja: "どの", reading_kana: "どの", gloss_primary_en: "which", gloss_alternatives_en: ["which + noun"], usage_note_en: "modifier before noun", pos: "determiner" }
+  - { canonical_writing_ja: "その", reading_kana: "その", gloss_primary_en: "that", gloss_alternatives_en: [], usage_note_en: "modifier before noun", pos: "determiner" }
+
+  # very early high-yield nouns
+  - { canonical_writing_ja: "本", reading_kana: "ほん", gloss_primary_en: "book", gloss_alternatives_en: [], usage_note_en: null, pos: "noun" }
+  - { canonical_writing_ja: "水", reading_kana: "みず", gloss_primary_en: "water", gloss_alternatives_en: [], usage_note_en: null, pos: "noun" }
+  - { canonical_writing_ja: "りんご", reading_kana: "りんご", gloss_primary_en: "apple", gloss_alternatives_en: [], usage_note_en: null, pos: "noun" }
+  - { canonical_writing_ja: "車", reading_kana: "くるま", gloss_primary_en: "car", gloss_alternatives_en: [], usage_note_en: null, pos: "noun" }
+  - { canonical_writing_ja: "学生", reading_kana: "がくせい", gloss_primary_en: "student", gloss_alternatives_en: [], usage_note_en: null, pos: "noun" }
+  - { canonical_writing_ja: "先生", reading_kana: "せんせい", gloss_primary_en: "teacher", gloss_alternatives_en: ["instructor"], usage_note_en: null, pos: "noun" }
+  - { canonical_writing_ja: "人", reading_kana: "ひと", gloss_primary_en: "person", gloss_alternatives_en: [], usage_note_en: null, pos: "noun" }
+  - { canonical_writing_ja: "日本人", reading_kana: "にほんじん", gloss_primary_en: "Japanese person", gloss_alternatives_en: [], usage_note_en: "nationality noun", pos: "noun" }
+
+  # names / countries commonly used in first lessons
+  - { canonical_writing_ja: "山田", reading_kana: "やまだ", gloss_primary_en: "Yamada", gloss_alternatives_en: [], usage_note_en: "person name", pos: "proper_noun" }
+  - { canonical_writing_ja: "ケン", reading_kana: "けん", gloss_primary_en: "Ken", gloss_alternatives_en: [], usage_note_en: "person name", pos: "proper_noun" }
+  - { canonical_writing_ja: "アンナ", reading_kana: "あんな", gloss_primary_en: "Anna", gloss_alternatives_en: [], usage_note_en: "person name", pos: "proper_noun" }
+  - { canonical_writing_ja: "アメリカ", reading_kana: "あめりか", gloss_primary_en: "America", gloss_alternatives_en: ["United States"], usage_note_en: "country name", pos: "proper_noun" }
+  - { canonical_writing_ja: "日本", reading_kana: "にほん", gloss_primary_en: "Japan", gloss_alternatives_en: [], usage_note_en: "country name", pos: "proper_noun" }
+
+  # name suffix
+  - { canonical_writing_ja: "さん", reading_kana: "さん", gloss_primary_en: "Mr. or Ms.", gloss_alternatives_en: ["honorific"], usage_note_en: "polite name suffix", pos: "suffix" }
+
+  # memorized expressions useful from the start
+  - { canonical_writing_ja: "こんにちは", reading_kana: "こんにちは", gloss_primary_en: "hello", gloss_alternatives_en: ["good afternoon"], usage_note_en: "fixed greeting expression", pos: "expression" }
+  - { canonical_writing_ja: "はじめまして", reading_kana: "はじめまして", gloss_primary_en: "nice to meet you", gloss_alternatives_en: [], usage_note_en: "fixed self-introduction expression", pos: "expression" }
+  - { canonical_writing_ja: "よろしくお願いします", reading_kana: "よろしくおねがいします", gloss_primary_en: "please treat me well", gloss_alternatives_en: ["nice to meet you"], usage_note_en: "fixed self-introduction / polite closing expression", pos: "expression" }
+  - { canonical_writing_ja: "ありがとう", reading_kana: "ありがとう", gloss_primary_en: "thank you", gloss_alternatives_en: ["thanks"], usage_note_en: "fixed expression", pos: "expression" }
+  - { canonical_writing_ja: "ありがとうございます", reading_kana: "ありがとうございます", gloss_primary_en: "thank you", gloss_alternatives_en: ["thank you very much"], usage_note_en: "polite fixed expression", pos: "expression" }
+  - { canonical_writing_ja: "すみません", reading_kana: "すみません", gloss_primary_en: "excuse me", gloss_alternatives_en: ["sorry"], usage_note_en: "fixed expression", pos: "expression" }
+  - { canonical_writing_ja: "はい", reading_kana: "はい", gloss_primary_en: "yes", gloss_alternatives_en: [], usage_note_en: "response expression", pos: "expression" }
+  - { canonical_writing_ja: "いいえ", reading_kana: "いいえ", gloss_primary_en: "no", gloss_alternatives_en: [], usage_note_en: "response expression", pos: "expression" }

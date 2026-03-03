@@ -1,0 +1,13 @@
+themes:
+  primary:
+    - code: "HOBBIES_AND_FREE_TIME"
+      name: "Hobbies and free time"
+    - code: "OUTINGS_AND_EVENTS"
+      name: "Outings and events"
+    - code: "SHOPPING_AND_TRANSACTIONS"
+      name: "Shopping and transactions"
+  secondary:
+    - code: "TRANSPORT_AND_TOWN"
+      name: "Transport and town"
+    - code: "PAST_EXPERIENCES"
+      name: "Past experiences"

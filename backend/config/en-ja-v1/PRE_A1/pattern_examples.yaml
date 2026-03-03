@@ -1,0 +1,893 @@
+pattern_examples:
+- code: WA_DESU_STATEMENT
+  examples:
+  - ja: 私は学生です。
+    en: I am a student.
+    lexicon_used:
+    - canonical_writing_ja: 私
+      reading_kana: わたし
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 学生
+      reading_kana: がくせい
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: これは本です。
+    en: This is a book.
+    lexicon_used:
+    - canonical_writing_ja: これ
+      reading_kana: これ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 本
+      reading_kana: ほん
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: 山田さんは先生です。
+    en: Yamada is a teacher.
+    lexicon_used:
+    - canonical_writing_ja: 山田
+      reading_kana: やまだ
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 先生
+      reading_kana: せんせい
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: 私は日本人です。
+    en: I am Japanese.
+    lexicon_used:
+    - canonical_writing_ja: 私
+      reading_kana: わたし
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 日本人
+      reading_kana: にほんじん
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: アンナさんは学生です。
+    en: Anna is a student.
+    lexicon_used:
+    - canonical_writing_ja: アンナ
+      reading_kana: あんな
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 学生
+      reading_kana: がくせい
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: ケンさんは先生です。
+    en: Ken is a teacher.
+    lexicon_used:
+    - canonical_writing_ja: ケン
+      reading_kana: けん
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 先生
+      reading_kana: せんせい
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: それは水です。
+    en: That is water.
+    lexicon_used:
+    - canonical_writing_ja: それ
+      reading_kana: それ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 水
+      reading_kana: みず
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: あれは車です。
+    en: That over there is a car.
+    lexicon_used:
+    - canonical_writing_ja: あれ
+      reading_kana: あれ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 車
+      reading_kana: くるま
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+- code: KA_QUESTION
+  examples:
+  - ja: あなたは学生ですか。
+    en: Are you a student?
+    lexicon_used:
+    - canonical_writing_ja: あなた
+      reading_kana: あなた
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 学生
+      reading_kana: がくせい
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+    - canonical_writing_ja: か
+      reading_kana: か
+      pos: particle
+  - ja: これはりんごですか。
+    en: Is this an apple?
+    lexicon_used:
+    - canonical_writing_ja: これ
+      reading_kana: これ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: りんご
+      reading_kana: りんご
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+    - canonical_writing_ja: か
+      reading_kana: か
+      pos: particle
+  - ja: ケンさんは日本人ですか。
+    en: Is Ken Japanese?
+    lexicon_used:
+    - canonical_writing_ja: ケン
+      reading_kana: けん
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 日本人
+      reading_kana: にほんじん
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+    - canonical_writing_ja: か
+      reading_kana: か
+      pos: particle
+  - ja: あなたは先生ですか。
+    en: Are you a teacher?
+    lexicon_used:
+    - canonical_writing_ja: あなた
+      reading_kana: あなた
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 先生
+      reading_kana: せんせい
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+    - canonical_writing_ja: か
+      reading_kana: か
+      pos: particle
+  - ja: アンナさんは学生ですか。
+    en: Is Anna a student?
+    lexicon_used:
+    - canonical_writing_ja: アンナ
+      reading_kana: あんな
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 学生
+      reading_kana: がくせい
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+    - canonical_writing_ja: か
+      reading_kana: か
+      pos: particle
+  - ja: それは本ですか。
+    en: Is that a book?
+    lexicon_used:
+    - canonical_writing_ja: それ
+      reading_kana: それ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 本
+      reading_kana: ほん
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+    - canonical_writing_ja: か
+      reading_kana: か
+      pos: particle
+  - ja: あれは車ですか。
+    en: Is that over there a car?
+    lexicon_used:
+    - canonical_writing_ja: あれ
+      reading_kana: あれ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 車
+      reading_kana: くるま
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+    - canonical_writing_ja: か
+      reading_kana: か
+      pos: particle
+  - ja: 山田さんは日本人ですか。
+    en: Is Yamada Japanese?
+    lexicon_used:
+    - canonical_writing_ja: 山田
+      reading_kana: やまだ
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 日本人
+      reading_kana: にほんじん
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+    - canonical_writing_ja: か
+      reading_kana: か
+      pos: particle
+- code: NO_LINKER
+  examples:
+  - ja: これは私の本です。
+    en: This is my book.
+    lexicon_used:
+    - canonical_writing_ja: これ
+      reading_kana: これ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 私
+      reading_kana: わたし
+      pos: pronoun
+    - canonical_writing_ja: の
+      reading_kana: の
+      pos: particle
+    - canonical_writing_ja: 本
+      reading_kana: ほん
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: それはアンナさんの車です。
+    en: That is Anna's car.
+    lexicon_used:
+    - canonical_writing_ja: それ
+      reading_kana: それ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: アンナ
+      reading_kana: あんな
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: の
+      reading_kana: の
+      pos: particle
+    - canonical_writing_ja: 車
+      reading_kana: くるま
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: 学校の先生です。
+    en: He is a school teacher.
+    lexicon_used:
+    - canonical_writing_ja: 学校
+      reading_kana: がっこう
+      pos: noun
+    - canonical_writing_ja: の
+      reading_kana: の
+      pos: particle
+    - canonical_writing_ja: 先生
+      reading_kana: せんせい
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: これは山田さんの本です。
+    en: This is Yamada's book.
+    lexicon_used:
+    - canonical_writing_ja: これ
+      reading_kana: これ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 山田
+      reading_kana: やまだ
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: の
+      reading_kana: の
+      pos: particle
+    - canonical_writing_ja: 本
+      reading_kana: ほん
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: それは私の水です。
+    en: That is my water.
+    lexicon_used:
+    - canonical_writing_ja: それ
+      reading_kana: それ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 私
+      reading_kana: わたし
+      pos: pronoun
+    - canonical_writing_ja: の
+      reading_kana: の
+      pos: particle
+    - canonical_writing_ja: 水
+      reading_kana: みず
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: あれはアンナさんの車です。
+    en: That over there is Anna's car.
+    lexicon_used:
+    - canonical_writing_ja: あれ
+      reading_kana: あれ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: アンナ
+      reading_kana: あんな
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: の
+      reading_kana: の
+      pos: particle
+    - canonical_writing_ja: 車
+      reading_kana: くるま
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: 日本の本です。
+    en: It is a Japanese book.
+    lexicon_used:
+    - canonical_writing_ja: 日本
+      reading_kana: にほん
+      pos: proper_noun
+    - canonical_writing_ja: の
+      reading_kana: の
+      pos: particle
+    - canonical_writing_ja: 本
+      reading_kana: ほん
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: アメリカの学生です。
+    en: He is an American student.
+    lexicon_used:
+    - canonical_writing_ja: アメリカ
+      reading_kana: あめりか
+      pos: proper_noun
+    - canonical_writing_ja: の
+      reading_kana: の
+      pos: particle
+    - canonical_writing_ja: 学生
+      reading_kana: がくせい
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+- code: MO_ALSO
+  examples:
+  - ja: 私も学生です。
+    en: I am also a student.
+    lexicon_used:
+    - canonical_writing_ja: 私
+      reading_kana: わたし
+      pos: pronoun
+    - canonical_writing_ja: も
+      reading_kana: も
+      pos: particle
+    - canonical_writing_ja: 学生
+      reading_kana: がくせい
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: 山田さんも日本人です。
+    en: Yamada is also Japanese.
+    lexicon_used:
+    - canonical_writing_ja: 山田
+      reading_kana: やまだ
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: も
+      reading_kana: も
+      pos: particle
+    - canonical_writing_ja: 日本人
+      reading_kana: にほんじん
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: これも本です。
+    en: This is also a book.
+    lexicon_used:
+    - canonical_writing_ja: これ
+      reading_kana: これ
+      pos: pronoun
+    - canonical_writing_ja: も
+      reading_kana: も
+      pos: particle
+    - canonical_writing_ja: 本
+      reading_kana: ほん
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+- code: WA_NEGATIVE_DESU
+  examples:
+  - ja: 私は先生じゃないです。
+    en: I am not a teacher.
+    lexicon_used:
+    - canonical_writing_ja: 私
+      reading_kana: わたし
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 先生
+      reading_kana: せんせい
+      pos: noun
+    - canonical_writing_ja: じゃないです
+      reading_kana: じゃないです
+      pos: expression
+  - ja: これは水ではありません。
+    en: This is not water.
+    lexicon_used:
+    - canonical_writing_ja: これ
+      reading_kana: これ
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 水
+      reading_kana: みず
+      pos: noun
+    - canonical_writing_ja: ではありません
+      reading_kana: ではありません
+      pos: expression
+  - ja: ケンさんは学生じゃないです。
+    en: Ken is not a student.
+    lexicon_used:
+    - canonical_writing_ja: ケン
+      reading_kana: けん
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 学生
+      reading_kana: がくせい
+      pos: noun
+    - canonical_writing_ja: じゃないです
+      reading_kana: じゃないです
+      pos: expression
+- code: VERB_MASU_PRESENT
+  examples:
+  - ja: 私は食べます。
+    en: I eat.
+    lexicon_used:
+    - canonical_writing_ja: 私
+      reading_kana: わたし
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 食べる
+      reading_kana: たべる
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+  - ja: アンナさんは行きます。
+    en: Anna goes.
+    lexicon_used:
+    - canonical_writing_ja: アンナ
+      reading_kana: あんな
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 行く
+      reading_kana: いく
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+  - ja: 私は飲みます。
+    en: I drink.
+    lexicon_used:
+    - canonical_writing_ja: 私
+      reading_kana: わたし
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 飲む
+      reading_kana: のむ
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+- code: WO_OBJECT
+  examples:
+  - ja: りんごを食べます。
+    en: I eat an apple.
+    lexicon_used:
+    - canonical_writing_ja: りんご
+      reading_kana: りんご
+      pos: noun
+    - canonical_writing_ja: を
+      reading_kana: を
+      pos: particle
+    - canonical_writing_ja: 食べる
+      reading_kana: たべる
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+  - ja: 水を飲みます。
+    en: I drink water.
+    lexicon_used:
+    - canonical_writing_ja: 水
+      reading_kana: みず
+      pos: noun
+    - canonical_writing_ja: を
+      reading_kana: を
+      pos: particle
+    - canonical_writing_ja: 飲む
+      reading_kana: のむ
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+  - ja: 本を読みます。
+    en: I read a book.
+    lexicon_used:
+    - canonical_writing_ja: 本
+      reading_kana: ほん
+      pos: noun
+    - canonical_writing_ja: を
+      reading_kana: を
+      pos: particle
+    - canonical_writing_ja: 読む
+      reading_kana: よむ
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+- code: DE_ACTION_LOCATION
+  examples:
+  - ja: レストランで食べます。
+    en: I eat at a restaurant.
+    lexicon_used:
+    - canonical_writing_ja: レストラン
+      reading_kana: れすとらん
+      pos: noun
+    - canonical_writing_ja: で
+      reading_kana: で
+      pos: particle
+    - canonical_writing_ja: 食べる
+      reading_kana: たべる
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+  - ja: うちで飲みます。
+    en: I drink at home.
+    lexicon_used:
+    - canonical_writing_ja: うち
+      reading_kana: うち
+      pos: noun
+    - canonical_writing_ja: で
+      reading_kana: で
+      pos: particle
+    - canonical_writing_ja: 飲む
+      reading_kana: のむ
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+  - ja: 学校で勉強します。
+    en: I study at school.
+    lexicon_used:
+    - canonical_writing_ja: 学校
+      reading_kana: がっこう
+      pos: noun
+    - canonical_writing_ja: で
+      reading_kana: で
+      pos: particle
+    - canonical_writing_ja: 勉強する
+      reading_kana: べんきょうする
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+- code: GA_SUKI_DESU
+  examples:
+  - ja: りんごが好きです。
+    en: I like apples.
+    lexicon_used:
+    - canonical_writing_ja: りんご
+      reading_kana: りんご
+      pos: noun
+    - canonical_writing_ja: が
+      reading_kana: が
+      pos: particle
+    - canonical_writing_ja: 好き
+      reading_kana: すき
+      pos: adjective_na
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: トマトが好きです。
+    en: I like tomatoes.
+    lexicon_used:
+    - canonical_writing_ja: トマト
+      reading_kana: とまと
+      pos: noun
+    - canonical_writing_ja: が
+      reading_kana: が
+      pos: particle
+    - canonical_writing_ja: 好き
+      reading_kana: すき
+      pos: adjective_na
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: コーヒーが嫌いです。
+    en: I dislike coffee.
+    lexicon_used:
+    - canonical_writing_ja: コーヒー
+      reading_kana: こーひー
+      pos: noun
+    - canonical_writing_ja: が
+      reading_kana: が
+      pos: particle
+    - canonical_writing_ja: 嫌い
+      reading_kana: きらい
+      pos: adjective_na
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+- code: SUKINA_WA_DESU
+  examples:
+  - ja: 好きな食べ物はすしです。
+    en: My favorite food is sushi.
+    lexicon_used:
+    - canonical_writing_ja: 好き
+      reading_kana: すき
+      pos: adjective_na
+    - canonical_writing_ja: な
+      reading_kana: な
+      pos: particle
+    - canonical_writing_ja: 食べ物
+      reading_kana: たべもの
+      pos: noun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: すし
+      reading_kana: すし
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: 好きな飲み物は水です。
+    en: My favorite drink is water.
+    lexicon_used:
+    - canonical_writing_ja: 好き
+      reading_kana: すき
+      pos: adjective_na
+    - canonical_writing_ja: な
+      reading_kana: な
+      pos: particle
+    - canonical_writing_ja: 飲み物
+      reading_kana: のみもの
+      pos: noun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 水
+      reading_kana: みず
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+  - ja: 嫌いな食べ物はトマトです。
+    en: My least favorite food is tomato.
+    lexicon_used:
+    - canonical_writing_ja: 嫌い
+      reading_kana: きらい
+      pos: adjective_na
+    - canonical_writing_ja: な
+      reading_kana: な
+      pos: particle
+    - canonical_writing_ja: 食べ物
+      reading_kana: たべもの
+      pos: noun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: トマト
+      reading_kana: とまと
+      pos: noun
+    - canonical_writing_ja: です
+      reading_kana: です
+      pos: copula
+- code: NI_SUNDE_IMASU
+  examples:
+  - ja: 私はアメリカに住んでいます。
+    en: I live in America.
+    lexicon_used:
+    - canonical_writing_ja: 私
+      reading_kana: わたし
+      pos: pronoun
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: アメリカ
+      reading_kana: あめりか
+      pos: proper_noun
+    - canonical_writing_ja: に
+      reading_kana: に
+      pos: particle
+    - canonical_writing_ja: 住む
+      reading_kana: すむ
+      pos: verb
+    - canonical_writing_ja: て
+      reading_kana: て
+      pos: particle
+    - canonical_writing_ja: いる
+      reading_kana: いる
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+  - ja: 山田さんは東京に住んでいます。
+    en: Yamada lives in Tokyo.
+    lexicon_used:
+    - canonical_writing_ja: 山田
+      reading_kana: やまだ
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 東京
+      reading_kana: とうきょう
+      pos: proper_noun
+    - canonical_writing_ja: に
+      reading_kana: に
+      pos: particle
+    - canonical_writing_ja: 住む
+      reading_kana: すむ
+      pos: verb
+    - canonical_writing_ja: て
+      reading_kana: て
+      pos: particle
+    - canonical_writing_ja: いる
+      reading_kana: いる
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary
+  - ja: ケンさんは大阪に住んでいます。
+    en: Ken lives in Osaka.
+    lexicon_used:
+    - canonical_writing_ja: ケン
+      reading_kana: けん
+      pos: proper_noun
+    - canonical_writing_ja: さん
+      reading_kana: さん
+      pos: suffix
+    - canonical_writing_ja: は
+      reading_kana: は
+      pos: particle
+    - canonical_writing_ja: 大阪
+      reading_kana: おおさか
+      pos: proper_noun
+    - canonical_writing_ja: に
+      reading_kana: に
+      pos: particle
+    - canonical_writing_ja: 住む
+      reading_kana: すむ
+      pos: verb
+    - canonical_writing_ja: て
+      reading_kana: て
+      pos: particle
+    - canonical_writing_ja: いる
+      reading_kana: いる
+      pos: verb
+    - canonical_writing_ja: ます
+      reading_kana: ます
+      pos: auxiliary

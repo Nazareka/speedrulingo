@@ -1,0 +1,16 @@
+id: no-next-generator-key-lookup-in-loop
+language: Python
+severity: error
+message: "Avoid next(... for ... in ... if ... == ...) inside loops. This is usually a linear key lookup repeated per iteration; precompute a dict instead."
+
+rule:
+  all:
+    - any:
+        - pattern: next($ITEM for $ITEM in $COLLECTION if $LEFT == $RIGHT)
+        - pattern: next(($ITEM for $ITEM in $COLLECTION if $LEFT == $RIGHT))
+        - pattern: next(($ITEM for $ITEM in $COLLECTION if $LEFT == $RIGHT), $DEFAULT)
+    - inside:
+        any:
+          - kind: for_statement
+          - kind: while_statement
+        stopBy: end

@@ -1,0 +1,1063 @@
+pattern_examples:
+  - code: GA_DEKIMASU
+    examples:
+      - ja: 日本語ができます。
+        en: I can use Japanese.
+        lexicon_used:
+          - canonical_writing_ja: 日本語
+            reading_kana: にほんご
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: できる
+            reading_kana: できる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: サッカーができます。
+        en: I can play soccer.
+        lexicon_used:
+          - canonical_writing_ja: サッカー
+            reading_kana: さっかー
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: できる
+            reading_kana: できる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: ピアノができます。
+        en: I can play the piano.
+        lexicon_used:
+          - canonical_writing_ja: ピアノ
+            reading_kana: ぴあの
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: できる
+            reading_kana: できる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+  - code: MASENKA_INVITATION
+    examples:
+      - ja: 一緒に映画を見ませんか。
+        en: Won't you go watch a movie with me?
+        lexicon_used:
+          - canonical_writing_ja: 一緒に
+            reading_kana: いっしょに
+            pos: adverb
+          - canonical_writing_ja: 映画
+            reading_kana: えいが
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 見る
+            reading_kana: みる
+            pos: verb
+          - canonical_writing_ja: ませんか
+            reading_kana: ませんか
+            pos: expression
+
+      - ja: 土曜日に行きませんか。
+        en: Won't you go on Saturday?
+        lexicon_used:
+          - canonical_writing_ja: 土曜日
+            reading_kana: どようび
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ませんか
+            reading_kana: ませんか
+            pos: expression
+
+      - ja: コーヒーを飲みませんか。
+        en: Won't you have some coffee?
+        lexicon_used:
+          - canonical_writing_ja: コーヒー
+            reading_kana: こーひー
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 飲む
+            reading_kana: のむ
+            pos: verb
+          - canonical_writing_ja: ませんか
+            reading_kana: ませんか
+            pos: expression
+
+  - code: MASHOU_SUGGESTION
+    examples:
+      - ja: 一緒に行きましょう。
+        en: Let's go together.
+        lexicon_used:
+          - canonical_writing_ja: 一緒に
+            reading_kana: いっしょに
+            pos: adverb
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ましょう
+            reading_kana: ましょう
+            pos: auxiliary
+
+      - ja: コーヒーを飲みましょう。
+        en: Let's drink coffee.
+        lexicon_used:
+          - canonical_writing_ja: コーヒー
+            reading_kana: こーひー
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 飲む
+            reading_kana: のむ
+            pos: verb
+          - canonical_writing_ja: ましょう
+            reading_kana: ましょう
+            pos: auxiliary
+
+      - ja: ここで休みましょう。
+        en: Let's rest here.
+        lexicon_used:
+          - canonical_writing_ja: ここ
+            reading_kana: ここ
+            pos: pronoun
+          - canonical_writing_ja: で
+            reading_kana: で
+            pos: particle
+          - canonical_writing_ja: 休む
+            reading_kana: やすむ
+            pos: verb
+          - canonical_writing_ja: ましょう
+            reading_kana: ましょう
+            pos: auxiliary
+
+  - code: NI_DESTINATION
+    examples:
+      - ja: 学校に行きます。
+        en: I go to school.
+        lexicon_used:
+          - canonical_writing_ja: 学校
+            reading_kana: がっこう
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 家に帰ります。
+        en: I go home.
+        lexicon_used:
+          - canonical_writing_ja: 家
+            reading_kana: いえ
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 帰る
+            reading_kana: かえる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 日本に来ます。
+        en: I come to Japan.
+        lexicon_used:
+          - canonical_writing_ja: 日本
+            reading_kana: にほん
+            pos: proper_noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 来る
+            reading_kana: くる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+  - code: DE_MEANS
+    examples:
+      - ja: バスで行きます。
+        en: I go by bus.
+        lexicon_used:
+          - canonical_writing_ja: バス
+            reading_kana: ばす
+            pos: noun
+          - canonical_writing_ja: で
+            reading_kana: で
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 日本語で話します。
+        en: I speak in Japanese.
+        lexicon_used:
+          - canonical_writing_ja: 日本語
+            reading_kana: にほんご
+            pos: noun
+          - canonical_writing_ja: で
+            reading_kana: で
+            pos: particle
+          - canonical_writing_ja: 話す
+            reading_kana: はなす
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: はしで食べます。
+        en: I eat with chopsticks.
+        lexicon_used:
+          - canonical_writing_ja: はし
+            reading_kana: はし
+            pos: noun
+          - canonical_writing_ja: で
+            reading_kana: で
+            pos: particle
+          - canonical_writing_ja: 食べる
+            reading_kana: たべる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+  - code: VERB_STEM_NI_IKU
+    examples:
+      - ja: 映画を見に行きます。
+        en: I go to watch a movie.
+        lexicon_used:
+          - canonical_writing_ja: 映画
+            reading_kana: えいが
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 見る
+            reading_kana: みる
+            pos: verb
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 友達に会いに行きます。
+        en: I go to meet a friend.
+        lexicon_used:
+          - canonical_writing_ja: 友達
+            reading_kana: ともだち
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 会う
+            reading_kana: あう
+            pos: verb
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: パンを買いに行きます。
+        en: I go to buy bread.
+        lexicon_used:
+          - canonical_writing_ja: パン
+            reading_kana: ぱん
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 買う
+            reading_kana: かう
+            pos: verb
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+  - code: GA_HOSHII_DESU
+    examples:
+      - ja: 新しい本がほしいです。
+        en: I want a new book.
+        lexicon_used:
+          - canonical_writing_ja: 新しい
+            reading_kana: あたらしい
+            pos: adjective_i
+          - canonical_writing_ja: 本
+            reading_kana: ほん
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: ほしい
+            reading_kana: ほしい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: 赤いかばんがほしいです。
+        en: I want a red bag.
+        lexicon_used:
+          - canonical_writing_ja: 赤い
+            reading_kana: あかい
+            pos: adjective_i
+          - canonical_writing_ja: かばん
+            reading_kana: かばん
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: ほしい
+            reading_kana: ほしい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: 水がほしいです。
+        en: I want water.
+        lexicon_used:
+          - canonical_writing_ja: 水
+            reading_kana: みず
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: ほしい
+            reading_kana: ほしい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+  - code: O_KUDASAI
+    examples:
+      - ja: 水をください。
+        en: Water, please.
+        lexicon_used:
+          - canonical_writing_ja: 水
+            reading_kana: みず
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: ください
+            reading_kana: ください
+            pos: expression
+
+      - ja: この本をください。
+        en: This book, please.
+        lexicon_used:
+          - canonical_writing_ja: この
+            reading_kana: この
+            pos: determiner
+          - canonical_writing_ja: 本
+            reading_kana: ほん
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: ください
+            reading_kana: ください
+            pos: expression
+
+      - ja: 赤いシャツをください。
+        en: The red shirt, please.
+        lexicon_used:
+          - canonical_writing_ja: 赤い
+            reading_kana: あかい
+            pos: adjective_i
+          - canonical_writing_ja: シャツ
+            reading_kana: しゃつ
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: ください
+            reading_kana: ください
+            pos: expression
+
+  - code: NI_IKITAI_DESU
+    examples:
+      - ja: 日本に行きたいです。
+        en: I want to go to Japan.
+        lexicon_used:
+          - canonical_writing_ja: 日本
+            reading_kana: にほん
+            pos: proper_noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: たい
+            reading_kana: たい
+            pos: auxiliary
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: 京都に行きたいです。
+        en: I want to go to Kyoto.
+        lexicon_used:
+          - canonical_writing_ja: 京都
+            reading_kana: きょうと
+            pos: proper_noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: たい
+            reading_kana: たい
+            pos: auxiliary
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: 海に行きたいです。
+        en: I want to go to the sea.
+        lexicon_used:
+          - canonical_writing_ja: 海
+            reading_kana: うみ
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: たい
+            reading_kana: たい
+            pos: auxiliary
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+  - code: VERB_MASU_NEGATIVE
+    examples:
+      - ja: 今日は行きません。
+        en: I am not going today.
+        lexicon_used:
+          - canonical_writing_ja: 今日
+            reading_kana: きょう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ません
+            reading_kana: ません
+            pos: auxiliary
+
+      - ja: コーヒーを飲みません。
+        en: I do not drink coffee.
+        lexicon_used:
+          - canonical_writing_ja: コーヒー
+            reading_kana: こーひー
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 飲む
+            reading_kana: のむ
+            pos: verb
+          - canonical_writing_ja: ません
+            reading_kana: ません
+            pos: auxiliary
+
+      - ja: 日曜日は勉強しません。
+        en: I do not study on Sunday.
+        lexicon_used:
+          - canonical_writing_ja: 日曜日
+            reading_kana: にちようび
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 勉強する
+            reading_kana: べんきょうする
+            pos: verb
+          - canonical_writing_ja: ません
+            reading_kana: ません
+            pos: auxiliary
+
+  - code: VERB_MASU_PAST
+    examples:
+      - ja: 昨日映画を見ました。
+        en: I watched a movie yesterday.
+        lexicon_used:
+          - canonical_writing_ja: 昨日
+            reading_kana: きのう
+            pos: noun
+          - canonical_writing_ja: 映画
+            reading_kana: えいが
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 見る
+            reading_kana: みる
+            pos: verb
+          - canonical_writing_ja: ました
+            reading_kana: ました
+            pos: auxiliary
+
+      - ja: 土曜日に買い物をしました。
+        en: I went shopping on Saturday.
+        lexicon_used:
+          - canonical_writing_ja: 土曜日
+            reading_kana: どようび
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 買い物
+            reading_kana: かいもの
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: する
+            reading_kana: する
+            pos: verb
+          - canonical_writing_ja: ました
+            reading_kana: ました
+            pos: auxiliary
+
+      - ja: 友達と話しました。
+        en: I talked with a friend.
+        lexicon_used:
+          - canonical_writing_ja: 友達
+            reading_kana: ともだち
+            pos: noun
+          - canonical_writing_ja: と
+            reading_kana: と
+            pos: particle
+          - canonical_writing_ja: 話す
+            reading_kana: はなす
+            pos: verb
+          - canonical_writing_ja: ました
+            reading_kana: ました
+            pos: auxiliary
+
+  - code: VERB_MASU_PAST_NEGATIVE
+    examples:
+      - ja: 昨日は行きませんでした。
+        en: I did not go yesterday.
+        lexicon_used:
+          - canonical_writing_ja: 昨日
+            reading_kana: きのう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ませんでした
+            reading_kana: ませんでした
+            pos: expression
+
+      - ja: コーヒーを飲みませんでした。
+        en: I did not drink coffee.
+        lexicon_used:
+          - canonical_writing_ja: コーヒー
+            reading_kana: こーひー
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 飲む
+            reading_kana: のむ
+            pos: verb
+          - canonical_writing_ja: ませんでした
+            reading_kana: ませんでした
+            pos: expression
+
+      - ja: 日曜日は勉強しませんでした。
+        en: I did not study on Sunday.
+        lexicon_used:
+          - canonical_writing_ja: 日曜日
+            reading_kana: にちようび
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 勉強する
+            reading_kana: べんきょうする
+            pos: verb
+          - canonical_writing_ja: ませんでした
+            reading_kana: ませんでした
+            pos: expression
+
+  - code: WA_PAST_DESU
+    examples:
+      - ja: 昨日は休みでした。
+        en: Yesterday was a holiday.
+        lexicon_used:
+          - canonical_writing_ja: 昨日
+            reading_kana: きのう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 休み
+            reading_kana: やすみ
+            pos: noun
+          - canonical_writing_ja: でした
+            reading_kana: でした
+            pos: copula
+
+      - ja: パーティーは土曜日でした。
+        en: The party was on Saturday.
+        lexicon_used:
+          - canonical_writing_ja: パーティー
+            reading_kana: ぱーてぃー
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 土曜日
+            reading_kana: どようび
+            pos: noun
+          - canonical_writing_ja: でした
+            reading_kana: でした
+            pos: copula
+
+      - ja: イベントは日曜日でした。
+        en: The event was on Sunday.
+        lexicon_used:
+          - canonical_writing_ja: イベント
+            reading_kana: いべんと
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 日曜日
+            reading_kana: にちようび
+            pos: noun
+          - canonical_writing_ja: でした
+            reading_kana: でした
+            pos: copula
+
+  - code: WA_PAST_NEGATIVE_DESU
+    examples:
+      - ja: 昨日は休みじゃなかったです。
+        en: Yesterday was not a holiday.
+        lexicon_used:
+          - canonical_writing_ja: 昨日
+            reading_kana: きのう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 休み
+            reading_kana: やすみ
+            pos: noun
+          - canonical_writing_ja: じゃなかったです
+            reading_kana: じゃなかったです
+            pos: expression
+
+      - ja: パーティーは土曜日ではありませんでした。
+        en: The party was not on Saturday.
+        lexicon_used:
+          - canonical_writing_ja: パーティー
+            reading_kana: ぱーてぃー
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 土曜日
+            reading_kana: どようび
+            pos: noun
+          - canonical_writing_ja: ではありませんでした
+            reading_kana: ではありませんでした
+            pos: expression
+
+      - ja: あれは映画じゃなかったです。
+        en: That over there was not a movie.
+        lexicon_used:
+          - canonical_writing_ja: あれ
+            reading_kana: あれ
+            pos: pronoun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 映画
+            reading_kana: えいが
+            pos: noun
+          - canonical_writing_ja: じゃなかったです
+            reading_kana: じゃなかったです
+            pos: expression
+
+  - code: ADJ_I_NEGATIVE
+    examples:
+      - ja: この本は高くないです。
+        en: This book is not expensive.
+        lexicon_used:
+          - canonical_writing_ja: この
+            reading_kana: この
+            pos: determiner
+          - canonical_writing_ja: 本
+            reading_kana: ほん
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 高い
+            reading_kana: たかい
+            pos: adjective_i
+          - canonical_writing_ja: くないです
+            reading_kana: くないです
+            pos: expression
+
+      - ja: この店は安くないです。
+        en: This shop is not cheap.
+        lexicon_used:
+          - canonical_writing_ja: この
+            reading_kana: この
+            pos: determiner
+          - canonical_writing_ja: 店
+            reading_kana: みせ
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 安い
+            reading_kana: やすい
+            pos: adjective_i
+          - canonical_writing_ja: くないです
+            reading_kana: くないです
+            pos: expression
+
+      - ja: 今日は寒くないです。
+        en: It is not cold today.
+        lexicon_used:
+          - canonical_writing_ja: 今日
+            reading_kana: きょう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 寒い
+            reading_kana: さむい
+            pos: adjective_i
+          - canonical_writing_ja: くないです
+            reading_kana: くないです
+            pos: expression
+
+  - code: ADJ_I_PAST
+    examples:
+      - ja: 映画は面白かったです。
+        en: The movie was interesting.
+        lexicon_used:
+          - canonical_writing_ja: 映画
+            reading_kana: えいが
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 面白い
+            reading_kana: おもしろい
+            pos: adjective_i
+          - canonical_writing_ja: かったです
+            reading_kana: かったです
+            pos: expression
+
+      - ja: ケーキはおいしかったです。
+        en: The cake was delicious.
+        lexicon_used:
+          - canonical_writing_ja: ケーキ
+            reading_kana: けーき
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: おいしい
+            reading_kana: おいしい
+            pos: adjective_i
+          - canonical_writing_ja: かったです
+            reading_kana: かったです
+            pos: expression
+
+      - ja: 旅行は楽しかったです。
+        en: The trip was fun.
+        lexicon_used:
+          - canonical_writing_ja: 旅行
+            reading_kana: りょこう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 楽しい
+            reading_kana: たのしい
+            pos: adjective_i
+          - canonical_writing_ja: かったです
+            reading_kana: かったです
+            pos: expression
+
+  - code: ADJ_I_PAST_NEGATIVE
+    examples:
+      - ja: 映画は面白くなかったです。
+        en: The movie was not interesting.
+        lexicon_used:
+          - canonical_writing_ja: 映画
+            reading_kana: えいが
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 面白い
+            reading_kana: おもしろい
+            pos: adjective_i
+          - canonical_writing_ja: くなかったです
+            reading_kana: くなかったです
+            pos: expression
+
+      - ja: このかばんは高くなかったです。
+        en: This bag was not expensive.
+        lexicon_used:
+          - canonical_writing_ja: この
+            reading_kana: この
+            pos: determiner
+          - canonical_writing_ja: かばん
+            reading_kana: かばん
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 高い
+            reading_kana: たかい
+            pos: adjective_i
+          - canonical_writing_ja: くなかったです
+            reading_kana: くなかったです
+            pos: expression
+
+      - ja: 昨日は寒くなかったです。
+        en: It was not cold yesterday.
+        lexicon_used:
+          - canonical_writing_ja: 昨日
+            reading_kana: きのう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 寒い
+            reading_kana: さむい
+            pos: adjective_i
+          - canonical_writing_ja: くなかったです
+            reading_kana: くなかったです
+            pos: expression
+
+  - code: ADJ_NA_NEGATIVE
+    examples:
+      - ja: この町は静かじゃないです。
+        en: This town is not quiet.
+        lexicon_used:
+          - canonical_writing_ja: この
+            reading_kana: この
+            pos: determiner
+          - canonical_writing_ja: 町
+            reading_kana: まち
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 静か
+            reading_kana: しずか
+            pos: adjective_na
+          - canonical_writing_ja: じゃないです
+            reading_kana: じゃないです
+            pos: expression
+
+      - ja: 駅は便利ではありません。
+        en: The station is not convenient.
+        lexicon_used:
+          - canonical_writing_ja: 駅
+            reading_kana: えき
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 便利
+            reading_kana: べんり
+            pos: adjective_na
+          - canonical_writing_ja: ではありません
+            reading_kana: ではありません
+            pos: expression
+
+      - ja: 今日は暇じゃないです。
+        en: I am not free today.
+        lexicon_used:
+          - canonical_writing_ja: 今日
+            reading_kana: きょう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 暇
+            reading_kana: ひま
+            pos: adjective_na
+          - canonical_writing_ja: じゃないです
+            reading_kana: じゃないです
+            pos: expression
+
+  - code: ADJ_NA_PAST
+    examples:
+      - ja: パーティーはにぎやかでした。
+        en: The party was lively.
+        lexicon_used:
+          - canonical_writing_ja: パーティー
+            reading_kana: ぱーてぃー
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: にぎやか
+            reading_kana: にぎやか
+            pos: adjective_na
+          - canonical_writing_ja: でした
+            reading_kana: でした
+            pos: copula
+
+      - ja: この町は静かでした。
+        en: This town was quiet.
+        lexicon_used:
+          - canonical_writing_ja: この
+            reading_kana: この
+            pos: determiner
+          - canonical_writing_ja: 町
+            reading_kana: まち
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 静か
+            reading_kana: しずか
+            pos: adjective_na
+          - canonical_writing_ja: でした
+            reading_kana: でした
+            pos: copula
+
+      - ja: 山田さんは元気でした。
+        en: Yamada was well.
+        lexicon_used:
+          - canonical_writing_ja: 山田
+            reading_kana: やまだ
+            pos: proper_noun
+          - canonical_writing_ja: さん
+            reading_kana: さん
+            pos: suffix
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 元気
+            reading_kana: げんき
+            pos: adjective_na
+          - canonical_writing_ja: でした
+            reading_kana: でした
+            pos: copula
+
+  - code: ADJ_NA_PAST_NEGATIVE
+    examples:
+      - ja: 学校は静かじゃなかったです。
+        en: The school was not quiet.
+        lexicon_used:
+          - canonical_writing_ja: 学校
+            reading_kana: がっこう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 静か
+            reading_kana: しずか
+            pos: adjective_na
+          - canonical_writing_ja: じゃなかったです
+            reading_kana: じゃなかったです
+            pos: expression
+
+      - ja: この町は便利ではありませんでした。
+        en: This town was not convenient.
+        lexicon_used:
+          - canonical_writing_ja: この
+            reading_kana: この
+            pos: determiner
+          - canonical_writing_ja: 町
+            reading_kana: まち
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 便利
+            reading_kana: べんり
+            pos: adjective_na
+          - canonical_writing_ja: ではありませんでした
+            reading_kana: ではありませんでした
+            pos: expression
+
+      - ja: 山田さんは元気じゃなかったです。
+        en: Yamada was not well.
+        lexicon_used:
+          - canonical_writing_ja: 山田
+            reading_kana: やまだ
+            pos: proper_noun
+          - canonical_writing_ja: さん
+            reading_kana: さん
+            pos: suffix
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 元気
+            reading_kana: げんき
+            pos: adjective_na
+          - canonical_writing_ja: じゃなかったです
+            reading_kana: じゃなかったです
+            pos: expression

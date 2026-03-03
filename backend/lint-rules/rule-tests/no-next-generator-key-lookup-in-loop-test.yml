@@ -1,0 +1,45 @@
+id: no-next-generator-key-lookup-in-loop
+
+valid:
+  - |
+    config_pattern = next(candidate for candidate in config.patterns if candidate.code == pattern.code)
+
+  - |
+    config_pattern_by_code = {candidate.code: candidate for candidate in config.patterns}
+    for pattern in patterns:
+        config_pattern = config_pattern_by_code[pattern.code]
+
+  - |
+    for pattern in patterns:
+        match pattern.code:
+            case code:
+                print(code)
+
+  - |
+    for pattern in patterns:
+        item = next(candidate for candidate in config.patterns if is_compatible(candidate, pattern))
+
+  - |
+    while has_more():
+        item = mapping[key]
+
+invalid:
+  - |
+    for pattern in patterns:
+        config_pattern = next(candidate for candidate in config.patterns if candidate.code == pattern.code)
+
+  - |
+    for generated_word in generated_words:
+        batch_word = next(
+            word for word in generated_words_payload if word.canonical_writing_ja == generated_word.canonical_writing_ja
+        )
+
+  - |
+    while has_more():
+        item = next((row for row in rows if row.id == target_id), None)
+
+  - |
+    for unit in units:
+        lesson = next(
+            lesson for lesson in lessons if lesson.unit_id == unit.id
+        )

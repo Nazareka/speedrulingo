@@ -1,0 +1,24 @@
+id: no-list-or-tuple-from-set
+
+valid:
+  - |
+    values = list(dict.fromkeys(items))
+
+  - |
+    values = tuple(dict.fromkeys(items))
+
+  - |
+    values = sorted(set(items))
+
+  - |
+    values = set(items)
+
+invalid:
+  - |
+    values = list(set(items))
+
+  - |
+    values = tuple(set(items))
+
+  - |
+    lesson_ids = list(set(sentence_to_primary_lesson_id.values()))

@@ -1,0 +1,16 @@
+id: no-del-function-parameter
+language: Python
+severity: error
+message: remove it unless it is intentionally part of the signature. Do not silence this with del or a fake underscore rename; keep it only with an approved unused-parameter convention when the signature must remain stable.
+
+rule:
+  all:
+    - pattern: del $PARAM
+    - inside:
+        kind: function_definition
+        stopBy:
+          kind: function_definition
+        has:
+          field: parameters
+          pattern: $PARAM
+          stopBy: end

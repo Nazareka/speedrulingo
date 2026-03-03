@@ -1,0 +1,132 @@
+patterns:
+  - code: "TE_SEQUENCE"
+    min_extra_words: 3
+    max_extra_words: 6
+    name: "Vて、Vます"
+    templates:
+      - "Vて、Vます"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "て"
+        reading_kana: "て"
+        pos: "particle"
+    short_description: "Connect two actions in sequence with te-form."
+
+  - code: "TE_KUDASAI"
+    min_extra_words: 3
+    max_extra_words: 6
+    name: "Vてください"
+    templates:
+      - "Vてください"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "て"
+        reading_kana: "て"
+        pos: "particle"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "ください"
+        reading_kana: "ください"
+        pos: "expression"
+    short_description: "Make a polite request with te-form."
+
+  - code: "TE_MO_II_DESU"
+    min_extra_words: 2
+    max_extra_words: 4
+    name: "Vてもいいです / Vてもいいですか"
+    templates:
+      - "Vてもいいです"
+      - "Vてもいいですか"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "て"
+        reading_kana: "て"
+        pos: "particle"
+      - canonical_writing_ja: "も"
+        reading_kana: "も"
+        pos: "particle"
+      - canonical_writing_ja: "です"
+        reading_kana: "です"
+        pos: "copula"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "いい"
+        reading_kana: "いい"
+        pos: "adjective_i"
+    short_description: "Ask for or grant permission."
+
+  - code: "TE_WA_IKEMASEN"
+    min_extra_words: 2
+    max_extra_words: 4
+    name: "Vてはいけません"
+    templates:
+      - "Vてはいけません"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "て"
+        reading_kana: "て"
+        pos: "particle"
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "いけません"
+        reading_kana: "いけません"
+        pos: "expression"
+    short_description: "State that something is not allowed."
+
+  - code: "KARA_REASON"
+    min_extra_words: 3
+    max_extra_words: 6
+    name: "X から Y"
+    templates:
+      - "CLAUSE から CLAUSE"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "から"
+        reading_kana: "から"
+        pos: "particle"
+    short_description: "Give a basic reason with から."
+
+  - code: "MASHOUKA_OFFER_HELP"
+    min_extra_words: 2
+    max_extra_words: 4
+    name: "Vましょうか"
+    templates:
+      - "Vましょうか"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "ましょうか"
+        reading_kana: "ましょうか"
+        pos: "expression"
+    short_description: "Offer help or propose doing something for someone."
+
+  - code: "TE_KARA_REASONABLE_ACTION"
+    min_extra_words: 2
+    max_extra_words: 4
+    name: "Vてから、Vます"
+    templates:
+      - "Vてから、Vます"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "て"
+        reading_kana: "て"
+        pos: "particle"
+      - canonical_writing_ja: "から"
+        reading_kana: "から"
+        pos: "particle"
+    short_description: "Say that one action happens after another."
+
+  - code: "TE_IRU_PROGRESSIVE"
+    min_extra_words: 3
+    max_extra_words: 5
+    name: "Vています"
+    templates:
+      - "Vています"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "て"
+        reading_kana: "て"
+        pos: "particle"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "いる"
+        reading_kana: "いる"
+        pos: "verb"
+      - canonical_writing_ja: "ます"
+        reading_kana: "ます"
+        pos: "auxiliary"
+    short_description: "Talk about actions in progress or current ongoing states."

@@ -1,0 +1,9 @@
+id: no-list-or-tuple-from-set
+language: Python
+severity: error
+message: "Do not build list(...) or tuple(...) from set(...). This destroys order. Use dict.fromkeys(...) for ordered dedup, or sorted(set(...)) if sorted order is intended."
+
+rule:
+  any:
+    - pattern: list(set($VALUE))
+    - pattern: tuple(set($VALUE))

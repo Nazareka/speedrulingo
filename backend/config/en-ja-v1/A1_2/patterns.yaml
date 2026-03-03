@@ -1,0 +1,337 @@
+patterns:
+  - code: "GA_DEKIMASU"
+    min_extra_words: 4
+    max_extra_words: 8
+    name: "X が できます"
+    templates:
+      - "X が できます"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "が"
+        reading_kana: "が"
+        pos: "particle"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "できる"
+        reading_kana: "できる"
+        pos: "verb"
+      - canonical_writing_ja: "ます"
+        reading_kana: "ます"
+        pos: "auxiliary"
+    short_description: "Ability with hobbies, sports, languages, or instruments."
+
+  - code: "O_KUDASAI"
+    min_extra_words: 2
+    max_extra_words: 5
+    name: "X を ください"
+    templates:
+      - "X を ください"
+      - "X、ください"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "を"
+        reading_kana: "を"
+        pos: "particle"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "ください"
+        reading_kana: "ください"
+        pos: "expression"
+    short_description: "Basic shopping or ordering request for an item."
+
+  - code: "MASENKA_INVITATION"
+    min_extra_words: 2
+    max_extra_words: 5
+    name: "Vませんか"
+    templates:
+      - "Vませんか"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "ませんか"
+        reading_kana: "ませんか"
+        pos: "expression"
+    short_description: "Polite invitation pattern."
+
+  - code: "MASHOU_SUGGESTION"
+    min_extra_words: 1
+    max_extra_words: 3
+    name: "Vましょう"
+    templates:
+      - "Vましょう"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "ましょう"
+        reading_kana: "ましょう"
+        pos: "auxiliary"
+    short_description: "Let's do it / suggestion pattern."
+
+  - code: "NI_DESTINATION"
+    min_extra_words: 3
+    max_extra_words: 6
+    name: "X に 行きます / 来ます / 帰ります"
+    templates:
+      - "PLACE に 行きます"
+      - "PLACE に 来ます"
+      - "PLACE に 帰ります"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "に"
+        reading_kana: "に"
+        pos: "particle"
+    anchor_match_mode: "any_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "行く"
+        reading_kana: "いく"
+        pos: "verb"
+      - canonical_writing_ja: "来る"
+        reading_kana: "くる"
+        pos: "verb"
+      - canonical_writing_ja: "帰る"
+        reading_kana: "かえる"
+        pos: "verb"
+    short_description: "Destination marking with go, come, and return."
+
+  - code: "DE_MEANS"
+    min_extra_words: 3
+    max_extra_words: 6
+    name: "X で Vます"
+    templates:
+      - "MEANS で Vます"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "で"
+        reading_kana: "で"
+        pos: "particle"
+    short_description: "Means or method marking, especially transportation."
+
+  - code: "VERB_STEM_NI_IKU"
+    min_extra_words: 3
+    max_extra_words: 6
+    name: "V-stem に 行きます"
+    templates:
+      - "V-stem に 行きます"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "に"
+        reading_kana: "に"
+        pos: "particle"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "行く"
+        reading_kana: "いく"
+        pos: "verb"
+      - canonical_writing_ja: "ます"
+        reading_kana: "ます"
+        pos: "auxiliary"
+    short_description: "Going somewhere to do an activity."
+
+  - code: "GA_HOSHII_DESU"
+    min_extra_words: 3
+    max_extra_words: 6
+    name: "X が ほしいです"
+    templates:
+      - "X が ほしいです"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "が"
+        reading_kana: "が"
+        pos: "particle"
+      - canonical_writing_ja: "です"
+        reading_kana: "です"
+        pos: "copula"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "ほしい"
+        reading_kana: "ほしい"
+        pos: "adjective_i"
+    short_description: "Saying that you want an item."
+
+  - code: "NI_IKITAI_DESU"
+    min_extra_words: 2
+    max_extra_words: 4
+    name: "X に 行きたいです"
+    templates:
+      - "PLACE に 行きたいです"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "に"
+        reading_kana: "に"
+        pos: "particle"
+      - canonical_writing_ja: "です"
+        reading_kana: "です"
+        pos: "copula"
+    anchor_match_mode: "all_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "行く"
+        reading_kana: "いく"
+        pos: "verb"
+      - canonical_writing_ja: "たい"
+        reading_kana: "たい"
+        pos: "auxiliary"
+    short_description: "Saying where you want to go."
+
+  - code: "VERB_MASU_NEGATIVE"
+    min_extra_words: 2
+    max_extra_words: 4
+    name: "Vません"
+    templates:
+      - "Vません"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "ません"
+        reading_kana: "ません"
+        pos: "auxiliary"
+    short_description: "Basic polite negative verb form."
+
+  - code: "VERB_MASU_PAST"
+    min_extra_words: 4
+    max_extra_words: 8
+    name: "Vました"
+    templates:
+      - "Vました"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "ました"
+        reading_kana: "ました"
+        pos: "auxiliary"
+    short_description: "Basic polite past verb form."
+
+  - code: "VERB_MASU_PAST_NEGATIVE"
+    min_extra_words: 1
+    max_extra_words: 3
+    name: "Vませんでした"
+    templates:
+      - "Vませんでした"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "ませんでした"
+        reading_kana: "ませんでした"
+        pos: "expression"
+    short_description: "Basic polite past negative verb form."
+
+  - code: "WA_PAST_DESU"
+    min_extra_words: 1
+    max_extra_words: 3
+    name: "X は Y でした"
+    templates:
+      - "X は Y でした"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+      - canonical_writing_ja: "でした"
+        reading_kana: "でした"
+        pos: "copula"
+    short_description: "Polite past noun statement."
+
+  - code: "WA_PAST_NEGATIVE_DESU"
+    min_extra_words: 1
+    max_extra_words: 2
+    name: "X は Y じゃなかったです / ではありませんでした"
+    templates:
+      - "X は Y じゃなかったです"
+      - "X は Y ではありませんでした"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+    anchor_match_mode: "any_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "じゃなかったです"
+        reading_kana: "じゃなかったです"
+        pos: "expression"
+      - canonical_writing_ja: "ではありませんでした"
+        reading_kana: "ではありませんでした"
+        pos: "expression"
+    short_description: "Polite past negative noun statement."
+
+  - code: "ADJ_I_NEGATIVE"
+    min_extra_words: 2
+    max_extra_words: 4
+    name: "X は Aくないです"
+    templates:
+      - "X は Aくないです"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+      - canonical_writing_ja: "くないです"
+        reading_kana: "くないです"
+        pos: "expression"
+    short_description: "Polite negative i-adjective predicate."
+
+  - code: "ADJ_I_PAST"
+    min_extra_words: 2
+    max_extra_words: 5
+    name: "X は Aかったです"
+    templates:
+      - "X は Aかったです"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+      - canonical_writing_ja: "かったです"
+        reading_kana: "かったです"
+        pos: "expression"
+    short_description: "Polite past i-adjective predicate."
+
+  - code: "ADJ_I_PAST_NEGATIVE"
+    min_extra_words: 2
+    max_extra_words: 4
+    name: "X は Aくなかったです"
+    templates:
+      - "X は Aくなかったです"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+      - canonical_writing_ja: "くなかったです"
+        reading_kana: "くなかったです"
+        pos: "expression"
+    short_description: "Polite past negative i-adjective predicate."
+
+  - code: "ADJ_NA_NEGATIVE"
+    min_extra_words: 2
+    max_extra_words: 4
+    name: "X は Aじゃないです / ではありません"
+    templates:
+      - "X は Aじゃないです"
+      - "X は Aではありません"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+    anchor_match_mode: "any_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "じゃないです"
+        reading_kana: "じゃないです"
+        pos: "expression"
+      - canonical_writing_ja: "ではありません"
+        reading_kana: "ではありません"
+        pos: "expression"
+    short_description: "Polite negative na-adjective predicate."
+
+  - code: "ADJ_NA_PAST"
+    min_extra_words: 3
+    max_extra_words: 5
+    name: "X は Aでした"
+    templates:
+      - "X は Aでした"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+      - canonical_writing_ja: "でした"
+        reading_kana: "でした"
+        pos: "copula"
+    short_description: "Polite past na-adjective predicate."
+
+  - code: "ADJ_NA_PAST_NEGATIVE"
+    min_extra_words: 2
+    max_extra_words: 4
+    name: "X は Aじゃなかったです / ではありませんでした"
+    templates:
+      - "X は Aじゃなかったです"
+      - "X は Aではありませんでした"
+    required_support_lexeme_refs:
+      - canonical_writing_ja: "は"
+        reading_kana: "は"
+        pos: "particle"
+    anchor_match_mode: "any_of"
+    anchor_lexeme_refs:
+      - canonical_writing_ja: "じゃなかったです"
+        reading_kana: "じゃなかったです"
+        pos: "expression"
+      - canonical_writing_ja: "ではありませんでした"
+        reading_kana: "ではありませんでした"
+        pos: "expression"
+    short_description: "Polite past negative na-adjective predicate."

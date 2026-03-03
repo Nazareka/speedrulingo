@@ -1,0 +1,610 @@
+pattern_examples:
+  - code: TE_SEQUENCE
+    examples:
+      - ja: 朝ご飯を食べて、学校に行きます。
+        en: I eat breakfast and go to school.
+        lexicon_used:
+          - canonical_writing_ja: 朝ご飯
+            reading_kana: あさごはん
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 食べる
+            reading_kana: たべる
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: 学校
+            reading_kana: がっこう
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 本を読んで、寝ます。
+        en: I read a book and go to bed.
+        lexicon_used:
+          - canonical_writing_ja: 本
+            reading_kana: ほん
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 読む
+            reading_kana: よむ
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: 寝る
+            reading_kana: ねる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 手を洗って、昼ご飯を食べます。
+        en: I wash my hands and eat lunch.
+        lexicon_used:
+          - canonical_writing_ja: 手
+            reading_kana: て
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 洗う
+            reading_kana: あらう
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: 昼ご飯
+            reading_kana: ひるごはん
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 食べる
+            reading_kana: たべる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+  - code: TE_KUDASAI
+    examples:
+      - ja: ドアを開けてください。
+        en: Please open the door.
+        lexicon_used:
+          - canonical_writing_ja: ドア
+            reading_kana: どあ
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 開ける
+            reading_kana: あける
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: ください
+            reading_kana: ください
+            pos: expression
+
+      - ja: ゆっくり話してください。
+        en: Please speak slowly.
+        lexicon_used:
+          - canonical_writing_ja: ゆっくり
+            reading_kana: ゆっくり
+            pos: adverb
+          - canonical_writing_ja: 話す
+            reading_kana: はなす
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: ください
+            reading_kana: ください
+            pos: expression
+
+      - ja: この漢字を教えてください。
+        en: Please teach me this kanji.
+        lexicon_used:
+          - canonical_writing_ja: この
+            reading_kana: この
+            pos: determiner
+          - canonical_writing_ja: 漢字
+            reading_kana: かんじ
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 教える
+            reading_kana: おしえる
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: ください
+            reading_kana: ください
+            pos: expression
+
+  - code: TE_MO_II_DESU
+    examples:
+      - ja: ここで写真を撮ってもいいですか。
+        en: May I take a picture here?
+        lexicon_used:
+          - canonical_writing_ja: ここ
+            reading_kana: ここ
+            pos: pronoun
+          - canonical_writing_ja: で
+            reading_kana: で
+            pos: particle
+          - canonical_writing_ja: 写真
+            reading_kana: しゃしん
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 撮る
+            reading_kana: とる
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: も
+            reading_kana: も
+            pos: particle
+          - canonical_writing_ja: いい
+            reading_kana: いい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+          - canonical_writing_ja: か
+            reading_kana: か
+            pos: particle
+
+      - ja: この本を見てもいいです。
+        en: You may look at this book.
+        lexicon_used:
+          - canonical_writing_ja: この
+            reading_kana: この
+            pos: determiner
+          - canonical_writing_ja: 本
+            reading_kana: ほん
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 見る
+            reading_kana: みる
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: も
+            reading_kana: も
+            pos: particle
+          - canonical_writing_ja: いい
+            reading_kana: いい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+
+      - ja: 日本語で話してもいいですか。
+        en: May I speak in Japanese?
+        lexicon_used:
+          - canonical_writing_ja: 日本語
+            reading_kana: にほんご
+            pos: noun
+          - canonical_writing_ja: で
+            reading_kana: で
+            pos: particle
+          - canonical_writing_ja: 話す
+            reading_kana: はなす
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: も
+            reading_kana: も
+            pos: particle
+          - canonical_writing_ja: いい
+            reading_kana: いい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+          - canonical_writing_ja: か
+            reading_kana: か
+            pos: particle
+
+  - code: TE_WA_IKEMASEN
+    examples:
+      - ja: 教室で食べてはいけません。
+        en: You must not eat in the classroom.
+        lexicon_used:
+          - canonical_writing_ja: 教室
+            reading_kana: きょうしつ
+            pos: noun
+          - canonical_writing_ja: で
+            reading_kana: で
+            pos: particle
+          - canonical_writing_ja: 食べる
+            reading_kana: たべる
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: いけません
+            reading_kana: いけません
+            pos: expression
+
+      - ja: 図書館で話してはいけません。
+        en: You must not talk in the library.
+        lexicon_used:
+          - canonical_writing_ja: 図書館
+            reading_kana: としょかん
+            pos: noun
+          - canonical_writing_ja: で
+            reading_kana: で
+            pos: particle
+          - canonical_writing_ja: 話す
+            reading_kana: はなす
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: いけません
+            reading_kana: いけません
+            pos: expression
+
+      - ja: ここに車を止めてはいけません。
+        en: You must not park a car here.
+        lexicon_used:
+          - canonical_writing_ja: ここ
+            reading_kana: ここ
+            pos: pronoun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 車
+            reading_kana: くるま
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 止める
+            reading_kana: とめる
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: いけません
+            reading_kana: いけません
+            pos: expression
+
+  - code: KARA_REASON
+    examples:
+      - ja: 今日は雨ですから、バスで行きます。
+        en: Because it is raining today, I will go by bus.
+        lexicon_used:
+          - canonical_writing_ja: 今日
+            reading_kana: きょう
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 雨
+            reading_kana: あめ
+            pos: noun
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+          - canonical_writing_ja: から
+            reading_kana: から
+            pos: particle
+          - canonical_writing_ja: バス
+            reading_kana: ばす
+            pos: noun
+          - canonical_writing_ja: で
+            reading_kana: で
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 明日テストですから、今勉強します。
+        en: Because there is a test tomorrow, I am studying now.
+        lexicon_used:
+          - canonical_writing_ja: 明日
+            reading_kana: あした
+            pos: noun
+          - canonical_writing_ja: テスト
+            reading_kana: てすと
+            pos: noun
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+          - canonical_writing_ja: から
+            reading_kana: から
+            pos: particle
+          - canonical_writing_ja: 今
+            reading_kana: いま
+            pos: noun
+          - canonical_writing_ja: 勉強する
+            reading_kana: べんきょうする
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 日本語がわかりませんから、ゆっくり話してください。
+        en: Because I do not understand Japanese, please speak slowly.
+        lexicon_used:
+          - canonical_writing_ja: 日本語
+            reading_kana: にほんご
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: わかる
+            reading_kana: わかる
+            pos: verb
+          - canonical_writing_ja: ません
+            reading_kana: ません
+            pos: auxiliary
+          - canonical_writing_ja: から
+            reading_kana: から
+            pos: particle
+          - canonical_writing_ja: ゆっくり
+            reading_kana: ゆっくり
+            pos: adverb
+          - canonical_writing_ja: 話す
+            reading_kana: はなす
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: ください
+            reading_kana: ください
+            pos: expression
+
+  - code: MASHOUKA_OFFER_HELP
+    examples:
+      - ja: 荷物を持ちましょうか。
+        en: Shall I carry your luggage?
+        lexicon_used:
+          - canonical_writing_ja: 荷物
+            reading_kana: にもつ
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 持つ
+            reading_kana: もつ
+            pos: verb
+          - canonical_writing_ja: ましょうか
+            reading_kana: ましょうか
+            pos: expression
+
+      - ja: ドアを開けましょうか。
+        en: Shall I open the door?
+        lexicon_used:
+          - canonical_writing_ja: ドア
+            reading_kana: どあ
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 開ける
+            reading_kana: あける
+            pos: verb
+          - canonical_writing_ja: ましょうか
+            reading_kana: ましょうか
+            pos: expression
+
+      - ja: 日本語で書きましょうか。
+        en: Shall I write it in Japanese?
+        lexicon_used:
+          - canonical_writing_ja: 日本語
+            reading_kana: にほんご
+            pos: noun
+          - canonical_writing_ja: で
+            reading_kana: で
+            pos: particle
+          - canonical_writing_ja: 書く
+            reading_kana: かく
+            pos: verb
+          - canonical_writing_ja: ましょうか
+            reading_kana: ましょうか
+            pos: expression
+
+  - code: TE_KARA_REASONABLE_ACTION
+    examples:
+      - ja: 朝ご飯を食べてから、学校に行きます。
+        en: After eating breakfast, I go to school.
+        lexicon_used:
+          - canonical_writing_ja: 朝ご飯
+            reading_kana: あさごはん
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 食べる
+            reading_kana: たべる
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: から
+            reading_kana: から
+            pos: particle
+          - canonical_writing_ja: 学校
+            reading_kana: がっこう
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 行く
+            reading_kana: いく
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 宿題をしてから、寝ます。
+        en: After doing homework, I go to bed.
+        lexicon_used:
+          - canonical_writing_ja: 宿題
+            reading_kana: しゅくだい
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: する
+            reading_kana: する
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: から
+            reading_kana: から
+            pos: particle
+          - canonical_writing_ja: 寝る
+            reading_kana: ねる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 手を洗ってから、食べます。
+        en: After washing my hands, I eat.
+        lexicon_used:
+          - canonical_writing_ja: 手
+            reading_kana: て
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 洗う
+            reading_kana: あらう
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: から
+            reading_kana: から
+            pos: particle
+          - canonical_writing_ja: 食べる
+            reading_kana: たべる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+  - code: TE_IRU_PROGRESSIVE
+    examples:
+      - ja: 山田さんは今勉強しています。
+        en: Yamada is studying now.
+        lexicon_used:
+          - canonical_writing_ja: 山田
+            reading_kana: やまだ
+            pos: proper_noun
+          - canonical_writing_ja: さん
+            reading_kana: さん
+            pos: suffix
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 今
+            reading_kana: いま
+            pos: noun
+          - canonical_writing_ja: 勉強する
+            reading_kana: べんきょうする
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: いる
+            reading_kana: いる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 猫は寝ています。
+        en: The cat is sleeping.
+        lexicon_used:
+          - canonical_writing_ja: 猫
+            reading_kana: ねこ
+            pos: noun
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 寝る
+            reading_kana: ねる
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: いる
+            reading_kana: いる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: アンナさんは日本語を話しています。
+        en: Anna is speaking Japanese.
+        lexicon_used:
+          - canonical_writing_ja: アンナ
+            reading_kana: あんな
+            pos: proper_noun
+          - canonical_writing_ja: さん
+            reading_kana: さん
+            pos: suffix
+          - canonical_writing_ja: は
+            reading_kana: は
+            pos: particle
+          - canonical_writing_ja: 日本語
+            reading_kana: にほんご
+            pos: noun
+          - canonical_writing_ja: を
+            reading_kana: を
+            pos: particle
+          - canonical_writing_ja: 話す
+            reading_kana: はなす
+            pos: verb
+          - canonical_writing_ja: て
+            reading_kana: て
+            pos: particle
+          - canonical_writing_ja: いる
+            reading_kana: いる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary

@@ -1,0 +1,15 @@
+id: no-db-commit-in-branch
+language: Python
+severity: error
+message: "Avoid calling db.commit() inside a branch or loop. Prefer one commit at the end of the transactional function."
+
+rule:
+  all:
+    - pattern: db.commit()
+    - inside:
+        stopBy:
+          kind: function_definition
+        any:
+          - kind: if_statement
+          - kind: for_statement
+          - kind: while_statement
