@@ -1,3 +1,5 @@
+<img width="2186" height="1494" alt="image" src="https://github.com/user-attachments/assets/e53b8391-3aef-4665-ad39-1b5236fd3db7" />
+
 # Speedrulingo
 
 Speedrulingo is a language-learning app in the general category of Duolingo, but with a different product philosophy and learning experience.
