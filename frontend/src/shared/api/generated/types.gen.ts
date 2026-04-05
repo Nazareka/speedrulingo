@@ -126,6 +126,7 @@ export type RegisterRequest = {
 export type SectionUnits = {
     id: string;
     title: string;
+    description: string;
     units: Array<UnitSummary>;
 };
 
@@ -210,6 +211,7 @@ export type UnitSummary = {
     completed_lessons: number;
     is_locked: boolean;
     is_completed: boolean;
+    lessons: Array<LessonSummary>;
 };
 
 export type ValidationError = {

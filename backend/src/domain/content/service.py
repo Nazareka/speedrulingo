@@ -65,6 +65,30 @@ def _get_exam_attempts_by_lesson(db: Session, enrollment_id: str) -> dict[str, i
     return attempts_by_lesson
 
 
+def _build_lesson_summaries_for_unit(
+    lessons: list[Lesson],
+    progress_by_lesson: dict[str, str],
+    attempts_by_lesson: dict[str, int],
+) -> list[LessonSummary]:
+    lesson_summaries: list[LessonSummary] = []
+    unlocked = True
+    for lesson in lessons:
+        if lesson.kind == "exam":
+            normal_lessons = [candidate for candidate in lessons if candidate.kind == "normal"]
+            unlocked = all(progress_by_lesson.get(candidate.id) == "completed" for candidate in normal_lessons)
+        lesson_summaries.append(
+            LessonSummary(
+                id=lesson.id,
+                order_index=lesson.order_index,
+                kind=lesson.kind,
+                state=progress_by_lesson.get(lesson.id, "not_started"),
+                is_locked=not unlocked,
+                attempts_used=attempts_by_lesson.get(lesson.id) if lesson.kind == "exam" else None,
+            )
+        )
+    return lesson_summaries
+
+
 def _get_lessons_with_items(db: Session, unit_ids: list[str]) -> dict[str, list[Lesson]]:
     if not unit_ids:
         return {}
@@ -99,6 +123,7 @@ def _build_unit_summaries(
     }
 
     progress_by_lesson = _get_progress_by_lesson(db, enrollment.id)
+    attempts_by_lesson = _get_exam_attempts_by_lesson(db, enrollment.id)
     summaries: list[UnitSummary] = []
     previous_unit_completed = True
 
@@ -107,6 +132,7 @@ def _build_unit_summaries(
         completed_lessons = sum(1 for lesson in unit_lessons if progress_by_lesson.get(lesson.id) == "completed")
         exam_lesson = exam_lesson_by_unit_id.get(unit.id)
         is_completed = exam_lesson is not None and progress_by_lesson.get(exam_lesson.id) == "completed"
+        lesson_summaries = _build_lesson_summaries_for_unit(unit_lessons, progress_by_lesson, attempts_by_lesson)
         summaries.append(
             UnitSummary(
                 id=unit.id,
@@ -119,6 +145,7 @@ def _build_unit_summaries(
                 completed_lessons=completed_lessons,
                 is_locked=not previous_unit_completed,
                 is_completed=is_completed,
+                lessons=lesson_summaries,
             )
         )
         previous_unit_completed = is_completed
@@ -141,7 +168,9 @@ def get_path(db: Session, enrollment: UserCourseEnrollment) -> PathResponse:
 
     for section, unit in section_units:
         if section.id not in sections_by_id:
-            sections_by_id[section.id] = SectionUnits(id=section.id, title=section.title, units=[])
+            sections_by_id[section.id] = SectionUnits(
+                id=section.id, title=section.title, description=section.description, units=[]
+            )
         summary = summaries_by_id[unit.id]
         sections_by_id[section.id].units.append(summary)
         if current_unit_id is None and not summary.is_locked and not summary.is_completed:
@@ -193,22 +222,7 @@ def get_unit_detail(db: Session, enrollment: UserCourseEnrollment, unit_id: str)
     progress_by_lesson = _get_progress_by_lesson(db, enrollment.id)
     attempts_by_lesson = _get_exam_attempts_by_lesson(db, enrollment.id)
     lessons = _get_lessons_with_items(db, [unit.id]).get(unit.id, [])
-    lesson_summaries: list[LessonSummary] = []
-    unlocked = True
-    for lesson in lessons:
-        if lesson.kind == "exam":
-            normal_lessons = [candidate for candidate in lessons if candidate.kind == "normal"]
-            unlocked = all(progress_by_lesson.get(candidate.id) == "completed" for candidate in normal_lessons)
-        lesson_summaries.append(
-            LessonSummary(
-                id=lesson.id,
-                order_index=lesson.order_index,
-                kind=lesson.kind,
-                state=progress_by_lesson.get(lesson.id, "not_started"),
-                is_locked=not unlocked,
-                attempts_used=attempts_by_lesson.get(lesson.id) if lesson.kind == "exam" else None,
-            )
-        )
+    lesson_summaries = _build_lesson_summaries_for_unit(lessons, progress_by_lesson, attempts_by_lesson)
 
     theme_tags = list(
         db.scalars(

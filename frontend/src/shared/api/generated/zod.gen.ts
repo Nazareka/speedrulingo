@@ -196,12 +196,14 @@ export const zUnitSummary = z.object({
     lesson_count: z.number().int(),
     completed_lessons: z.number().int(),
     is_locked: z.boolean(),
-    is_completed: z.boolean()
+    is_completed: z.boolean(),
+    lessons: z.array(zLessonSummary)
 });
 
 export const zSectionUnits = z.object({
     id: z.string(),
     title: z.string(),
+    description: z.string(),
     units: z.array(zUnitSummary)
 });
 

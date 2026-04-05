@@ -29,11 +29,13 @@ class UnitSummary(BaseModel):
     completed_lessons: int
     is_locked: bool
     is_completed: bool
+    lessons: list[LessonSummary]
 
 
 class SectionUnits(BaseModel):
     id: str
     title: str
+    description: str
     units: list[UnitSummary]
 
 

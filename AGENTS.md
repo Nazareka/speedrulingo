@@ -4,7 +4,7 @@ At the end of each request, run `ruff`, `mypy`, and `pytest` if there are code c
 At the end of each request, run `npm run verify` if there are code changes in `frontend/`.
 If backend API routes/schemas change, always run `npm run generate:api` in `frontend/` and migrate frontend calls to generated client/hook/types only (no custom handwritten API wrappers).
 Backend tests must run on Postgres only (no SQLite fallback). Use `./run_backend_tests_postgres.sh` to prepare/reset the test DB and execute pytest.
-Use backend/.venv/bin/python3 instead of python to run python scripts manually.
+Use the backend virtualenv Python instead of plain `python` to run backend scripts manually.
 
 No legacy code.
 
@@ -23,7 +23,9 @@ Use these exact working directories and commands so you do not mix repo-root and
   - run `./run_backend_tests_postgres.sh`
 - Manual Python scripts for backend:
   - from `/Users/nazareka/projects/Speedrulingo/backend`
-  - run `backend/.venv/bin/python3 ...` only when a direct Python invocation is needed
+  - run `.venv/bin/python3 ...` when a direct Python invocation is needed
+  - from `/Users/nazareka/projects/Speedrulingo`
+  - run `backend/.venv/bin/python3 ...` when a direct Python invocation is needed
 
 Do not run `./run_backend_tests_postgres.sh` from `backend/`; it lives at repo root.
 Do not assume there is a repo-root `pyproject.toml`; backend Python tooling is configured in `backend/pyproject.toml`.

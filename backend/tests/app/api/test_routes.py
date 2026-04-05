@@ -12,6 +12,7 @@ from sqlalchemy.orm import Session, sessionmaker
 
 from course_builder.lexicon import extract_kanji_chars
 from db.session import get_db
+from domain.auth.models import User, UserCourseEnrollment
 from domain.content.display import append_alternate_script_hint
 from domain.content.models import (
     CourseVersion,
@@ -23,6 +24,7 @@ from domain.content.models import (
     KanjiIntroduction,
     Lesson,
     LessonSentence,
+    Section,
     Sentence,
     SentenceTile,
     SentenceTileSet,
@@ -30,8 +32,9 @@ from domain.content.models import (
     Unit,
     Word,
 )
-from domain.learning.models import UserLessonProgress
+from domain.learning.models import ExamAttempt, UserLessonProgress
 import main as app_main
+from security import hash_password
 from tests.app.course_builder.stages.assembly.test_hints_and_kanji_introductions import hints_test_config
 from tests.helpers.builder import create_test_build_context
 from tests.helpers.config_builder import build_test_config_yaml
@@ -270,6 +273,264 @@ def test_auth_content_learning_and_explain_endpoints(client: TestClient, db_sess
     kanji_detail_response = client.get("/api/v1/kanji/田", headers=headers)
     assert kanji_detail_response.status_code == 200
     assert kanji_detail_response.json()["kanji_char"] == "田"
+
+
+def test_sqladmin_requires_admin_login(client: TestClient) -> None:
+    response = client.get("/admin/", follow_redirects=False)
+
+    assert response.status_code == 302
+    assert "/admin/login" in response.headers["location"]
+
+
+def test_sqladmin_allows_admin_user_login(client: TestClient, db_session: Session) -> None:
+    bind = db_session.get_bind()
+    admin_bind = bind.engine if isinstance(bind, Connection) else bind
+    admin_session_factory = sessionmaker(
+        bind=admin_bind,
+        autoflush=False,
+        autocommit=False,
+        future=True,
+    )
+    with admin_session_factory() as admin_session:
+        admin_session.add(
+            User(
+                email="admin@example.com",
+                password_hash=hash_password("password123"),
+                is_admin=True,
+            )
+        )
+        admin_session.commit()
+
+    login_page_response = client.get("/admin/login")
+    assert login_page_response.status_code == 200
+
+    login_response = client.post(
+        "/admin/login",
+        data={"username": "admin@example.com", "password": "password123"},
+        follow_redirects=False,
+    )
+    assert login_response.status_code == 302
+
+    admin_response = client.get("/admin/", follow_redirects=False)
+    assert admin_response.status_code == 200
+
+
+def test_sqladmin_can_set_and_unset_unit_completion(client: TestClient, db_session: Session) -> None:
+    bind = db_session.get_bind()
+    admin_bind = bind.engine if isinstance(bind, Connection) else bind
+    admin_session_factory = sessionmaker(
+        bind=admin_bind,
+        autoflush=False,
+        autocommit=False,
+        future=True,
+    )
+    with admin_session_factory() as admin_session:
+        admin = User(
+            email="admin2@example.com",
+            password_hash=hash_password("password123"),
+            is_admin=True,
+        )
+        learner = User(
+            email="learner2@example.com",
+            password_hash=hash_password("password123"),
+        )
+        active_course = CourseVersion(
+            code="admin-test",
+            version=1,
+            build_version=1,
+            status="active",
+            config_version="test",
+            config_hash="test-hash",
+        )
+        admin_session.add_all([admin, learner, active_course])
+        admin_session.flush()
+        section = Section(
+            course_version_id=active_course.id,
+            code="ADMIN_TEST",
+            order_index=1,
+            title="Admin Test Section",
+            description="Admin test section",
+            generation_description="Admin test section",
+            target_unit_count=1,
+            target_new_word_count=0,
+        )
+        admin_session.add(section)
+        admin_session.flush()
+        unit = Unit(
+            section_id=section.id,
+            order_index=1,
+            title="Admin Test Unit",
+            description="Admin test unit",
+        )
+        admin_session.add(unit)
+        admin_session.flush()
+        lessons = [
+            Lesson(unit_id=unit.id, order_index=1, kind="normal", force_kana_display=False, target_item_count=1),
+            Lesson(unit_id=unit.id, order_index=2, kind="review_previous_units", force_kana_display=False, target_item_count=1),
+            Lesson(unit_id=unit.id, order_index=3, kind="exam", force_kana_display=False, target_item_count=1),
+        ]
+        admin_session.add_all(lessons)
+        admin_session.commit()
+
+        lesson_ids = [lesson.id for lesson in lessons]
+        exam_lesson_id = lessons[-1].id
+
+        learner_id = learner.id
+        unit_id = unit.id
+        active_course_id = active_course.id
+
+    login_response = client.post(
+        "/admin/login",
+        data={"username": "admin2@example.com", "password": "password123"},
+        follow_redirects=False,
+    )
+    assert login_response.status_code == 302
+
+    page_response = client.get(f"/admin/unit-completion?user_id={learner_id}", follow_redirects=False)
+    assert page_response.status_code == 200
+    assert "Unit Completion" in page_response.text
+    assert "learner2@example.com" in page_response.text
+
+    set_response = client.post(
+        "/admin/unit-completion",
+        data={"user_id": learner_id, "unit_id": unit_id, "operation": "set_completed"},
+        follow_redirects=False,
+    )
+    assert set_response.status_code == 303
+
+    with admin_session_factory() as admin_session:
+        enrollment = admin_session.scalar(
+            select(UserCourseEnrollment).where(
+                UserCourseEnrollment.user_id == learner_id,
+                UserCourseEnrollment.course_version_id == active_course_id,
+            )
+        )
+        assert enrollment is not None
+        progress_rows = list(
+            admin_session.scalars(
+                select(UserLessonProgress).where(
+                    UserLessonProgress.enrollment_id == enrollment.id,
+                    UserLessonProgress.lesson_id.in_(lesson_ids),
+                )
+            )
+        )
+        assert {row.lesson_id for row in progress_rows} == set(lesson_ids)
+        assert all(row.state == "completed" for row in progress_rows)
+        if exam_lesson_id is not None:
+            admin_session.add(
+                ExamAttempt(
+                    enrollment_id=enrollment.id,
+                    lesson_id=exam_lesson_id,
+                    attempt_no=1,
+                )
+            )
+            admin_session.commit()
+
+    unset_response = client.post(
+        "/admin/unit-completion",
+        data={"user_id": learner_id, "unit_id": unit_id, "operation": "unset_completed"},
+        follow_redirects=False,
+    )
+    assert unset_response.status_code == 303
+
+    with admin_session_factory() as admin_session:
+        enrollment = admin_session.scalar(
+            select(UserCourseEnrollment).where(
+                UserCourseEnrollment.user_id == learner_id,
+                UserCourseEnrollment.course_version_id == active_course_id,
+            )
+        )
+        assert enrollment is not None
+        progress_rows = list(
+            admin_session.scalars(
+                select(UserLessonProgress).where(
+                    UserLessonProgress.enrollment_id == enrollment.id,
+                    UserLessonProgress.lesson_id.in_(lesson_ids),
+                )
+            )
+        )
+        assert progress_rows == []
+        exam_attempts = list(
+            admin_session.scalars(
+                select(ExamAttempt).where(
+                    ExamAttempt.enrollment_id == enrollment.id,
+                    ExamAttempt.lesson_id.in_(lesson_ids),
+                )
+            )
+        )
+        assert exam_attempts == []
+
+    lesson_set_response = client.post(
+        "/admin/unit-completion",
+        data={"user_id": learner_id, "lesson_id": lesson_ids[0], "operation": "set_lesson_completed"},
+        follow_redirects=False,
+    )
+    assert lesson_set_response.status_code == 303
+
+    with admin_session_factory() as admin_session:
+        enrollment = admin_session.scalar(
+            select(UserCourseEnrollment).where(
+                UserCourseEnrollment.user_id == learner_id,
+                UserCourseEnrollment.course_version_id == active_course_id,
+            )
+        )
+        assert enrollment is not None
+        lesson_progress = admin_session.get(
+            UserLessonProgress,
+            {"enrollment_id": enrollment.id, "lesson_id": lesson_ids[0]},
+        )
+        assert lesson_progress is not None
+        assert lesson_progress.state == "completed"
+        admin_session.add(
+            ExamAttempt(
+                enrollment_id=enrollment.id,
+                lesson_id=lesson_ids[0],
+                attempt_no=1,
+            )
+        )
+        admin_session.commit()
+
+    lesson_unset_response = client.post(
+        "/admin/unit-completion",
+        data={"user_id": learner_id, "lesson_id": lesson_ids[0], "operation": "unset_lesson_completed"},
+        follow_redirects=False,
+    )
+    assert lesson_unset_response.status_code == 303
+
+    with admin_session_factory() as admin_session:
+        enrollment = admin_session.scalar(
+            select(UserCourseEnrollment).where(
+                UserCourseEnrollment.user_id == learner_id,
+                UserCourseEnrollment.course_version_id == active_course_id,
+            )
+        )
+        assert enrollment is not None
+        lesson_progress = admin_session.get(
+            UserLessonProgress,
+            {"enrollment_id": enrollment.id, "lesson_id": lesson_ids[0]},
+        )
+        assert lesson_progress is None
+        lesson_attempts = list(
+            admin_session.scalars(
+                select(ExamAttempt).where(
+                    ExamAttempt.enrollment_id == enrollment.id,
+                    ExamAttempt.lesson_id == lesson_ids[0],
+                )
+            )
+        )
+        assert lesson_attempts == []
+
+    with admin_session_factory() as admin_session:
+        cleanup_course = admin_session.get(CourseVersion, active_course_id)
+        cleanup_learner = admin_session.get(User, learner_id)
+        cleanup_admin = admin_session.scalar(select(User).where(User.email == "admin2@example.com").limit(1))
+        if cleanup_course is not None:
+            admin_session.delete(cleanup_course)
+        if cleanup_learner is not None:
+            admin_session.delete(cleanup_learner)
+        if cleanup_admin is not None:
+            admin_session.delete(cleanup_admin)
+        admin_session.commit()
 
 
 def test_login_endpoint_returns_bearer_token(client: TestClient) -> None:
