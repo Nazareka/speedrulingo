@@ -33,6 +33,7 @@ Or run backend-only tooling manually from this directory:
 ```bash
 make lint
 make type
+make migrate
 ```
 
 From the repo root, run backend tests against Postgres:
@@ -46,6 +47,34 @@ From the repo root, run backend tests against Postgres:
 Use [backend/.env.example](/Users/nazareka/projects/Speedrulingo/backend/.env.example) as the starting point for local environment variables.
 
 The backend expects Postgres. Test runs in this repo are intended to run on Postgres only.
+
+## Database Migrations
+
+Schema changes now go through Alembic.
+
+- migration config: [backend/alembic.ini](/Users/nazareka/projects/Speedrulingo/backend/alembic.ini)
+- migration environment: [backend/alembic/env.py](/Users/nazareka/projects/Speedrulingo/backend/alembic/env.py)
+- revisions: [backend/alembic/versions](/Users/nazareka/projects/Speedrulingo/backend/alembic/versions)
+
+From `backend/`:
+
+```bash
+make migrate
+```
+
+Or directly:
+
+```bash
+env -u VIRTUAL_ENV uv run alembic upgrade head
+```
+
+For a new revision:
+
+```bash
+env -u VIRTUAL_ENV uv run alembic revision --autogenerate -m "describe change"
+```
+
+The app no longer creates tables on startup. A database is expected to already be at the latest migration.
 
 ## Course Builder Config Structure
 

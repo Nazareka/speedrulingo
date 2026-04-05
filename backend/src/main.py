@@ -7,7 +7,6 @@ from sqlalchemy.orm import sessionmaker
 from admin_panel import install_admin
 from api.v1.router import router as v1_router
 from app_logging import configure_logging
-from db.base import Base
 from db.engine import engine
 from errors import register_error_handlers
 from settings import get_settings
@@ -16,7 +15,6 @@ from settings import get_settings
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     configure_logging()
-    Base.metadata.create_all(bind=engine)
     yield
 
 

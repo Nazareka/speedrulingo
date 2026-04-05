@@ -1,4 +1,4 @@
-.PHONY: format lint type test check
+.PHONY: format lint type test check migrate
 
 format:
 	env -u VIRTUAL_ENV uv run ruff format .
@@ -12,5 +12,8 @@ type:
 
 test:
 	env -u VIRTUAL_ENV uv run pytest -q
+
+migrate:
+	env -u VIRTUAL_ENV uv run alembic upgrade head
 
 check: lint type test

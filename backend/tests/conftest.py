@@ -3,17 +3,24 @@ from __future__ import annotations
 from collections.abc import Generator
 import os
 
+from alembic.config import Config
 import pytest
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from db.base import Base
+from alembic import command
 
 TEST_DATABASE_URL = os.getenv(
     "SPEEDRULINGO_TEST_DATABASE_URL",
     "postgresql+psycopg://speedrulingo:speedrulingo@localhost:5432/speedrulingo_test",
 )
+
+
+def _build_alembic_config(*, database_url: str) -> Config:
+    config = Config("alembic.ini")
+    config.set_main_option("sqlalchemy.url", database_url)
+    return config
 
 
 @pytest.fixture(scope="session")
@@ -28,7 +35,7 @@ def prepared_database(admin_engine: Engine) -> Generator[None, None, None]:
     with admin_engine.begin() as connection:
         connection.execute(text("DROP SCHEMA IF EXISTS public CASCADE"))
         connection.execute(text("CREATE SCHEMA public"))
-        Base.metadata.create_all(bind=connection)
+    command.upgrade(_build_alembic_config(database_url=TEST_DATABASE_URL), "head")
     yield
 
 

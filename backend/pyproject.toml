@@ -4,6 +4,7 @@ version = "0.1.0"
 description = "Speedrulingo PoC API"
 requires-python = ">=3.12"
 dependencies = [
+  "alembic>=1.16.0",
   "fastapi>=0.129.0",
   "fugashi>=1.4.0",
   "langchain-community>=0.3.31",
