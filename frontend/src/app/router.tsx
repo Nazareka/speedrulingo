@@ -17,7 +17,6 @@ import { LessonPage } from "../pages/lesson-page";
 import { LoginPage } from "../pages/login-page";
 import { PathPage } from "../pages/path-page";
 import { RegisterPage } from "../pages/register-page";
-import { UnitPage } from "../pages/unit-page";
 import { useMeQuery } from "../shared/auth/session";
 import { clearToken, getToken } from "../shared/auth/token-store";
 import { PageShell } from "../shared/ui/layout/page-shell";
@@ -155,17 +154,6 @@ const pathRoute = createRoute({
   },
 });
 
-const unitRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/unit/$unitId",
-  component: UnitPage,
-  beforeLoad: () => {
-    if (!hasToken()) {
-      throw redirect({ to: "/login" });
-    }
-  },
-});
-
 const lessonRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/lesson/$lessonId",
@@ -204,7 +192,6 @@ const routeTree = rootRoute.addChildren([
   loginRoute,
   registerRoute,
   pathRoute,
-  unitRoute,
   lessonRoute,
   kanjiRoute,
   accountRoute,

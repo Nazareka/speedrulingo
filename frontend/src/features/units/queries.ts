@@ -23,10 +23,13 @@ export function useUnitsQuery() {
   });
 }
 
-export function useUnitDetailQuery(unitId: string) {
+export function useUnitDetailQuery(unitId: string | null) {
   return useQuery({
-    queryKey: unitKeys.detail(unitId),
+    queryKey: unitKeys.detail(unitId ?? ""),
     queryFn: async () => {
+      if (!unitId) {
+        throw new Error("Missing unit id.");
+      }
       const result = await unitDetailApiV1UnitsUnitIdGet({
         headers: buildAuthedHeaders(),
         path: { unit_id: unitId },
@@ -36,6 +39,7 @@ export function useUnitDetailQuery(unitId: string) {
       }
       return result.data as unknown as UnitDetail;
     },
+    enabled: Boolean(unitId),
     staleTime: 30_000,
   });
 }

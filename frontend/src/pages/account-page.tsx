@@ -57,13 +57,20 @@ export function AccountPage() {
                 <p className="text-stone-500 text-xs uppercase tracking-[0.25em]">Status</p>
                 <p className="mt-2 text-base text-stone-900">{currentCourseQuery.data.status}</p>
               </div>
-              {currentCourseQuery.data.current_unit_id ? (
+              {currentCourseQuery.data.current_lesson_id ? (
                 <Link
                   className="mt-2 inline-flex w-fit rounded-full bg-stone-900 px-5 py-3 text-sm text-white transition hover:bg-stone-700"
-                  params={{ unitId: currentCourseQuery.data.current_unit_id }}
-                  to="/unit/$unitId"
+                  params={{ lessonId: currentCourseQuery.data.current_lesson_id }}
+                  to="/lesson/$lessonId"
                 >
-                  Open current unit
+                  Continue lesson
+                </Link>
+              ) : currentCourseQuery.data.current_unit_id ? (
+                <Link
+                  className="mt-2 inline-flex w-fit rounded-full bg-stone-900 px-5 py-3 text-sm text-white transition hover:bg-stone-700"
+                  to="/path"
+                >
+                  View path
                 </Link>
               ) : null}
             </div>
