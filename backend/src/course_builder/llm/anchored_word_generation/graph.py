@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+import logging
 from typing import Final, Literal, cast
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -31,6 +32,7 @@ from course_builder.sentence_processing import VocabItem, build_japanese_sentenc
 from course_builder.sentence_processing.errors import UnsupportedSentenceStructureError
 
 GENERATE: Final[Literal["generate_anchored_words"]] = "generate_anchored_words"
+LOGGER = logging.getLogger(__name__)
 
 
 class InputState(TypedDict):
@@ -62,6 +64,11 @@ Graph = CompiledStateGraph[
 async def generate_anchored_words(state: State, runtime: Runtime[Context]) -> OutputState:
     prepared_input = state["prepared_input"]
     config = runtime.context["config"]
+    LOGGER.info(
+        "Anchored word generation: requesting %s targets across %s allowed patterns",
+        len(prepared_input.targets),
+        len(prepared_input.allowed_pattern_codes),
+    )
     response_format = build_anchored_word_generation_response_format(item_count=len(prepared_input.targets))
     llm = cast(
         StructuredOutputRunnable,
@@ -83,6 +90,7 @@ async def generate_anchored_words(state: State, runtime: Runtime[Context]) -> Ou
             )
         )
     )
+    LOGGER.info("Anchored word generation: received %s items", len(payload.items))
     validated_items: list[AnchoredWordPayload] = []
     batch_validation_vocab = [
         *[

@@ -1,3 +1,6 @@
+x-backend-service: &backend-service
+  image: speedrulingo-backend:dev
+
 services:
   db:
     image: postgres:16
@@ -9,12 +12,33 @@ services:
       - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./docker/postgres/init:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U speedrulingo']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7
+    ports:
+      - '6379:6379'
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ['CMD-SHELL', 'redis-cli ping']
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   api:
+    <<: *backend-service
     build:
       context: ./backend
     working_dir: /app
     command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload --reload-dir /app/src
+    env_file:
+      - ./backend/.env
     environment:
       SPEEDRULINGO_DATABASE_URL: postgresql+psycopg://speedrulingo:speedrulingo@db:5432/speedrulingo
       SPEEDRULINGO_JWT_SECRET: dev-secret-change-me-minimum-32-chars
@@ -23,18 +47,102 @@ services:
     ports:
       - '8000:8000'
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   web:
     image: node:22-alpine
     working_dir: /app
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 5173"
+    command: sh -c "if [ ! -x node_modules/.bin/vite ]; then npm install; fi && npm run dev -- --host 0.0.0.0 --port 5173"
     volumes:
       - ./frontend:/app
+      - frontend_node_modules:/app/node_modules
     ports:
       - '5173:5173'
     depends_on:
       - api
 
+  prefect-server:
+    image: prefecthq/prefect:3-python3.12
+    command: prefect server start --host 0.0.0.0 --no-services
+    environment:
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://speedrulingo:speedrulingo@db:5432/prefect
+      PREFECT_SERVER_UI_API_URL: http://localhost:4200/api
+      PREFECT_MESSAGING_BROKER: prefect_redis.messaging
+      PREFECT_MESSAGING_CACHE: prefect_redis.messaging
+      PREFECT_REDIS_MESSAGING_HOST: redis
+      PREFECT_REDIS_MESSAGING_PORT: 6379
+      PREFECT_REDIS_MESSAGING_DB: 0
+      PREFECT_SERVER_ANALYTICS_ENABLED: "false"
+    ports:
+      - '4200:4200'
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ['CMD', 'python', '-c', "import urllib.request as u; u.urlopen('http://localhost:4200/api/health', timeout=2)"]
+      interval: 15s
+      timeout: 5s
+      retries: 20
+      start_period: 30s
+
+  prefect-services:
+    image: prefecthq/prefect:3-python3.12
+    command: prefect server services start
+    environment:
+      PREFECT_API_DATABASE_CONNECTION_URL: postgresql+asyncpg://speedrulingo:speedrulingo@db:5432/prefect
+      PREFECT_MESSAGING_BROKER: prefect_redis.messaging
+      PREFECT_MESSAGING_CACHE: prefect_redis.messaging
+      PREFECT_REDIS_MESSAGING_HOST: redis
+      PREFECT_REDIS_MESSAGING_PORT: 6379
+      PREFECT_REDIS_MESSAGING_DB: 0
+      PREFECT_SERVER_ANALYTICS_ENABLED: "false"
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+
+  prefect-worker:
+    <<: *backend-service
+    working_dir: /app
+    command: sh -c "PYTHONPATH=/app/src python scripts/deploy_course_builder_flows.py --ensure-work-pool-only && prefect worker start --pool speedrulingo-builder --type process"
+    env_file:
+      - ./backend/.env
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+      SPEEDRULINGO_DATABASE_URL: postgresql+psycopg://speedrulingo:speedrulingo@db:5432/speedrulingo
+      SPEEDRULINGO_JWT_SECRET: dev-secret-change-me-min-32-characters
+      PREFECT_SERVER_ANALYTICS_ENABLED: "false"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+      db:
+        condition: service_healthy
+
+  prefect-deploy:
+    <<: *backend-service
+    working_dir: /app
+    command: sh -c "PYTHONPATH=/app/src python scripts/deploy_course_builder_flows.py"
+    env_file:
+      - ./backend/.env
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+      SPEEDRULINGO_DATABASE_URL: postgresql+psycopg://speedrulingo:speedrulingo@db:5432/speedrulingo
+      SPEEDRULINGO_JWT_SECRET: dev-secret-change-me-min-32-characters
+      PREFECT_SERVER_ANALYTICS_ENABLED: "false"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+      prefect-worker:
+        condition: service_started
+    restart: 'no'
+
 volumes:
   pgdata:
+  redisdata:
+  frontend_node_modules:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+import logging
 from typing import Final, Literal, cast
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -25,6 +26,7 @@ from course_builder.llm.mechanical_word_generation.prompts import MECHANICAL_WOR
 
 GENERATE: Final[Literal["generate_mechanical_words"]] = "generate_mechanical_words"
 MAX_ALTERNATE_GLOSSES: Final[int] = 2
+LOGGER = logging.getLogger(__name__)
 
 
 class InputState(TypedDict):
@@ -81,6 +83,7 @@ async def generate_mechanical_words(
     runtime: Runtime[Context],
 ) -> OutputState:
     prepared_input = state["prepared_input"]
+    LOGGER.info("Mechanical word generation: requesting %s lexemes", len(prepared_input.lexemes))
     response_format = build_mechanical_word_generation_response_format(item_count=len(prepared_input.lexemes))
     llm = cast(
         StructuredOutputRunnable,
@@ -93,6 +96,7 @@ async def generate_mechanical_words(
     payload = MechanicalWordBatchPayload.model_validate(
         _trim_overlong_alternate_glosses(raw_payload)
     )
+    LOGGER.info("Mechanical word generation: received %s items", len(payload.items))
     validated_items: list[MechanicalWordPayload] = []
     for payload_item, expected in zip(payload.items, prepared_input.lexemes, strict=True):
         if (

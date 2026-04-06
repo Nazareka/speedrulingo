@@ -1,0 +1,12 @@
+.venv
+__pycache__
+*.pyc
+.pytest_cache
+.mypy_cache
+.ruff_cache
+.git
+build_checkpoints
+dist
+.coverage
+htmlcov
+.langchain_cache.db

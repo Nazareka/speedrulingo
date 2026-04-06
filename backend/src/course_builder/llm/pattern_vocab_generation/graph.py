@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+import logging
 from typing import Final, Literal, NotRequired, cast
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -40,6 +41,7 @@ VALIDATE_GENERATED_WORD_BATCH: Final[Literal["validate_generated_word_batch"]] =
 REQUIRED_EXAMPLE_SENTENCE_COUNT = 2
 END_NODE: Final[Literal["__end__"]] = "__end__"
 RouteAfterStateLoad = Literal["generate_pattern_vocab_with_model", "__end__"]
+LOGGER = logging.getLogger(__name__)
 
 
 class InputState(TypedDict):
@@ -121,6 +123,12 @@ async def generate_pattern_vocab_with_model(
         StructuredOutputRunnable,
         runtime.context["llm"].with_structured_output(response_format, method="json_schema"),
     )
+    LOGGER.info(
+        "Pattern vocab generation: requesting %s-%s words across %s allowed patterns",
+        state["prepared_input"].min_words,
+        state["prepared_input"].max_words,
+        len(state["prepared_input"].allowed_pattern_codes),
+    )
 
     existing_word_lines = format_existing_word_lines(state.get("existing_words", []))
     messages = PATTERN_VOCAB_GENERATION_PROMPT.format_messages(
@@ -135,6 +143,7 @@ async def generate_pattern_vocab_with_model(
         existing_words=existing_word_lines,
     )
     payload = WordBatchPayload.model_validate(await llm.ainvoke(messages))
+    LOGGER.info("Pattern vocab generation: received %s items", len(payload.items))
     return {"generated_batch": payload.items}
 
 

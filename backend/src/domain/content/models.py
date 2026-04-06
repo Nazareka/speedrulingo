@@ -38,6 +38,29 @@ class CourseVersion(Base):
     # * `unique (code, version, build_version)` — one build per code/version/build_version.
 
 
+class CourseBuildCheckpoint(Base):
+    __tablename__ = "course_build_checkpoints"
+    __table_args__ = (UniqueConstraint("build_version", "section_code", name="uq_course_build_checkpoints_scope"),)
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    build_version: Mapped[int] = mapped_column(Integer, nullable=False)
+    section_code: Mapped[str] = mapped_column(Text, nullable=False)
+    course_version_id: Mapped[str | None] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey("course_versions.id", ondelete="SET NULL"),
+        nullable=True,
+    )
+    next_stage_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    last_attempted_stage_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+        server_default=func.now(),
+        onupdate=func.now(),
+    )
+
+
 # `theme_tags`
 #
 # **Purpose:** reusable theme labels for words, sections, and units.

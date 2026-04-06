@@ -23,7 +23,14 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("SPEEDRULINGO_OPENAI_BASE_URL", "OPENAI_BASE_URL", "openai_base_url"),
     )
     llm_timeout_seconds: float = Field(default=200.0)
-    llm_cache_path: str = Field(default=".langchain_cache.db")
+    llm_cache_database_url: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices(
+            "SPEEDRULINGO_LLM_CACHE_DATABASE_URL",
+            "LLM_CACHE_DATABASE_URL",
+            "llm_cache_database_url",
+        ),
+    )
     openai_debug_logging: bool = Field(
         default=False,
         validation_alias=AliasChoices(

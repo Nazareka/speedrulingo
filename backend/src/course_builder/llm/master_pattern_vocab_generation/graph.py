@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from functools import lru_cache
+import logging
 from typing import Final, Literal, cast
 
 from langchain_core.language_models.chat_models import BaseChatModel
@@ -29,6 +30,7 @@ from course_builder.llm.pattern_vocab_generation.models import PatternVocabGener
 
 RUN_CURRENT_PATTERN: Final[Literal["run_current_pattern"]] = "run_current_pattern"
 END_NODE: Final[Literal["__end__"]] = "__end__"
+LOGGER = logging.getLogger(__name__)
 
 
 class InputState(TypedDict):
@@ -94,6 +96,13 @@ async def run_current_pattern(
     runtime: Runtime[Context],
 ) -> dict[str, object]:
     prepared = state["prepared_input"].prepared_patterns[state["pattern_index"]]
+    LOGGER.info(
+        "Pattern run start: code=%s mechanical_batches=%s anchored_batches=%s lexical=%s",
+        prepared.pattern_code,
+        len(prepared.mechanical_batches),
+        len(prepared.anchored_batches),
+        prepared.lexical_input is not None,
+    )
     existing_words = list(state["existing_words"])
     mechanical_graph = get_mechanical_word_generation_graph()
     anchored_graph = get_anchored_word_generation_graph()
@@ -139,6 +148,13 @@ async def run_current_pattern(
         existing_words = _extend_existing_words(existing_words, generated_words=lexical_result.generated_words)
 
     pattern_results = [*state["pattern_results"], pattern_result]
+    LOGGER.info(
+        "Pattern run complete: code=%s mechanical_words=%s anchored_words=%s lexical_words=%s",
+        prepared.pattern_code,
+        sum(len(result.words) for result in pattern_result.mechanical_results),
+        sum(len(result.words) for result in pattern_result.anchored_results),
+        0 if pattern_result.lexical_result is None else len(pattern_result.lexical_result.generated_words),
+    )
     return {
         "pattern_index": state["pattern_index"] + 1,
         "pattern_results": pattern_results,

@@ -7,6 +7,7 @@ Backend tests must run on Postgres only (no SQLite fallback). Use `./run_backend
 Use the backend virtualenv Python instead of plain `python` to run backend scripts manually.
 
 No legacy code.
+Commit only if user asked it explicitly.
 
 ## Exact command usage in this environment
 

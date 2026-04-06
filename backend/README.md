@@ -28,6 +28,8 @@ From the repo root:
 docker compose up --build
 ```
 
+This stack now also starts a self-hosted Prefect server for course-builder workflows.
+
 Or run backend-only tooling manually from this directory:
 
 ```bash
@@ -117,12 +119,12 @@ The important point is that this is not one large “generate everything in one 
 
 The main script for staged content generation is:
 
-- [backend/scripts/run_course_build_step.py](/Users/nazareka/projects/Speedrulingo/backend/scripts/run_course_build_step.py)
+- [backend/scripts/run_course_build.py](/Users/nazareka/projects/Speedrulingo/backend/scripts/run_course_build.py)
 
 From the `backend/` directory, run it like this:
 
 ```bash
-PYTHONPATH=src uv run python scripts/run_course_build_step.py --config config/en-ja-v1 --build-version 1 --section-code PRE_A1 --all-stages
+PYTHONPATH=src .venv/bin/python3 scripts/run_course_build.py --config config/en-ja-v1 --build-version 1 --section-code PRE_A1 --all-stages
 ```
 
 Important flags:
@@ -138,7 +140,33 @@ Important flags:
 - `--all-sections`
   - run declared sections in order instead of a single section
 
-The script writes section-specific checkpoints into `backend/build_checkpoints/`, so interrupted runs can resume from the next incomplete stage.
+Build progress checkpoints are stored in Postgres, so interrupted runs can resume from the next incomplete stage without any filesystem checkpoint files.
+
+## Prefect Server
+
+The Docker Compose stack includes a local self-hosted Prefect control plane:
+
+- Prefect UI/API: `http://localhost:4200`
+- worker pool: `speedrulingo-builder`
+- deployments:
+  - `course-build-section / section-build`
+  - `course-build-all-sections / all-sections-build`
+
+Start everything from repo root:
+
+```bash
+docker compose up --build
+```
+
+Then open the Prefect UI in the browser and trigger course builder runs there.
+
+Important details:
+
+- Prefect stores its own orchestration metadata in a separate `prefect` database inside the same Postgres container.
+- Course-builder flows still use the normal Speedrulingo database, and checkpoints now live in Postgres too.
+- Deployment parameter paths must be container paths, for example `/app/config/en-ja-v1`.
+- The worker runs the course builder as a Prefect `process` worker inside the backend image.
+- If your existing `pgdata` Docker volume was created before this Prefect integration, the `prefect` database init script will not rerun automatically. In that case, either recreate the Postgres volume or create the `prefect` database manually once.
 
 ## Notes
 

@@ -259,6 +259,7 @@ class LlmConfig(StrictModel):
 
 
 class CourseBuildConfig(StrictModel):
+    config_root: Path
     course: CourseConfig
     bootstrap: BootstrapConfig
     themes: ThemesConfig
@@ -448,6 +449,7 @@ class CourseBuildConfigLoader:
         )
 
         return CourseBuildConfig(
+            config_root=root,
             course=course,
             bootstrap=bootstrap,
             themes=themes,
