@@ -1,5 +1,6 @@
+import type { QueryClient } from "@tanstack/react-query";
 import {
-  createRootRoute,
+  createRootRouteWithContext,
   createRoute,
   createRouter,
   Link,
@@ -11,18 +12,39 @@ import {
 import { BookOpen, Home, LogOut, User } from "lucide-react";
 import { useEffect } from "react";
 
+import { kanjiLessonsQueryOptions } from "../features/kanji/queries";
+import { pathQueryOptions } from "../features/path/queries";
 import { AccountPage } from "../pages/account-page";
 import { KanjiPage } from "../pages/kanji-page";
-import { LessonPage } from "../pages/lesson-page";
+import { LessonPage } from "../pages/lesson";
 import { LoginPage } from "../pages/login-page";
-import { PathPage } from "../pages/path-page";
+import { PathPage } from "../pages/path/page";
 import { RegisterPage } from "../pages/register-page";
-import { useMeQuery } from "../shared/auth/session";
+import { currentCourseQueryOptions, meQueryOptions, useMeQuery } from "../shared/auth/session";
 import { clearToken, getToken } from "../shared/auth/token-store";
+import { authRouteSearchSchema } from "../shared/lib/auth-route-search";
+import { queryClient } from "../shared/lib/query-client";
 import { PageShell } from "../shared/ui/layout/page-shell";
 
 function hasToken(): boolean {
   return getToken().length > 0;
+}
+
+function RouteErrorFallback({ error, reset }: { error: unknown; reset: () => void }) {
+  const message = error instanceof Error ? error.message : String(error);
+  return (
+    <div className="mx-auto max-w-lg px-6 py-16 text-center">
+      <p className="font-semibold text-[var(--lesson-text)] text-lg">Something went wrong</p>
+      <p className="mt-2 text-[var(--lesson-text-muted)] text-sm">{message}</p>
+      <button
+        className="mt-6 rounded-full border border-[var(--lesson-border)] px-4 py-2 text-[var(--lesson-text)] text-sm"
+        onClick={() => reset()}
+        type="button"
+      >
+        Try again
+      </button>
+    </div>
+  );
 }
 
 function AppFrame() {
@@ -121,7 +143,10 @@ function AppFrame() {
   );
 }
 
-const rootRoute = createRootRoute({ component: AppFrame });
+const rootRoute = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  component: AppFrame,
+  errorComponent: RouteErrorFallback,
+});
 
 const indexRoute = createRoute({
   getParentRoute: () => rootRoute,
@@ -135,12 +160,14 @@ const loginRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/login",
   component: LoginPage,
+  validateSearch: (raw) => authRouteSearchSchema.parse(raw),
 });
 
 const registerRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/register",
   component: RegisterPage,
+  validateSearch: (raw) => authRouteSearchSchema.parse(raw),
 });
 
 const pathRoute = createRoute({
@@ -152,6 +179,7 @@ const pathRoute = createRoute({
       throw redirect({ to: "/login" });
     }
   },
+  loader: ({ context }) => context.queryClient.ensureQueryData(pathQueryOptions()),
 });
 
 const lessonRoute = createRoute({
@@ -163,6 +191,7 @@ const lessonRoute = createRoute({
       throw redirect({ to: "/login" });
     }
   },
+  loader: ({ context }) => context.queryClient.ensureQueryData(pathQueryOptions()),
 });
 
 const kanjiRoute = createRoute({
@@ -174,6 +203,7 @@ const kanjiRoute = createRoute({
       throw redirect({ to: "/login" });
     }
   },
+  loader: ({ context }) => context.queryClient.ensureQueryData(kanjiLessonsQueryOptions()),
 });
 
 const accountRoute = createRoute({
@@ -185,6 +215,11 @@ const accountRoute = createRoute({
       throw redirect({ to: "/login" });
     }
   },
+  loader: ({ context }) =>
+    Promise.all([
+      context.queryClient.ensureQueryData(meQueryOptions(true)),
+      context.queryClient.ensureQueryData(currentCourseQueryOptions(true)),
+    ]),
 });
 
 const routeTree = rootRoute.addChildren([
@@ -197,7 +232,11 @@ const routeTree = rootRoute.addChildren([
   accountRoute,
 ]);
 
-export const router = createRouter({ routeTree, defaultPreload: "intent" });
+const router = createRouter({
+  routeTree,
+  defaultPreload: "intent",
+  context: { queryClient },
+});
 
 declare module "@tanstack/react-router" {
   interface Register {
@@ -206,5 +245,5 @@ declare module "@tanstack/react-router" {
 }
 
 export function AppRouter() {
-  return <RouterProvider router={router} />;
+  return <RouterProvider router={router} context={{ queryClient }} />;
 }

@@ -18,6 +18,9 @@
     "lineWidth": 100
   },
   "css": {
+    "formatter": {
+      "enabled": true
+    },
     "parser": {
       "tailwindDirectives": true
     }
@@ -36,6 +39,7 @@
         "noTsIgnore": "error"
       },
       "style": {
+        "useImportType": "error",
         "useFilenamingConvention": {
           "level": "error",
           "options": {
@@ -46,8 +50,13 @@
         },
         "noNonNullAssertion": "error"
       },
+      "performance": {
+        "noAccumulatingSpread": "error",
+        "noAwaitInLoops": "warn"
+      },
       "nursery": {
-        "useSortedClasses": "warn"
+        "useSortedClasses": "warn",
+        "noFloatingPromises": "warn"
       }
     }
   },

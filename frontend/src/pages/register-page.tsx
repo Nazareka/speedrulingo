@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -80,6 +80,7 @@ function EyeIcon(props: { open: boolean }) {
 
 export function RegisterPage() {
   const navigate = useNavigate();
+  const search = useSearch({ from: "/register" });
   const registerMutation = useRegisterMutation();
   const passwordId = useId();
   const confirmPasswordId = useId();
@@ -124,7 +125,7 @@ export function RegisterPage() {
                   email: formValues.email,
                   password: formValues.password,
                 });
-                await navigate({ to: "/path" });
+                await navigate({ to: search.redirect ?? "/path" });
               })}
             >
               <label className="grid gap-1.5">
@@ -216,6 +217,7 @@ export function RegisterPage() {
                 Already have an account?{" "}
                 <Link
                   className="font-medium text-[var(--lesson-accent)] underline underline-offset-4"
+                  search={search.redirect ? { redirect: search.redirect } : {}}
                   to="/login"
                 >
                   Log in

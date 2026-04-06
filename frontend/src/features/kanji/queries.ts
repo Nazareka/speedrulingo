@@ -1,51 +1,58 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
 import {
+  authedRequestHeaders,
   kanjiDetailApiV1KanjiKanjiCharGet,
   kanjiLessonsApiV1KanjiLessonsGet,
+  requireResponseData,
 } from "../../shared/api";
 import type {
   KanjiDetailResponse,
   KanjiLessonsResponse,
 } from "../../shared/api/generated/types.gen";
-import { buildAuthedHeaders } from "../auth/mutations";
 
-export const kanjiKeys = {
+const kanjiKeys = {
   lessons: ["kanji", "lessons"] as const,
   detail: (kanjiChar: string) => ["kanji", kanjiChar] as const,
 };
 
-export function useKanjiLessonsQuery() {
-  return useQuery({
+export function kanjiLessonsQueryOptions() {
+  return queryOptions({
     queryKey: kanjiKeys.lessons,
-    queryFn: async () => {
-      const result = await kanjiLessonsApiV1KanjiLessonsGet({ headers: buildAuthedHeaders() });
-      if (result.data === undefined) {
-        throw new Error("API response was empty.");
-      }
-      return result.data as unknown as KanjiLessonsResponse;
+    queryFn: async ({ signal }) => {
+      const result = await kanjiLessonsApiV1KanjiLessonsGet({
+        headers: authedRequestHeaders(),
+        signal,
+      });
+      return requireResponseData(result.data as KanjiLessonsResponse | undefined);
     },
     staleTime: 30_000,
   });
 }
 
-export function useKanjiDetailQuery(kanjiChar: string | null) {
-  return useQuery({
+function kanjiDetailQueryOptions(kanjiChar: string | null) {
+  return queryOptions({
     queryKey: kanjiKeys.detail(kanjiChar ?? "none"),
-    queryFn: async () => {
+    queryFn: async ({ signal }) => {
       if (!kanjiChar) {
         throw new Error("Missing kanji");
       }
       const result = await kanjiDetailApiV1KanjiKanjiCharGet({
-        headers: buildAuthedHeaders(),
+        headers: authedRequestHeaders(),
         path: { kanji_char: kanjiChar },
+        signal,
       });
-      if (result.data === undefined) {
-        throw new Error("API response was empty.");
-      }
-      return result.data as unknown as KanjiDetailResponse;
+      return requireResponseData(result.data as KanjiDetailResponse | undefined);
     },
     enabled: kanjiChar !== null,
     staleTime: 30_000,
   });
+}
+
+export function useKanjiLessonsQuery() {
+  return useQuery(kanjiLessonsQueryOptions());
+}
+
+export function useKanjiDetailQuery(kanjiChar: string | null) {
+  return useQuery(kanjiDetailQueryOptions(kanjiChar));
 }

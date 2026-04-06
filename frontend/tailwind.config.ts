@@ -1,7 +1,8 @@
 import type { Config } from "tailwindcss";
 
 const config: Config = {
-  content: ["./index.html", "./src/**/*.{ts,tsx}"],
+  // Scan every file that can emit Tailwind classes (routes, features, shared, etc.)
+  content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {},
   },

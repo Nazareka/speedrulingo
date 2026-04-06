@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Link, useNavigate } from "@tanstack/react-router";
+import { Link, useNavigate, useSearch } from "@tanstack/react-router";
 import { useId, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -74,6 +74,7 @@ function EyeIcon(props: { open: boolean }) {
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const search = useSearch({ from: "/login" });
   const loginMutation = useLoginMutation();
   const passwordId = useId();
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
@@ -112,7 +113,7 @@ export function LoginPage() {
               className="mt-7 grid gap-5"
               onSubmit={form.handleSubmit(async (values) => {
                 await loginMutation.mutateAsync(values);
-                await navigate({ to: "/path" });
+                await navigate({ to: search.redirect ?? "/path" });
               })}
             >
               <label className="grid gap-1.5">
@@ -181,6 +182,7 @@ export function LoginPage() {
                 Don&apos;t have an account?{" "}
                 <Link
                   className="font-medium text-[var(--lesson-accent)] underline underline-offset-4"
+                  search={search.redirect ? { redirect: search.redirect } : {}}
                   to="/register"
                 >
                   Create one

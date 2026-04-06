@@ -1,23 +1,23 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import { pathApiV1PathGet } from "../../shared/api";
+import { authedRequestHeaders, pathApiV1PathGet, requireResponseData } from "../../shared/api";
 import type { PathResponse } from "../../shared/api/generated/types.gen";
-import { buildAuthedHeaders } from "../auth/mutations";
 
 export const pathKeys = {
   all: ["path"] as const,
 };
 
-export function usePathQuery() {
-  return useQuery({
+export function pathQueryOptions() {
+  return queryOptions({
     queryKey: pathKeys.all,
-    queryFn: async () => {
-      const result = await pathApiV1PathGet({ headers: buildAuthedHeaders() });
-      if (result.data === undefined) {
-        throw new Error("API response was empty.");
-      }
-      return result.data as unknown as PathResponse;
+    queryFn: async ({ signal }) => {
+      const result = await pathApiV1PathGet({ headers: authedRequestHeaders(), signal });
+      return requireResponseData(result.data as PathResponse | undefined);
     },
     staleTime: 30_000,
   });
+}
+
+export function usePathQuery() {
+  return useQuery(pathQueryOptions());
 }

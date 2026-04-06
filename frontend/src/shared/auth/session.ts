@@ -1,6 +1,11 @@
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useQuery } from "@tanstack/react-query";
 
-import { authHeaders, currentCourseApiV1CourseCurrentGet, meApiV1AuthMeGet } from "../api";
+import {
+  authHeaders,
+  currentCourseApiV1CourseCurrentGet,
+  meApiV1AuthMeGet,
+  requireResponseData,
+} from "../api";
 import type { CurrentCourseResponse, MeResponse } from "../api/generated/types.gen";
 import { getToken } from "./token-store";
 
@@ -9,39 +14,41 @@ export const sessionKeys = {
   currentCourse: ["session", "current-course"] as const,
 };
 
-export function isAuthenticated(): boolean {
+function isAuthenticated(): boolean {
   return getToken().length > 0;
 }
 
-function requireData<T>(data: T | undefined): T {
-  if (data === undefined) {
-    throw new Error("API response was empty.");
-  }
-  return data;
+export function meQueryOptions(enabled: boolean) {
+  return queryOptions({
+    queryKey: sessionKeys.me,
+    queryFn: async ({ signal }) => {
+      const result = await meApiV1AuthMeGet({ headers: authHeaders(getToken()), signal });
+      return requireResponseData(result.data as MeResponse | undefined);
+    },
+    staleTime: 60_000,
+    enabled,
+  });
+}
+
+export function currentCourseQueryOptions(enabled: boolean) {
+  return queryOptions({
+    queryKey: sessionKeys.currentCourse,
+    queryFn: async ({ signal }) => {
+      const result = await currentCourseApiV1CourseCurrentGet({
+        headers: authHeaders(getToken()),
+        signal,
+      });
+      return requireResponseData(result.data as CurrentCourseResponse | undefined);
+    },
+    staleTime: 60_000,
+    enabled,
+  });
 }
 
 export function useMeQuery(enabled = isAuthenticated()) {
-  return useQuery({
-    queryKey: sessionKeys.me,
-    queryFn: async () => {
-      const result = await meApiV1AuthMeGet({ headers: authHeaders(getToken()) });
-      return requireData<MeResponse>(result.data as MeResponse | undefined);
-    },
-    enabled,
-    staleTime: 60_000,
-  });
+  return useQuery(meQueryOptions(enabled));
 }
 
 export function useCurrentCourseQuery(enabled = isAuthenticated()) {
-  return useQuery({
-    queryKey: sessionKeys.currentCourse,
-    queryFn: async () => {
-      const result = await currentCourseApiV1CourseCurrentGet({
-        headers: authHeaders(getToken()),
-      });
-      return requireData<CurrentCourseResponse>(result.data as CurrentCourseResponse | undefined);
-    },
-    enabled,
-    staleTime: 60_000,
-  });
+  return useQuery(currentCourseQueryOptions(enabled));
 }
