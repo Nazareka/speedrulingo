@@ -99,9 +99,11 @@ Important flags:
 - `--all-sections`
   - run declared sections in order instead of one section
 
-Build checkpoints are stored in Postgres, so interrupted runs can resume from the next incomplete stage without filesystem checkpoint files.
+Build progress and operator-visible run state are stored in Postgres, so interrupted runs can resume without filesystem checkpoint files.
 
-The build is now orchestrated through Prefect flows, but the underlying runtime/checkpoint system is still the source of truth for stage execution and resuming.
+The build is now orchestrated through DBOS workflows, while the runtime tables remain the source of truth for stage execution and operator-visible progress.
+
+There is also a Reflex operator UI under [ui/](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/ui) for starting builds and inspecting live run progress and logs.
 
 ## Stage Order
 

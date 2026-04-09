@@ -5,6 +5,7 @@ description = "Speedrulingo PoC API"
 requires-python = ">=3.12"
 dependencies = [
   "alembic>=1.16.0",
+  "dbos>=1.0.0",
   "fastapi>=0.129.0",
   "fugashi>=1.4.0",
   "langchain-community>=0.3.31",
@@ -17,11 +18,12 @@ dependencies = [
   "pydantic-settings>=2.6.1",
   "pyyaml>=6.0.2",
   "passlib>=1.7.4",
-  "prefect>=3.0.0",
   "pyjwt>=2.10.1",
   "sqladmin==0.24.0",
   "unidic-lite>=1.0.8",
   "langchain-openrouter>=0.1.0",
+  "reflex>=0.8.23a4",
+  "redis>=6.4.0",
 ]
 
 [dependency-groups]
@@ -120,6 +122,10 @@ ignore_missing_imports = true
 [[tool.mypy.overrides]]
 module = ["fugashi", "fugashi.*"]
 ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["course_builder.ui.components"]
+ignore_errors = true
 
 
 [tool.pytest.ini_options]

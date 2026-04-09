@@ -6,24 +6,34 @@ import logging
 from pathlib import Path
 from typing import Any, cast
 
-from sqlalchemy import select
-from sqlalchemy.exc import ResourceClosedError
+from sqlalchemy.exc import IntegrityError, ResourceClosedError
 from sqlalchemy.orm import Session
 
 from course_builder.config import CourseBuildConfig, CourseBuildConfigLoader
 from course_builder.runtime.models import BuildContext, BuildStep, compute_config_hash
 from course_builder.runtime.persistence import create_draft_build_row
+from course_builder.runtime.queries import (
+    get_build_run,
+    get_completed_stage_indexes,
+    get_course_version,
+    get_existing_course_version_for_build,
+    get_latest_attempted_stage_name,
+    get_latest_course_version_id_for_build_run,
+    get_latest_section_build_run_id,
+    list_completed_stage_identities,
+)
 from course_builder.runtime.stage_registry import get_registered_build_stages
-from domain.content.models import CourseBuildCheckpoint, CourseVersion
+from domain.content.models import CourseBuildRun
 
 LOGGER = logging.getLogger(__name__)
 STAGE0_CREATE_COURSE_BUILD = "create_course_build"
 
 
 @dataclass(frozen=True, slots=True)
-class BuildCheckpoint:
+class BuildProgressSnapshot:
+    build_run_id: str
     build_version: int
-    section_code: str
+    section_code: str | None
     course_version_id: str | None
     next_stage_index: int
     last_attempted_stage_name: str | None = None
@@ -68,90 +78,106 @@ def _total_stage_count(stages: tuple[BuildStep, ...]) -> int:
     return len(stages) + 1
 
 
-def _checkpoint_row(
+def _resolve_section_code(*, build_run: CourseBuildRun, section_code: str | None) -> str | None:
+    return section_code or build_run.section_code
+
+
+def _expected_stage_name_by_index(*, stages: tuple[BuildStep, ...], stage_index: int) -> str:
+    if stage_index == 0:
+        return STAGE0_CREATE_COURSE_BUILD
+    total_stage_count = _total_stage_count(stages)
+    if stage_index < 0 or stage_index >= total_stage_count:
+        msg = f"Recorded stage_index {stage_index} is outside the valid range 0..{total_stage_count - 1}"
+        raise ValueError(msg)
+    return stages[stage_index - 1].name
+
+
+def _validate_stage_history_matches_registry(
     db: Session,
     *,
-    build_version: int,
-    section_code: str,
-) -> CourseBuildCheckpoint | None:
-    return db.scalar(
-        select(CourseBuildCheckpoint).where(
-            CourseBuildCheckpoint.build_version == build_version,
-            CourseBuildCheckpoint.section_code == section_code,
-        )
-    )
-
-
-def read_checkpoint(db: Session, *, build_version: int, section_code: str) -> BuildCheckpoint:
-    row = _checkpoint_row(db, build_version=build_version, section_code=section_code)
-    if row is None:
-        LOGGER.info(
-            "Checkpoint missing; starting from stage 0 build_version=%s section_code=%s",
-            build_version,
-            section_code,
-        )
-        return BuildCheckpoint(
-            build_version=build_version,
-            section_code=section_code,
-            course_version_id=None,
-            next_stage_index=0,
-            last_attempted_stage_name=None,
-        )
-    return BuildCheckpoint(
-        build_version=row.build_version,
-        section_code=row.section_code,
-        course_version_id=row.course_version_id,
-        next_stage_index=row.next_stage_index,
-        last_attempted_stage_name=row.last_attempted_stage_name,
-    )
-
-
-def write_checkpoint(db: Session, checkpoint: BuildCheckpoint) -> None:
-    row = _checkpoint_row(
-        db,
-        build_version=checkpoint.build_version,
-        section_code=checkpoint.section_code,
-    )
-    if row is None:
-        db.add(
-            CourseBuildCheckpoint(
-                build_version=checkpoint.build_version,
-                section_code=checkpoint.section_code,
-                course_version_id=checkpoint.course_version_id,
-                next_stage_index=checkpoint.next_stage_index,
-                last_attempted_stage_name=checkpoint.last_attempted_stage_name,
-            )
-        )
-        db.flush()
-        return
-    row.course_version_id = checkpoint.course_version_id
-    row.next_stage_index = checkpoint.next_stage_index
-    row.last_attempted_stage_name = checkpoint.last_attempted_stage_name
-    db.flush()
-
-
-def mark_checkpoint_attempt(
-    db: Session,
-    *,
-    build_version: int,
-    section_code: str,
-    stage_name: str,
+    build_run_id: str,
+    section_code: str | None,
+    stages: tuple[BuildStep, ...],
 ) -> None:
-    checkpoint = read_checkpoint(db, build_version=build_version, section_code=section_code)
-    write_checkpoint(
+    rows = list_completed_stage_identities(
         db,
-        BuildCheckpoint(
-            build_version=checkpoint.build_version,
-            section_code=checkpoint.section_code,
-            course_version_id=checkpoint.course_version_id,
-            next_stage_index=checkpoint.next_stage_index,
-            last_attempted_stage_name=stage_name,
+        build_run_id=build_run_id,
+        section_code=section_code,
+    )
+    for stage_index, stage_name in rows:
+        expected_stage_name = _expected_stage_name_by_index(stages=stages, stage_index=stage_index)
+        if stage_name != expected_stage_name:
+            msg = (
+                "Build stage registry changed and existing stage progress can no longer be resumed safely: "
+                f"build_run_id={build_run_id} stage_index={stage_index} "
+                f"recorded_stage_name={stage_name!r} expected_stage_name={expected_stage_name!r}"
+            )
+            raise ValueError(msg)
+
+
+def _derived_next_stage_index(
+    *,
+    stages: tuple[BuildStep, ...],
+    completed_stage_indexes: set[int],
+) -> int:
+    next_stage_index = 0
+    total_stage_count = _total_stage_count(stages)
+    while next_stage_index in completed_stage_indexes:
+        next_stage_index += 1
+    if next_stage_index > total_stage_count:
+        msg = f"Derived next_stage_index must be <= {total_stage_count}, got {next_stage_index}"
+        raise ValueError(msg)
+    return next_stage_index
+
+
+def read_build_progress(
+    db: Session,
+    *,
+    build_run_id: str,
+    section_code: str | None = None,
+) -> BuildProgressSnapshot:
+    build_run = get_build_run(db, build_run_id=build_run_id)
+    if build_run is None:
+        msg = f"Unknown build_run_id={build_run_id}"
+        raise ValueError(msg)
+    resolved_section_code = _resolve_section_code(build_run=build_run, section_code=section_code)
+    stages = get_build_stages()
+    _validate_stage_history_matches_registry(
+        db,
+        build_run_id=build_run_id,
+        section_code=resolved_section_code,
+        stages=stages,
+    )
+    completed_stage_indexes = get_completed_stage_indexes(
+        db,
+        build_run_id=build_run_id,
+        section_code=resolved_section_code,
+    )
+    if not completed_stage_indexes:
+        LOGGER.info(
+            "Build progress missing; starting from stage 0 section_code=%s",
+            resolved_section_code,
+        )
+    course_version_id = get_latest_course_version_id_for_build_run(db, build_run=build_run)
+    return BuildProgressSnapshot(
+        build_run_id=build_run_id,
+        build_version=build_run.build_version,
+        section_code=resolved_section_code,
+        course_version_id=course_version_id,
+        next_stage_index=_derived_next_stage_index(
+            stages=stages,
+            completed_stage_indexes=completed_stage_indexes,
+        ),
+        last_attempted_stage_name=get_latest_attempted_stage_name(
+            db,
+            build_run_id=build_run_id,
+            section_code=resolved_section_code,
         ),
     )
 
 
 def _build_context(*, db: Session, config: CourseBuildConfig, course_version_id: str) -> BuildContext:
-    course_version = db.get(CourseVersion, course_version_id)
+    course_version = get_course_version(db, course_version_id=course_version_id)
     if course_version is None:
         msg = f"Unknown course_version_id={course_version_id}"
         raise ValueError(msg)
@@ -168,7 +194,7 @@ def _build_context(*, db: Session, config: CourseBuildConfig, course_version_id:
 def _resolve_next_stage_index(*, next_stage_index: int, stages: tuple[BuildStep, ...]) -> int:
     total_stage_count = _total_stage_count(stages)
     if next_stage_index < 0:
-        msg = f"Checkpoint next_stage_index must be >= 0, got {next_stage_index}"
+        msg = f"Build progress next_stage_index must be >= 0, got {next_stage_index}"
         raise ValueError(msg)
     if next_stage_index >= total_stage_count:
         msg = "All build stages are already completed"
@@ -176,18 +202,62 @@ def _resolve_next_stage_index(*, next_stage_index: int, stages: tuple[BuildStep,
     return next_stage_index
 
 
-def resolve_next_stage_name(*, db: Session, build_version: int, section_code: str) -> str:
-    checkpoint = read_checkpoint(db, build_version=build_version, section_code=section_code)
+def resolve_next_stage_name(*, db: Session, build_run_id: str, section_code: str | None = None) -> str:
+    progress = read_build_progress(db, build_run_id=build_run_id, section_code=section_code)
     stages = get_build_stages()
-    next_stage_index = _resolve_next_stage_index(next_stage_index=checkpoint.next_stage_index, stages=stages)
+    next_stage_index = _resolve_next_stage_index(next_stage_index=progress.next_stage_index, stages=stages)
     if next_stage_index == 0:
         return STAGE0_CREATE_COURSE_BUILD
     return stages[next_stage_index - 1].name
 
 
-def is_checkpoint_fully_completed(*, db: Session, build_version: int, section_code: str) -> bool:
-    checkpoint = read_checkpoint(db, build_version=build_version, section_code=section_code)
-    return checkpoint.next_stage_index == _total_stage_count(get_build_stages())
+def is_build_progress_fully_completed(*, db: Session, build_run_id: str, section_code: str | None = None) -> bool:
+    progress = read_build_progress(db, build_run_id=build_run_id, section_code=section_code)
+    return progress.next_stage_index == _total_stage_count(get_build_stages())
+
+
+def is_section_build_fully_completed(
+    *,
+    db: Session,
+    build_version: int,
+    config_path: str,
+    section_code: str,
+) -> bool:
+    latest_section_build_run_id = get_latest_section_build_run_id(
+        db,
+        build_version=build_version,
+        config_path=config_path,
+        section_code=section_code,
+    )
+    if latest_section_build_run_id is None:
+        return False
+    return is_build_progress_fully_completed(
+        db=db,
+        build_run_id=latest_section_build_run_id,
+        section_code=section_code,
+    )
+
+
+def read_latest_section_build_progress(
+    *,
+    db: Session,
+    build_version: int,
+    config_path: str,
+    section_code: str,
+) -> BuildProgressSnapshot | None:
+    latest_section_build_run_id = get_latest_section_build_run_id(
+        db,
+        build_version=build_version,
+        config_path=config_path,
+        section_code=section_code,
+    )
+    if latest_section_build_run_id is None:
+        return None
+    return read_build_progress(
+        db,
+        build_run_id=latest_section_build_run_id,
+        section_code=section_code,
+    )
 
 
 def run_next_build_stage(
@@ -195,11 +265,16 @@ def run_next_build_stage(
     db: Session,
     config: CourseBuildConfig,
     build_version: int,
+    build_run_id: str,
 ) -> BuildStageRunResult:
     stages = get_build_stages()
-    checkpoint = read_checkpoint(db, build_version=build_version, section_code=config.current_section_code)
+    progress = read_build_progress(
+        db,
+        build_run_id=build_run_id,
+        section_code=config.current_section_code,
+    )
     next_stage_index = _resolve_next_stage_index(
-        next_stage_index=checkpoint.next_stage_index,
+        next_stage_index=progress.next_stage_index,
         stages=stages,
     )
     config_hash = compute_config_hash(config)
@@ -207,9 +282,10 @@ def run_next_build_stage(
     previous_section_codes = config.previous_section_codes
     if previous_section_codes:
         previous_section_code = previous_section_codes[-1]
-        if not is_checkpoint_fully_completed(
+        if not is_section_build_fully_completed(
             db=db,
             build_version=build_version,
+            config_path=str(config.config_root),
             section_code=previous_section_code,
         ):
             msg = (
@@ -219,16 +295,14 @@ def run_next_build_stage(
             raise ValueError(msg)
 
     if next_stage_index == 0:
-        existing_course_version = db.scalar(
-            select(CourseVersion).where(
-                CourseVersion.code == config.course.code,
-                CourseVersion.version == config.course.version,
-                CourseVersion.build_version == build_version,
-            )
+        existing_course_version = get_existing_course_version_for_build(
+            db,
+            course_code=config.course.code,
+            course_version=config.course.version,
+            build_version=build_version,
         )
         LOGGER.info(
-            "Running next build stage build_version=%s section_code=%s stage_index=0 stage_name=%s",
-            build_version,
+            "Running next build stage section_code=%s stage_index=0 stage_name=%s",
             config.current_section_code,
             STAGE0_CREATE_COURSE_BUILD,
         )
@@ -239,27 +313,32 @@ def run_next_build_stage(
                     "before the first section has created the course build"
                 )
                 raise ValueError(msg)
-            course_version = create_draft_build_row(
-                db,
-                config=config,
-                build_version=build_version,
-                config_hash=config_hash,
-            )
+            try:
+                course_version = create_draft_build_row(
+                    db,
+                    config=config,
+                    build_version=build_version,
+                    config_hash=config_hash,
+                )
+            except IntegrityError as exc:
+                db.rollback()
+                msg = (
+                    "Failed to create draft course_version row. "
+                    "A build with "
+                    f"code={config.course.code!r}, version={config.course.version}, "
+                    f"and build_version={build_version} may already exist."
+                )
+                raise ValueError(msg) from exc
         else:
             course_version = existing_course_version
-        updated_checkpoint = BuildCheckpoint(
-            build_version=build_version,
-            section_code=config.current_section_code,
-            course_version_id=course_version.id,
-            next_stage_index=1,
-            last_attempted_stage_name=STAGE0_CREATE_COURSE_BUILD,
-        )
         LOGGER.info(
-            "Completed build stage course_version_id=%s build_version=%s stage_index=0 stage_name=%s remaining_stages=%s",
-            course_version.id,
-            build_version,
+            "Completed build stage stage_index=0 stage_name=%s remaining_stages=%s",
             STAGE0_CREATE_COURSE_BUILD,
             len(stages),
+        )
+        LOGGER.info(
+            "Resolved course version course_version_id=%s",
+            course_version.id,
         )
         result = BuildStageRunResult(
             build_version=build_version,
@@ -269,17 +348,21 @@ def run_next_build_stage(
             remaining_stage_count=len(stages),
         )
     else:
-        course_version_id = checkpoint.course_version_id
-        if course_version_id is None:
-            msg = "Checkpoint missing course_version_id after completed stage 0"
+        persisted_course_version = get_existing_course_version_for_build(
+            db,
+            course_code=config.course.code,
+            course_version=config.course.version,
+            build_version=build_version,
+        )
+        if persisted_course_version is None:
+            msg = "Build progress indicates completed stage 0, but no course_version row exists"
             raise ValueError(msg)
+        course_version_id = persisted_course_version.id
         next_stage = stages[next_stage_index - 1]
         context = _build_context(db=db, config=config, course_version_id=course_version_id)
 
         LOGGER.info(
-            "Running next build stage course_version_id=%s build_version=%s stage_index=%s stage_name=%s",
-            course_version_id,
-            build_version,
+            "Running next build stage stage_index=%s stage_name=%s",
             next_stage_index,
             next_stage.name,
         )
@@ -294,25 +377,14 @@ def run_next_build_stage(
                 savepoint.rollback()
             db.rollback()
             LOGGER.exception(
-                "Failed build stage course_version_id=%s build_version=%s stage_index=%s stage_name=%s",
-                course_version_id,
-                build_version,
+                "Failed build stage stage_index=%s stage_name=%s",
                 next_stage_index,
                 next_stage.name,
             )
             raise
 
-        updated_checkpoint = BuildCheckpoint(
-            build_version=build_version,
-            section_code=config.current_section_code,
-            course_version_id=course_version_id,
-            next_stage_index=next_stage_index + 1,
-            last_attempted_stage_name=next_stage.name,
-        )
         LOGGER.info(
-            "Completed build stage course_version_id=%s build_version=%s stage_index=%s stage_name=%s remaining_stages=%s",
-            course_version_id,
-            build_version,
+            "Completed build stage stage_index=%s stage_name=%s remaining_stages=%s",
             next_stage_index,
             next_stage.name,
             len(stages) - next_stage_index,
@@ -325,6 +397,5 @@ def run_next_build_stage(
             remaining_stage_count=len(stages) - next_stage_index,
         )
 
-    write_checkpoint(db, updated_checkpoint)
     db.commit()
     return result

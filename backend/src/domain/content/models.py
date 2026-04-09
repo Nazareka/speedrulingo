@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from uuid import uuid4
 
-from sqlalchemy import Boolean, DateTime, ForeignKey, Integer, Text, UniqueConstraint, func
+from sqlalchemy import BigInteger, Boolean, DateTime, ForeignKey, Integer, Sequence, Text, UniqueConstraint, func
 from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
@@ -38,27 +38,82 @@ class CourseVersion(Base):
     # * `unique (code, version, build_version)` — one build per code/version/build_version.
 
 
-class CourseBuildCheckpoint(Base):
-    __tablename__ = "course_build_checkpoints"
-    __table_args__ = (UniqueConstraint("build_version", "section_code", name="uq_course_build_checkpoints_scope"),)
+class CourseBuildRun(Base):
+    __tablename__ = "course_build_runs"
 
     id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    parent_build_run_id: Mapped[str | None] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey("course_build_runs.id", ondelete="CASCADE"),
+        nullable=True,
+    )
+    workflow_id: Mapped[str | None] = mapped_column(Text, nullable=True)
     build_version: Mapped[int] = mapped_column(Integer, nullable=False)
-    section_code: Mapped[str] = mapped_column(Text, nullable=False)
+    config_path: Mapped[str] = mapped_column(Text, nullable=False)
+    scope_kind: Mapped[str] = mapped_column(Text, nullable=False)
+    section_code: Mapped[str | None] = mapped_column(Text, nullable=True)
+    status: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    started_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    requested_by: Mapped[str | None] = mapped_column(Text, nullable=True)
     course_version_id: Mapped[str | None] = mapped_column(
         UUID(as_uuid=False),
         ForeignKey("course_versions.id", ondelete="SET NULL"),
         nullable=True,
     )
-    next_stage_index: Mapped[int] = mapped_column(Integer, nullable=False)
-    last_attempted_stage_name: Mapped[str | None] = mapped_column(Text, nullable=True)
-    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
-    updated_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False,
-        server_default=func.now(),
-        onupdate=func.now(),
+    all_stages: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
+    completed_stage_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    total_stage_count: Mapped[int] = mapped_column(Integer, nullable=False, default=0, server_default="0")
+    current_stage_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    last_heartbeat_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+
+
+class CourseBuildStageRun(Base):
+    __tablename__ = "course_build_stage_runs"
+    __table_args__ = (
+        UniqueConstraint("build_run_id", "section_code", "stage_index", name="uq_course_build_stage_runs_scope"),
     )
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    build_run_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey("course_build_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    section_code: Mapped[str] = mapped_column(Text, nullable=False)
+    stage_name: Mapped[str] = mapped_column(Text, nullable=False)
+    stage_index: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(Text, nullable=False)
+    started_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
+    finished_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
+class CourseBuildLogEvent(Base):
+    __tablename__ = "course_build_log_events"
+
+    id: Mapped[str] = mapped_column(UUID(as_uuid=False), primary_key=True, default=lambda: str(uuid4()))
+    # Global monotonic ordering across every build run. This is intentionally
+    # not scoped per run so aggregated parent+child log views can preserve the
+    # original append order with a single ORDER BY sequence_number.
+    sequence_number: Mapped[int] = mapped_column(
+        BigInteger,
+        Sequence("course_build_log_events_sequence_number_seq"),
+        nullable=False,
+        unique=True,
+    )
+    build_run_id: Mapped[str] = mapped_column(
+        UUID(as_uuid=False),
+        ForeignKey("course_build_runs.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    section_code: Mapped[str | None] = mapped_column(Text, nullable=True)
+    stage_name: Mapped[str | None] = mapped_column(Text, nullable=True)
+    level: Mapped[str] = mapped_column(Text, nullable=False)
+    message: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, server_default=func.now())
 
 
 # `theme_tags`

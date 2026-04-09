@@ -28,7 +28,7 @@ From the repo root:
 docker compose up --build
 ```
 
-This stack now also starts a self-hosted Prefect server for course-builder workflows.
+The course builder now runs through DBOS workflows inside the backend runtime.
 
 Or run backend-only tooling manually from this directory:
 
@@ -140,33 +140,45 @@ Important flags:
 - `--all-sections`
   - run declared sections in order instead of a single section
 
-Build progress checkpoints are stored in Postgres, so interrupted runs can resume from the next incomplete stage without any filesystem checkpoint files.
+Build progress and operator-visible run state are stored in Postgres, so interrupted runs can resume without filesystem checkpoint files.
 
-## Prefect Server
+## DBOS Workflows
 
-The Docker Compose stack includes a local self-hosted Prefect control plane:
-
-- Prefect UI/API: `http://localhost:4200`
-- worker pool: `speedrulingo-builder`
-- deployments:
-  - `course-build-section / section-build`
-  - `course-build-all-sections / all-sections-build`
-
-Start everything from repo root:
-
-```bash
-docker compose up --build
-```
-
-Then open the Prefect UI in the browser and trigger course builder runs there.
+Course-builder orchestration now uses DBOS directly instead of a separate workflow platform.
 
 Important details:
 
-- Prefect stores its own orchestration metadata in a separate `prefect` database inside the same Postgres container.
-- Course-builder flows still use the normal Speedrulingo database, and checkpoints now live in Postgres too.
-- Deployment parameter paths must be container paths, for example `/app/config/en-ja-v1`.
-- The worker runs the course builder as a Prefect `process` worker inside the backend image.
-- If your existing `pgdata` Docker volume was created before this Prefect integration, the `prefect` database init script will not rerun automatically. In that case, either recreate the Postgres volume or create the `prefect` database manually once.
+- DBOS system state is stored in the `speedrulingo_dbos` database inside the same Postgres container.
+- Course-builder logical progress still lives in the main Speedrulingo database via `course_build_runs`, `course_build_stage_runs`, and `course_build_log_events`.
+- Workflow execution is started through [run_course_build.py](/Users/nazareka/projects/Speedrulingo/backend/scripts/run_course_build.py).
+
+## Reflex Operator UI
+
+There is also a small Reflex-based operator console for starting builds and monitoring live run state.
+
+From `backend/`:
+
+```bash
+make ui
+```
+
+That starts the Reflex frontend on `http://localhost:3001` and its backend on `http://localhost:8001`.
+
+Via Docker Compose:
+
+```bash
+cd /Users/nazareka/projects/Speedrulingo
+docker compose up -d course-builder-ui
+```
+
+That exposes the same Reflex UI on `http://localhost:3001`.
+
+To run a section build locally:
+
+```bash
+cd /Users/nazareka/projects/Speedrulingo/backend
+PYTHONPATH=src .venv/bin/python3 scripts/run_course_build.py --config config/en-ja-v1 --build-version 1 --section-code PRE_A1 --all-stages
+```
 
 ## Notes
 

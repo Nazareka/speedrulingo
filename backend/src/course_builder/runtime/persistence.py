@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from course_builder.config import CourseBuildConfig
@@ -23,16 +22,5 @@ def create_draft_build_row(
         config_hash=config_hash,
     )
     db.add(draft)
-    try:
-        db.commit()
-    except IntegrityError as exc:
-        db.rollback()
-        msg = (
-            "Failed to create draft course_version row. "
-            "A build with "
-            f"code={config.course.code!r}, version={config.course.version}, "
-            f"and build_version={build_version} may already exist."
-        )
-        raise ValueError(msg) from exc
-    db.refresh(draft)
+    db.flush()
     return draft

@@ -1,4 +1,4 @@
-.PHONY: format lint type test check migrate
+.PHONY: format lint type test check migrate ui
 
 format:
 	env -u VIRTUAL_ENV uv run ruff format .
@@ -15,5 +15,8 @@ test:
 
 migrate:
 	env -u VIRTUAL_ENV uv run alembic upgrade head
+
+ui:
+	env -u VIRTUAL_ENV uv run python -m reflex run --frontend-port 3001 --backend-port 8001
 
 check: lint type test

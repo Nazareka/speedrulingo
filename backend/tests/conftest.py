@@ -15,6 +15,11 @@ TEST_DATABASE_URL = os.getenv(
     "SPEEDRULINGO_TEST_DATABASE_URL",
     "postgresql+psycopg://speedrulingo:speedrulingo@localhost:5432/speedrulingo_test",
 )
+TEST_DBOS_SYSTEM_DATABASE_URL = os.getenv(
+    "SPEEDRULINGO_TEST_DBOS_SYSTEM_DATABASE_URL",
+    "postgresql+psycopg://speedrulingo:speedrulingo@localhost:5432/speedrulingo_dbos",
+)
+os.environ.setdefault("SPEEDRULINGO_DBOS_SYSTEM_DATABASE_URL", TEST_DBOS_SYSTEM_DATABASE_URL)
 
 
 def _build_alembic_config(*, database_url: str) -> Config:

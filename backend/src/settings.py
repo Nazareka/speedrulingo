@@ -13,6 +13,8 @@ class Settings(BaseSettings):
 
     app_name: str = "Speedrulingo API"
     database_url: str = Field(default="postgresql+psycopg://speedrulingo:speedrulingo@localhost:5432/speedrulingo")
+    dbos_system_database_url: str | None = Field(default=None)
+    redis_url: str | None = Field(default=None)
     jwt_secret: str = Field(default="dev-secret-change-me-min-32-characters")
     openai_api_key: SecretStr | None = Field(
         default=None,

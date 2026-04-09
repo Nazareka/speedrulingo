@@ -2,6 +2,10 @@
 backend/.venv
 .idea
 .uv-cache
+.mypy_cache
+.ropeproject
+.ruff_cache
+.DS_Store
 __pycache__/
 .env
 .agents
