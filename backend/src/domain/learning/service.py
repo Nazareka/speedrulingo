@@ -19,6 +19,7 @@ from api.learning.schemas import (
     SubmitResponse,
 )
 from domain.auth.models import UserCourseEnrollment
+from domain.content.audio_service import resolve_sentence_audio_url, resolve_word_audio_url
 from domain.content.display import (
     append_alternate_script_hint,
     display_sentence_text_ja,
@@ -301,6 +302,7 @@ def _serialize_tokens(
     hints_by_token: dict[int, list[str]] | None = None,
     *,
     use_kana: bool = False,
+    word_audio_url_by_token_index: dict[int, str] | None = None,
 ) -> list[SentenceTokenPreview]:
     return [
         SentenceTokenPreview(
@@ -309,6 +311,7 @@ def _serialize_tokens(
             lemma=token.lemma,
             reading=token.reading,
             pos=token.pos,
+            word_audio_url=(word_audio_url_by_token_index or {}).get(token.unit_index),
             hints=append_alternate_script_hint(
                 list((hints_by_token or {}).get(token.unit_index, [])),
                 displayed_surface=display_sentence_unit_surface(token, use_kana=use_kana),
@@ -319,6 +322,50 @@ def _serialize_tokens(
         )
         for token in tokens
     ]
+
+
+def _sentence_word_audio_urls_by_token_index(
+    db: Session, *, sentence_id: str, tokens: list[SentenceUnit]
+) -> dict[int, str]:
+    sentence_words = list(
+        db.scalars(
+            select(Word)
+            .join(SentenceWordLink, SentenceWordLink.word_id == Word.id)
+            .where(SentenceWordLink.sentence_id == sentence_id)
+            .order_by(Word.intro_order.asc(), Word.canonical_writing_ja.asc(), Word.id.asc())
+        )
+    )
+    if not sentence_words:
+        return {}
+
+    audio_urls_by_word_id = {
+        word.id: audio_url
+        for word in sentence_words
+        if (audio_url := resolve_word_audio_url(db, word_id=word.id)) is not None
+    }
+    if not audio_urls_by_word_id:
+        return {}
+
+    word_audio_url_by_token_index: dict[int, str] = {}
+    for token in tokens:
+        if token.lemma is None:
+            continue
+        token_match_values = {token.lemma, token.surface}
+        matching_words = [
+            word
+            for word in sentence_words
+            if word.id in audio_urls_by_word_id
+            and (word.canonical_writing_ja in token_match_values or word.reading_kana == token.lemma)
+        ]
+        if token.reading is not None:
+            reading_matches = [word for word in matching_words if word.reading_kana == token.reading]
+            if reading_matches:
+                matching_words = reading_matches
+        unique_audio_urls = {audio_urls_by_word_id[word.id] for word in matching_words}
+        if len(unique_audio_urls) != 1:
+            continue
+        word_audio_url_by_token_index[token.unit_index] = next(iter(unique_audio_urls))
+    return word_audio_url_by_token_index
 
 
 def _get_word_answer_display(word: Word, *, answer_lang: str) -> str:
@@ -480,6 +527,7 @@ class _ItemPayload:
     expected_answer: str
     answer_tiles: list[str]
     sentence_id: str | None
+    sentence_audio_url: str | None
     sentence_ja_tokens: list[SentenceTokenPreview]
     sentence_ja_hints: list[HintSpan]
     sentence_en_tokens: list[SentenceTokenPreview]
@@ -537,6 +585,7 @@ def _item_payload(db: Session, item: Item) -> _ItemPayload:
             use_kana=use_kana,
         )
         ja_hints_by_token, ja_hint_spans = _load_sentence_hints(db, sentence.id)
+        ja_word_audio_urls = _sentence_word_audio_urls_by_token_index(db, sentence_id=sentence.id, tokens=ja_tokens)
 
         en_tokens = _load_sentence_tokens(db, sentence.id, lang="en")
         en_hints = _build_reverse_hints_for_en(ja_tokens, ja_hints_by_token, en_tokens)
@@ -546,7 +595,13 @@ def _item_payload(db: Session, item: Item) -> _ItemPayload:
             expected_answer=expected_answer,
             answer_tiles=answer_tiles,
             sentence_id=sentence.id,
-            sentence_ja_tokens=_serialize_tokens(ja_tokens, ja_hints_by_token, use_kana=use_kana),
+            sentence_audio_url=resolve_sentence_audio_url(db, sentence_id=sentence.id),
+            sentence_ja_tokens=_serialize_tokens(
+                ja_tokens,
+                ja_hints_by_token,
+                use_kana=use_kana,
+                word_audio_url_by_token_index=ja_word_audio_urls,
+            ),
             sentence_ja_hints=ja_hint_spans,
             sentence_en_tokens=_serialize_tokens(en_tokens, en_hints),
         )
@@ -577,6 +632,7 @@ def _item_payload(db: Session, item: Item) -> _ItemPayload:
             lemma=word.canonical_writing_ja,
             reading=word.reading_kana,
             pos=word.pos,
+            word_audio_url=resolve_word_audio_url(db, word_id=word.id),
             hints=[word.gloss_primary_en],
         )
         return _ItemPayload(
@@ -590,6 +646,7 @@ def _item_payload(db: Session, item: Item) -> _ItemPayload:
                 answer_script=kanji_kana_payload.answer_script,
             ),
             sentence_id=None,
+            sentence_audio_url=None,
             sentence_ja_tokens=[ja_token],
             sentence_ja_hints=[],
             sentence_en_tokens=[],
@@ -629,6 +686,7 @@ def _item_payload(db: Session, item: Item) -> _ItemPayload:
             lemma=word.canonical_writing_ja,
             reading=word.reading_kana,
             pos=word.pos,
+            word_audio_url=resolve_word_audio_url(db, word_id=word.id),
             hints=ja_hints,
         )
 
@@ -652,6 +710,7 @@ def _item_payload(db: Session, item: Item) -> _ItemPayload:
                 db, lesson_id=item.lesson_id, target_word=word, answer_lang=item.answer_lang, use_kana=use_kana
             ),
             sentence_id=None,
+            sentence_audio_url=None,
             sentence_ja_tokens=[ja_token],
             sentence_ja_hints=[],
             sentence_en_tokens=[en_token],
@@ -683,6 +742,7 @@ def get_next_item(db: Session, enrollment: UserCourseEnrollment, lesson_id: str,
         answer_lang=item.answer_lang,
         prompt_text=p.prompt_text,
         sentence_id=p.sentence_id,
+        sentence_audio_url=p.sentence_audio_url,
         sentence_ja_tokens=p.sentence_ja_tokens,
         sentence_ja_hints=p.sentence_ja_hints,
         sentence_en_tokens=p.sentence_en_tokens,

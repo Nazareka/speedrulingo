@@ -125,6 +125,10 @@ export const zSentenceTokenPreview = z.object({
         z.string(),
         z.null()
     ]),
+    word_audio_url: z.union([
+        z.string(),
+        z.null()
+    ]).optional(),
     hints: z.array(z.string()).optional().default([])
 });
 
@@ -148,6 +152,10 @@ export const zLessonItemResponse = z.object({
         z.string(),
         z.null()
     ]),
+    sentence_audio_url: z.union([
+        z.string(),
+        z.null()
+    ]).optional(),
     sentence_ja_tokens: z.array(zSentenceTokenPreview),
     sentence_ja_hints: z.array(zHintSpan),
     sentence_en_tokens: z.array(zSentenceTokenPreview),

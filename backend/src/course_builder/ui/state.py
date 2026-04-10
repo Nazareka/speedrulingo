@@ -12,6 +12,8 @@ from course_builder.runtime.dbos import (
     build_all_sections_workflow,
     build_section_workflow,
     cancel_dbos_workflow_async,
+    generate_section_sentence_audio_workflow,
+    generate_section_word_audio_workflow,
     launch_dbos,
 )
 from course_builder.runtime.orchestration import CourseBuildOrchestrator, read_declared_section_codes
@@ -89,6 +91,8 @@ class CourseBuilderUIState(rx.State):
     launch_message: str = ""
     error_message: str = ""
     cancel_message: str = ""
+    sentence_audio_message: str = ""
+    word_audio_message: str = ""
 
     @rx.var
     def build_runs_count(self) -> int:
@@ -113,6 +117,21 @@ class CourseBuilderUIState(rx.State):
         workflow_id = _dict_value(self.selected_run, "workflow_id")
         status = _dict_value(self.selected_run, "status")
         return isinstance(workflow_id, str) and bool(workflow_id) and status in {"queued", "running"}
+
+    @rx.var
+    def can_generate_selected_run_audio(self) -> bool:
+        if not isinstance(self.selected_run, dict) or not self.selected_run:
+            return False
+        return (
+            _dict_value(self.selected_run, "scope_kind") == "section"
+            and _dict_value(self.selected_run, "status") == "completed"
+            and isinstance(_dict_value(self.selected_run, "section_code"), str)
+            and bool(_dict_value(self.selected_run, "section_code"))
+        )
+
+    @rx.var
+    def can_generate_selected_run_word_audio(self) -> bool:
+        return self.can_generate_selected_run_audio
 
     def set_config_path_value(self, value: str) -> None:
         self.config_path = value
@@ -160,6 +179,8 @@ class CourseBuilderUIState(rx.State):
         self.error_message = ""
         self.launch_message = ""
         self.cancel_message = ""
+        self.sentence_audio_message = ""
+        self.word_audio_message = ""
         try:
             request = self._build_request_from_form()
         except ValueError as exc:
@@ -191,6 +212,8 @@ class CourseBuilderUIState(rx.State):
         self.error_message = ""
         self.launch_message = ""
         self.cancel_message = ""
+        self.sentence_audio_message = ""
+        self.word_audio_message = ""
         if not self.selected_run:
             self.error_message = "No build run selected"
             return
@@ -206,6 +229,58 @@ class CourseBuilderUIState(rx.State):
         self._reload_dashboard_data()
         await cancel_dbos_workflow_async(workflow_id=workflow_id)
         self.cancel_message = f"Cancelled workflow {workflow_id}"
+        self._reload_dashboard_data()
+
+    def start_sentence_audio_generation(self) -> None:
+        _ensure_ui_runtime()
+        self.error_message = ""
+        self.launch_message = ""
+        self.cancel_message = ""
+        self.sentence_audio_message = ""
+        self.word_audio_message = ""
+        if not self.can_generate_selected_run_audio:
+            self.error_message = "Sentence audio generation requires a completed section run"
+            return
+        config_path = self.selected_run.get("config_path")
+        build_version = self.selected_run.get("build_version")
+        section_code = self.selected_run.get("section_code")
+        if not isinstance(config_path, str) or not isinstance(build_version, int) or not isinstance(section_code, str):
+            self.error_message = "Selected run is missing build context for sentence audio generation"
+            return
+        handle = DBOS.start_workflow(
+            generate_section_sentence_audio_workflow,
+            config_path,
+            build_version,
+            section_code,
+        )
+        self.launched_workflow_id = handle.get_workflow_id()
+        self.sentence_audio_message = f"Started sentence audio workflow {self.launched_workflow_id}"
+        self._reload_dashboard_data()
+
+    def start_word_audio_generation(self) -> None:
+        _ensure_ui_runtime()
+        self.error_message = ""
+        self.launch_message = ""
+        self.cancel_message = ""
+        self.sentence_audio_message = ""
+        self.word_audio_message = ""
+        if not self.can_generate_selected_run_word_audio:
+            self.error_message = "Word audio generation requires a completed section run"
+            return
+        config_path = self.selected_run.get("config_path")
+        build_version = self.selected_run.get("build_version")
+        section_code = self.selected_run.get("section_code")
+        if not isinstance(config_path, str) or not isinstance(build_version, int) or not isinstance(section_code, str):
+            self.error_message = "Selected run is missing build context for word audio generation"
+            return
+        handle = DBOS.start_workflow(
+            generate_section_word_audio_workflow,
+            config_path,
+            build_version,
+            section_code,
+        )
+        self.launched_workflow_id = handle.get_workflow_id()
+        self.word_audio_message = f"Started word audio workflow {self.launched_workflow_id}"
         self._reload_dashboard_data()
 
     def _build_request_from_form(self) -> BuildRequest:

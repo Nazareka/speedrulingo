@@ -347,6 +347,11 @@ def build_form() -> rx.Component:
                 rx.fragment(),
             ),
             rx.cond(
+                CourseBuilderUIState.sentence_audio_message != "",
+                rx.text(CourseBuilderUIState.sentence_audio_message, color="lime"),
+                rx.fragment(),
+            ),
+            rx.cond(
                 CourseBuilderUIState.error_message != "",
                 rx.text(CourseBuilderUIState.error_message, color="red"),
                 rx.fragment(),
@@ -408,6 +413,26 @@ def build_run_detail() -> rx.Component:
                             ),
                             rx.spacer(),
                             rx.hstack(
+                                rx.cond(
+                                    CourseBuilderUIState.can_generate_selected_run_audio,
+                                    rx.button(
+                                        "Generate sentence audio",
+                                        on_click=CourseBuilderUIState.start_sentence_audio_generation,
+                                        color_scheme="grass",
+                                        variant="soft",
+                                    ),
+                                    rx.fragment(),
+                                ),
+                                rx.cond(
+                                    CourseBuilderUIState.can_generate_selected_run_word_audio,
+                                    rx.button(
+                                        "Generate word audio",
+                                        on_click=CourseBuilderUIState.start_word_audio_generation,
+                                        color_scheme="grass",
+                                        variant="soft",
+                                    ),
+                                    rx.fragment(),
+                                ),
                                 rx.cond(
                                     CourseBuilderUIState.can_cancel_selected_run,
                                     rx.button(

@@ -63,3 +63,25 @@ class AllSectionsBuildSummary(TypedDict):
     ran_sections: list[SectionBuildSummary]
     last_section: SectionBuildSummary | None
     was_noop: bool
+
+
+class SectionSentenceAudioSummary(TypedDict):
+    build_run_id: str
+    source_section_build_run_id: str
+    build_version: int
+    section_code: str
+    total_sentence_count: int
+    generated_sentence_count: int
+    reused_sentence_count: int
+    failed_sentence_count: int
+
+
+class SectionWordAudioSummary(TypedDict):
+    build_run_id: str
+    source_section_build_run_id: str
+    build_version: int
+    section_code: str
+    total_word_count: int
+    generated_word_count: int
+    reused_word_count: int
+    failed_word_count: int

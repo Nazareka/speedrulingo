@@ -13,6 +13,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from course_builder.lexicon import extract_kanji_chars
 from db.session import get_db
 from domain.auth.models import User, UserCourseEnrollment
+from domain.content import audio_service
 from domain.content.display import append_alternate_script_hint
 from domain.content.models import (
     CourseVersion,
@@ -26,11 +27,14 @@ from domain.content.models import (
     LessonSentence,
     Section,
     Sentence,
+    SentenceAudioAsset,
     SentenceTile,
     SentenceTileSet,
+    SentenceUnit,
     SentenceWordLink,
     Unit,
     Word,
+    WordAudioAsset,
 )
 from domain.learning.models import ExamAttempt, UserLessonProgress
 import main as app_main
@@ -533,11 +537,298 @@ def test_sqladmin_can_set_and_unset_unit_completion(client: TestClient, db_sessi
         admin_session.commit()
 
 
+def test_sqladmin_can_wipe_all_sentence_audio(
+    client: TestClient, db_session: Session, tmp_path: Path
+) -> None:
+    bind = db_session.get_bind()
+    admin_bind = bind.engine if isinstance(bind, Connection) else bind
+    admin_session_factory = sessionmaker(
+        bind=admin_bind,
+        autoflush=False,
+        autocommit=False,
+        future=True,
+    )
+
+    with admin_session_factory() as admin_session:
+        admin = User(
+            email="admin-audio@example.com",
+            password_hash=hash_password("password123"),
+            is_admin=True,
+        )
+        course = CourseVersion(
+            code="audio-admin-test",
+            version=1,
+            build_version=1,
+            status="draft",
+            config_version="test",
+            config_hash="test-hash",
+        )
+        admin_session.add(course)
+        admin_session.flush()
+        sentence = Sentence(
+            course_version_id=course.id,
+            ja_text="これはテストです。",
+            en_text="This is a test.",
+            target_word_id=None,
+            target_pattern_id=None,
+        )
+        audio_dir = tmp_path / "sentence-audio-admin-test" / "elevenlabs" / "voice-1"
+        audio_dir.mkdir(parents=True, exist_ok=True)
+        audio_path = audio_dir / "sample.mp3"
+        audio_path.write_bytes(b"fake-mp3")
+        admin_session.add_all([admin, sentence])
+        admin_session.flush()
+        admin_session.add(
+            SentenceAudioAsset(
+                sentence_id=sentence.id,
+                provider="elevenlabs",
+                voice_id="voice-1",
+                model_id="model-1",
+                language_code="ja",
+                text_hash="hash-1",
+                source_text="sample",
+                storage_path=str(audio_path),
+                mime_type="audio/mpeg",
+                byte_size=8,
+                status="ready",
+            )
+        )
+        admin_session.commit()
+
+    login_response = client.post(
+        "/admin/login",
+        data={"username": "admin-audio@example.com", "password": "password123"},
+        follow_redirects=False,
+    )
+    assert login_response.status_code == 302
+
+    page_response = client.get("/admin/sentence-audio", follow_redirects=False)
+    assert page_response.status_code == 200
+    assert "Stored assets" in page_response.text
+
+    wipe_response = client.post(
+        "/admin/sentence-audio",
+        data={"operation": "wipe_all_audio"},
+        follow_redirects=False,
+    )
+    assert wipe_response.status_code == 303
+    assert "/admin/sentence-audio?message=" in wipe_response.headers["location"]
+
+    with admin_session_factory() as admin_session:
+        remaining_assets = admin_session.scalar(select(func.count()).select_from(SentenceAudioAsset))
+        cleanup_admin = admin_session.scalar(select(User).where(User.email == "admin-audio@example.com").limit(1))
+        cleanup_course = admin_session.scalar(select(CourseVersion).where(CourseVersion.code == "audio-admin-test").limit(1))
+        assert remaining_assets == 0
+        if cleanup_course is not None:
+            admin_session.delete(cleanup_course)
+        if cleanup_admin is not None:
+            admin_session.delete(cleanup_admin)
+        admin_session.commit()
+
+    assert not audio_path.exists()
+
+
+def test_sqladmin_can_wipe_all_word_audio(
+    client: TestClient, db_session: Session, tmp_path: Path
+) -> None:
+    bind = db_session.get_bind()
+    admin_bind = bind.engine if isinstance(bind, Connection) else bind
+    admin_session_factory = sessionmaker(
+        bind=admin_bind,
+        autoflush=False,
+        autocommit=False,
+        future=True,
+    )
+
+    with admin_session_factory() as admin_session:
+        admin = User(
+            email="admin-word-audio@example.com",
+            password_hash=hash_password("password123"),
+            is_admin=True,
+        )
+        course = CourseVersion(
+            code="word-audio-admin-test",
+            version=1,
+            build_version=1,
+            status="draft",
+            config_version="test",
+            config_hash="test-hash",
+        )
+        admin_session.add(course)
+        admin_session.flush()
+        word = Word(
+            course_version_id=course.id,
+            intro_order=1,
+            canonical_writing_ja="学校",
+            reading_kana="がっこう",
+            gloss_primary_en="school",
+            gloss_alternatives_en=[],
+            usage_note_en=None,
+            pos="noun",
+            is_safe_pool=False,
+            is_bootstrap_seed=False,
+            source_kind="manual",
+        )
+        audio_dir = tmp_path / "word-audio-admin-test" / "elevenlabs" / "voice-1"
+        audio_dir.mkdir(parents=True, exist_ok=True)
+        audio_path = audio_dir / "sample.mp3"
+        audio_path.write_bytes(b"fake-mp3")
+        admin_session.add_all([admin, word])
+        admin_session.flush()
+        admin_session.add(
+            WordAudioAsset(
+                word_id=word.id,
+                provider="elevenlabs",
+                voice_id="voice-1",
+                model_id="model-1",
+                language_code="ja",
+                text_hash="hash-1",
+                source_text="学校",
+                storage_path=str(audio_path),
+                mime_type="audio/mpeg",
+                byte_size=8,
+                status="ready",
+            )
+        )
+        admin_session.commit()
+
+    login_response = client.post(
+        "/admin/login",
+        data={"username": "admin-word-audio@example.com", "password": "password123"},
+        follow_redirects=False,
+    )
+    assert login_response.status_code == 302
+
+    page_response = client.get("/admin/word-audio", follow_redirects=False)
+    assert page_response.status_code == 200
+    assert "Stored assets" in page_response.text
+
+    wipe_response = client.post(
+        "/admin/word-audio",
+        data={"operation": "wipe_all_audio"},
+        follow_redirects=False,
+    )
+    assert wipe_response.status_code == 303
+    assert "/admin/word-audio?message=" in wipe_response.headers["location"]
+
+    with admin_session_factory() as admin_session:
+        remaining_assets = admin_session.scalar(select(func.count()).select_from(WordAudioAsset))
+        cleanup_admin = admin_session.scalar(select(User).where(User.email == "admin-word-audio@example.com").limit(1))
+        cleanup_course = admin_session.scalar(select(CourseVersion).where(CourseVersion.code == "word-audio-admin-test").limit(1))
+        assert remaining_assets == 0
+        if cleanup_course is not None:
+            admin_session.delete(cleanup_course)
+        if cleanup_admin is not None:
+            admin_session.delete(cleanup_admin)
+        admin_session.commit()
+
+    assert not audio_path.exists()
+
+
 def test_login_endpoint_returns_bearer_token(client: TestClient) -> None:
     _register_and_get_token(client)
     response = client.post("/api/v1/auth/login", json={"email": "user@example.com", "password": "password123"})
     assert response.status_code == 200
     assert response.json()["token_type"] == "bearer"  # noqa: S105  # OAuth bearer token type literal
+
+
+def test_next_item_includes_word_audio_urls_for_japanese_prompt_tokens(
+    client: TestClient, db_session: Session, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(
+        audio_service,
+        "get_settings",
+        lambda: type(
+            "Settings",
+            (),
+            {"elevenlabs_voice_id": "voice-lesson-test", "elevenlabs_model_id": "model-lesson-test"},
+        )(),
+    )
+    token = _register_and_get_token(client)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    sentence = db_session.scalar(
+        select(Sentence)
+        .join(ItemSentenceTiles, ItemSentenceTiles.sentence_id == Sentence.id)
+        .join(Item, Item.id == ItemSentenceTiles.item_id)
+        .where(Item.prompt_lang == "ja")
+        .order_by(Item.order_index.asc())
+        .limit(1)
+    )
+    assert sentence is not None
+    linked_word = db_session.scalar(
+        select(Word)
+        .join(SentenceWordLink, SentenceWordLink.word_id == Word.id)
+        .join(
+            SentenceUnit,
+            (SentenceUnit.sentence_id == SentenceWordLink.sentence_id)
+            & (SentenceUnit.lang == "ja")
+            & (
+                (SentenceUnit.lemma == Word.canonical_writing_ja)
+                | (SentenceUnit.lemma == Word.reading_kana)
+                | (SentenceUnit.surface == Word.canonical_writing_ja)
+            ),
+        )
+        .where(SentenceWordLink.sentence_id == sentence.id)
+        .order_by(Word.intro_order.asc(), Word.canonical_writing_ja.asc())
+        .limit(1)
+    )
+    assert linked_word is not None
+
+    audio_dir = tmp_path / "lesson-word-audio" / "elevenlabs" / "voice-1"
+    audio_dir.mkdir(parents=True, exist_ok=True)
+    audio_path = audio_dir / "sample.mp3"
+    audio_path.write_bytes(b"fake-mp3")
+    db_session.add(
+        WordAudioAsset(
+            word_id=linked_word.id,
+            provider="elevenlabs",
+            voice_id="voice-lesson-test",
+            model_id="model-lesson-test",
+            language_code="ja",
+            text_hash="hash-lesson-word-audio",
+            source_text=linked_word.canonical_writing_ja,
+            storage_path=str(audio_path),
+            mime_type="audio/mpeg",
+            byte_size=8,
+            status="ready",
+        )
+    )
+    db_session.commit()
+
+    lesson_id = db_session.scalar(
+        select(Lesson.id)
+        .join(Item, Item.lesson_id == Lesson.id)
+        .join(ItemSentenceTiles, ItemSentenceTiles.item_id == Item.id)
+        .where(ItemSentenceTiles.sentence_id == sentence.id, Item.prompt_lang == "ja")
+        .order_by(Lesson.order_index.asc(), Item.order_index.asc())
+        .limit(1)
+    )
+    assert lesson_id is not None
+    lesson_item_count = int(db_session.scalar(select(func.count()).select_from(Item).where(Item.lesson_id == lesson_id)) or 0)
+    assert lesson_item_count > 0
+
+    sentence_item: dict[str, object] | None = None
+    for cursor in range(lesson_item_count):
+        response = client.get(
+            f"/api/v1/lessons/{lesson_id}/next-item",
+            headers=headers,
+            params={"cursor": cursor},
+        )
+        assert response.status_code == 200
+        payload = response.json()
+        if (
+            payload["item_type"] == "sentence_tiles"
+            and payload["prompt_lang"] == "ja"
+            and payload["sentence_id"] == sentence.id
+        ):
+            sentence_item = payload
+            break
+
+    assert sentence_item is not None
+    sentence_ja_tokens = sentence_item["sentence_ja_tokens"]
+    assert isinstance(sentence_ja_tokens, list)
+    assert any(token["word_audio_url"] is not None for token in sentence_ja_tokens if isinstance(token, dict))
 
 
 def test_partial_submit_does_not_complete_normal_lesson(client: TestClient) -> None:

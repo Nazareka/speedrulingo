@@ -1,5 +1,7 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
 import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { authedRequestHeaders } from "../../shared/api";
 import { LessonBottomZone, type LessonBottomZoneProps } from "./bottom-zone";
 import { LessonCompleteScreen } from "./complete-screen";
 import { MultipleChoiceExercise } from "./exercise-multiple-choice";
@@ -53,6 +55,81 @@ export function LessonPage() {
   } = useLessonSession(lessonId);
 
   const prefersReducedMotion = useReducedMotion();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const audioObjectUrlRef = useRef<string | null>(null);
+  const [isSentenceAudioPlaying, setIsSentenceAudioPlaying] = useState(false);
+
+  const resetAudioPlayback = useCallback(() => {
+    audioRef.current?.pause();
+    audioRef.current = null;
+    if (audioObjectUrlRef.current) {
+      URL.revokeObjectURL(audioObjectUrlRef.current);
+      audioObjectUrlRef.current = null;
+    }
+    setIsSentenceAudioPlaying(false);
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      resetAudioPlayback();
+    };
+  }, [resetAudioPlayback]);
+
+  useEffect(() => {
+    if (currentItem?.item_id === undefined) {
+      setIsSentenceAudioPlaying(false);
+    }
+    resetAudioPlayback();
+  }, [currentItem?.item_id, resetAudioPlayback]);
+
+  const playAudioUrl = async (audioUrl: string, options?: { isSentenceAudio?: boolean }) => {
+    if (!audioUrl) {
+      return;
+    }
+    resetAudioPlayback();
+
+    if (options?.isSentenceAudio) {
+      setIsSentenceAudioPlaying(true);
+    }
+
+    try {
+      const requestHeaders = authedRequestHeaders();
+      const response = await fetch(audioUrl, {
+        ...(requestHeaders ? { headers: requestHeaders } : {}),
+      });
+      if (!response.ok) {
+        throw new Error(`Audio request failed with status ${response.status}`);
+      }
+      const audioBlob = await response.blob();
+      const objectUrl = URL.createObjectURL(audioBlob);
+      audioObjectUrlRef.current = objectUrl;
+      const nextAudio = new Audio(objectUrl);
+      nextAudio.addEventListener("ended", () => {
+        if (options?.isSentenceAudio) {
+          setIsSentenceAudioPlaying(false);
+        }
+      });
+      nextAudio.addEventListener("error", () => {
+        if (options?.isSentenceAudio) {
+          setIsSentenceAudioPlaying(false);
+        }
+      });
+      audioRef.current = nextAudio;
+      await nextAudio.play();
+    } catch {
+      if (options?.isSentenceAudio) {
+        setIsSentenceAudioPlaying(false);
+      }
+    }
+  };
+
+  const playSentenceAudio = async () => {
+    const audioUrl = currentItem?.sentence_audio_url;
+    if (!audioUrl) {
+      return;
+    }
+    await playAudioUrl(audioUrl, { isSentenceAudio: true });
+  };
 
   if (isInitializing) {
     return (
@@ -195,7 +272,21 @@ export function LessonPage() {
               </p>
 
               <div className="mt-4">
+                {currentItem.sentence_audio_url ? (
+                  <button
+                    className="mb-4 inline-flex items-center rounded-full border border-[var(--lesson-border-soft)] bg-[var(--lesson-surface)] px-4 py-2 font-medium text-[0.92rem] text-[var(--lesson-text-soft)] transition-colors duration-150 hover:border-[var(--lesson-accent)]/60 hover:text-[var(--lesson-text)]"
+                    onClick={() => {
+                      void playSentenceAudio();
+                    }}
+                    type="button"
+                  >
+                    {isSentenceAudioPlaying ? "Replay audio" : "Play audio"}
+                  </button>
+                ) : null}
                 <HintablePrompt
+                  onPlayTokenAudio={(audioUrl) => {
+                    void playAudioUrl(audioUrl);
+                  }}
                   promptText={currentItem.prompt_text}
                   tokens={
                     currentItem.prompt_lang === "ja"

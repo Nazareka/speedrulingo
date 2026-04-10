@@ -5,7 +5,12 @@ from typing import Any
 import pytest
 
 from course_builder.runtime import AllSectionsBuildSummary, BuildRequest, SectionBuildSummary
-from course_builder.runtime.dbos import build_all_sections_workflow, build_section_workflow
+from course_builder.runtime.dbos import (
+    build_all_sections_workflow,
+    build_section_workflow,
+    generate_section_sentence_audio_workflow,
+    generate_section_word_audio_workflow,
+)
 from course_builder.runtime.runner import BuildStageRunResult
 
 
@@ -180,3 +185,279 @@ def test_build_all_sections_workflow_passes_section_runner_and_workflow_id(
     assert calls["section_parent_build_run_id"] == "build-run-parent"
     assert calls["section_workflow_id"] is None
     assert calls["section_summary"]["section_code"] == "PRE_A1"
+
+
+def test_generate_section_sentence_audio_workflow_uses_completed_section_run(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: dict[str, Any] = {"progress": [], "logs": []}
+
+    class FakeDBOS:
+        workflow_id = "audio-workflow-123"
+
+    class FakeSession:
+        def commit(self) -> None:
+            calls.setdefault("commit_count", 0)
+            calls["commit_count"] += 1
+
+        def rollback(self) -> None:
+            calls["rolled_back"] = True
+
+    class FakeSessionLocal:
+        def __enter__(self) -> FakeSession:
+            return FakeSession()
+
+        def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
+            return None
+
+    class FakeSectionRun:
+        id = "section-run-42"
+        course_version_id = "course-version-42"
+
+    class FakeBuildRun:
+        id = "audio-run-1"
+        parent_build_run_id = None
+        course_version_id: str | None = None
+
+    def fake_create_build_run(
+        db: object,
+        *,
+        request: BuildRequest,
+        scope_kind: str,
+        total_stage_count: int,
+        parent_build_run_id: str | None = None,
+        workflow_id: str | None = None,
+        requested_by: str | None = None,
+    ) -> FakeBuildRun:
+        calls["create_build_run"] = {
+            "section_code": request.section_code,
+            "scope_kind": scope_kind,
+            "total_stage_count": total_stage_count,
+            "workflow_id": workflow_id,
+        }
+        return FakeBuildRun()
+
+    def fake_generate_sentence_audio_step(*, sentence_id: str) -> dict[str, object]:
+        calls.setdefault("sentence_ids", []).append(sentence_id)
+        return {"asset_id": f"asset-{sentence_id}", "reused": sentence_id == "sentence-1"}
+
+    def fake_log_run_message(
+        *,
+        build_run_id: str,
+        level: str,
+        message: str,
+        section_code: str | None = None,
+        stage_name: str | None = None,
+    ) -> None:
+        calls["logs"].append((build_run_id, level, message, section_code, stage_name))
+
+    def fake_sync_run_progress(
+        *,
+        build_run_id: str,
+        completed_stage_count: int,
+        current_stage_name: str | None,
+        course_version_id: str | None = None,
+    ) -> None:
+        calls["progress"].append((completed_stage_count, current_stage_name, course_version_id))
+
+    monkeypatch.setattr("course_builder.runtime.dbos.DBOS", FakeDBOS)
+    monkeypatch.setattr("course_builder.runtime.dbos.SessionLocal", FakeSessionLocal)
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.get_settings",
+        lambda: type("Settings", (), {"elevenlabs_voice_id": "voice-123"})(),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.get_latest_completed_section_build_run",
+        lambda db, build_version, config_path, section_code: FakeSectionRun(),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.list_section_sentence_ids",
+        lambda db, course_version_id, section_code: ["sentence-1", "sentence-2"],
+    )
+    monkeypatch.setattr("course_builder.runtime.dbos.create_build_run", fake_create_build_run)
+    monkeypatch.setattr("course_builder.runtime.dbos.publish_build_run_event", lambda **kwargs: None)
+    monkeypatch.setattr("course_builder.runtime.dbos.generate_sentence_audio_step", fake_generate_sentence_audio_step)
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.CourseBuildOrchestrator._log_run_message",
+        staticmethod(fake_log_run_message),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.CourseBuildOrchestrator._sync_run_progress",
+        staticmethod(fake_sync_run_progress),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.CourseBuildOrchestrator._mark_run_completed",
+        staticmethod(lambda **kwargs: calls.setdefault("completed", kwargs)),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.CourseBuildOrchestrator._mark_run_failed",
+        staticmethod(lambda **kwargs: calls.setdefault("failed", kwargs)),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.CourseBuildOrchestrator._is_run_cancelled",
+        staticmethod(lambda **kwargs: False),
+    )
+
+    summary = generate_section_sentence_audio_workflow.__wrapped__(  # type: ignore[attr-defined]  # DBOS preserves the wrapped function.
+        config="config/en-ja-v1",
+        build_version=22,
+        section_code="PRE_A1",
+    )
+
+    assert summary == {
+        "build_run_id": "audio-run-1",
+        "source_section_build_run_id": "section-run-42",
+        "build_version": 22,
+        "section_code": "PRE_A1",
+        "total_sentence_count": 2,
+        "generated_sentence_count": 1,
+        "reused_sentence_count": 1,
+        "failed_sentence_count": 0,
+    }
+    assert calls["create_build_run"] == {
+        "section_code": "PRE_A1",
+        "scope_kind": "section_audio",
+        "total_stage_count": 2,
+        "workflow_id": "audio-workflow-123",
+    }
+    assert calls["sentence_ids"] == ["sentence-1", "sentence-2"]
+    assert calls["completed"]["build_run_id"] == "audio-run-1"
+    assert calls["completed"]["completed_stage_count"] == 2
+
+
+def test_generate_section_word_audio_workflow_uses_completed_section_run(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: dict[str, Any] = {"progress": [], "logs": []}
+
+    class FakeDBOS:
+        workflow_id = "word-audio-workflow-123"
+
+    class FakeSession:
+        def commit(self) -> None:
+            calls.setdefault("commit_count", 0)
+            calls["commit_count"] += 1
+
+        def rollback(self) -> None:
+            calls["rolled_back"] = True
+
+    class FakeSessionLocal:
+        def __enter__(self) -> FakeSession:
+            return FakeSession()
+
+        def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
+            return None
+
+    class FakeSectionRun:
+        id = "section-run-99"
+        course_version_id = "course-version-99"
+
+    class FakeBuildRun:
+        id = "word-audio-run-1"
+        parent_build_run_id = None
+        course_version_id: str | None = None
+
+    def fake_create_build_run(
+        db: object,
+        *,
+        request: BuildRequest,
+        scope_kind: str,
+        total_stage_count: int,
+        parent_build_run_id: str | None = None,
+        workflow_id: str | None = None,
+        requested_by: str | None = None,
+    ) -> FakeBuildRun:
+        calls["create_build_run"] = {
+            "section_code": request.section_code,
+            "scope_kind": scope_kind,
+            "total_stage_count": total_stage_count,
+            "workflow_id": workflow_id,
+        }
+        return FakeBuildRun()
+
+    def fake_generate_word_audio_step(*, word_id: str) -> dict[str, object]:
+        calls.setdefault("word_ids", []).append(word_id)
+        return {"asset_id": f"asset-{word_id}", "reused": word_id == "word-1"}
+
+    def fake_log_run_message(
+        *,
+        build_run_id: str,
+        level: str,
+        message: str,
+        section_code: str | None = None,
+        stage_name: str | None = None,
+    ) -> None:
+        calls["logs"].append((build_run_id, level, message, section_code, stage_name))
+
+    def fake_sync_run_progress(
+        *,
+        build_run_id: str,
+        completed_stage_count: int,
+        current_stage_name: str | None,
+        course_version_id: str | None = None,
+    ) -> None:
+        calls["progress"].append((completed_stage_count, current_stage_name, course_version_id))
+
+    monkeypatch.setattr("course_builder.runtime.dbos.DBOS", FakeDBOS)
+    monkeypatch.setattr("course_builder.runtime.dbos.SessionLocal", FakeSessionLocal)
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.get_settings",
+        lambda: type("Settings", (), {"elevenlabs_voice_id": "voice-123"})(),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.get_latest_completed_section_build_run",
+        lambda db, build_version, config_path, section_code: FakeSectionRun(),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.list_section_word_ids",
+        lambda db, course_version_id, section_code: ["word-1", "word-2"],
+    )
+    monkeypatch.setattr("course_builder.runtime.dbos.create_build_run", fake_create_build_run)
+    monkeypatch.setattr("course_builder.runtime.dbos.publish_build_run_event", lambda **kwargs: None)
+    monkeypatch.setattr("course_builder.runtime.dbos.generate_word_audio_step", fake_generate_word_audio_step)
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.CourseBuildOrchestrator._log_run_message",
+        staticmethod(fake_log_run_message),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.CourseBuildOrchestrator._sync_run_progress",
+        staticmethod(fake_sync_run_progress),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.CourseBuildOrchestrator._mark_run_completed",
+        staticmethod(lambda **kwargs: calls.setdefault("completed", kwargs)),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.CourseBuildOrchestrator._mark_run_failed",
+        staticmethod(lambda **kwargs: calls.setdefault("failed", kwargs)),
+    )
+    monkeypatch.setattr(
+        "course_builder.runtime.dbos.CourseBuildOrchestrator._is_run_cancelled",
+        staticmethod(lambda **kwargs: False),
+    )
+
+    summary = generate_section_word_audio_workflow.__wrapped__(  # type: ignore[attr-defined]  # DBOS preserves the wrapped function.
+        config="config/en-ja-v1",
+        build_version=23,
+        section_code="PRE_A1",
+    )
+
+    assert summary == {
+        "build_run_id": "word-audio-run-1",
+        "source_section_build_run_id": "section-run-99",
+        "build_version": 23,
+        "section_code": "PRE_A1",
+        "total_word_count": 2,
+        "generated_word_count": 1,
+        "reused_word_count": 1,
+        "failed_word_count": 0,
+    }
+    assert calls["create_build_run"] == {
+        "section_code": "PRE_A1",
+        "scope_kind": "section_word_audio",
+        "total_stage_count": 2,
+        "workflow_id": "word-audio-workflow-123",
+    }
+    assert calls["word_ids"] == ["word-1", "word-2"]
+    assert calls["completed"]["build_run_id"] == "word-audio-run-1"
+    assert calls["completed"]["completed_stage_count"] == 2

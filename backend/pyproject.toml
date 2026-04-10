@@ -6,6 +6,7 @@ requires-python = ">=3.12"
 dependencies = [
   "alembic>=1.16.0",
   "dbos>=1.0.0",
+  "elevenlabs>=1.57.0",
   "fastapi>=0.129.0",
   "fugashi>=1.4.0",
   "langchain-community>=0.3.31",
@@ -121,6 +122,10 @@ ignore_missing_imports = true
 
 [[tool.mypy.overrides]]
 module = ["fugashi", "fugashi.*"]
+ignore_missing_imports = true
+
+[[tool.mypy.overrides]]
+module = ["elevenlabs", "elevenlabs.*"]
 ignore_missing_imports = true
 
 [[tool.mypy.overrides]]

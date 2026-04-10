@@ -2,6 +2,8 @@ from course_builder.runtime.dbos import (
     build_all_sections_workflow,
     build_dbos_config,
     build_section_workflow,
+    generate_section_sentence_audio_workflow,
+    generate_section_word_audio_workflow,
     launch_dbos,
 )
 from course_builder.runtime.models import BuildContext, BuildStep, compute_config_hash
@@ -31,6 +33,8 @@ from course_builder.runtime.workflow_models import (
     AllSectionsBuildSummary,
     BuildRequest,
     SectionBuildSummary,
+    SectionSentenceAudioSummary,
+    SectionWordAudioSummary,
     build_request,
 )
 
@@ -45,6 +49,8 @@ __all__ = [
     "LoggerLike",
     "SectionBuildSummary",
     "SectionRunner",
+    "SectionSentenceAudioSummary",
+    "SectionWordAudioSummary",
     "build_all_sections_workflow",
     "build_dbos_config",
     "build_langsmith_tracing_context",
@@ -52,6 +58,8 @@ __all__ = [
     "build_section_workflow",
     "compute_config_hash",
     "create_draft_build_row",
+    "generate_section_sentence_audio_workflow",
+    "generate_section_word_audio_workflow",
     "get_build_run",
     "get_build_stages",
     "get_registered_build_stages",

@@ -83,6 +83,7 @@ export type LessonItemResponse = {
     answer_lang: string;
     prompt_text: string;
     sentence_id: string | null;
+    sentence_audio_url?: string | null;
     sentence_ja_tokens: Array<SentenceTokenPreview>;
     sentence_ja_hints: Array<HintSpan>;
     sentence_en_tokens: Array<SentenceTokenPreview>;
@@ -151,6 +152,7 @@ export type SentenceTokenPreview = {
     lemma: string | null;
     reading: string | null;
     pos: string | null;
+    word_audio_url?: string | null;
     hints?: Array<string>;
 };
 
@@ -456,6 +458,31 @@ export type SubmitApiV1LessonsLessonIdSubmitPostResponses = {
 };
 
 export type SubmitApiV1LessonsLessonIdSubmitPostResponse = SubmitApiV1LessonsLessonIdSubmitPostResponses[keyof SubmitApiV1LessonsLessonIdSubmitPostResponses];
+
+export type SentenceAudioApiV1SentenceAudioAssetIdGetData = {
+    body?: never;
+    path: {
+        asset_id: string;
+    };
+    query?: never;
+    url: '/api/v1/sentence-audio/{asset_id}';
+};
+
+export type SentenceAudioApiV1SentenceAudioAssetIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type SentenceAudioApiV1SentenceAudioAssetIdGetError = SentenceAudioApiV1SentenceAudioAssetIdGetErrors[keyof SentenceAudioApiV1SentenceAudioAssetIdGetErrors];
+
+export type SentenceAudioApiV1SentenceAudioAssetIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
 
 export type SentenceTokensApiV1SentencesSentenceIdTokensGetData = {
     body?: never;

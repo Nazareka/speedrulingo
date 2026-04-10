@@ -25,7 +25,7 @@ if [ -z "$(docker compose ps -q "${DB_SERVICE}")" ]; then
 fi
 
 echo "Creating/resetting test database '${TEST_DB_NAME}'..."
-docker compose exec -T "${DB_SERVICE}" psql -U "${DB_USER}" -d postgres -v ON_ERROR_STOP=1 <<SQL
+docker compose exec -T "${DB_SERVICE}" psql -U "${DB_USER}" -d postgres -v ON_ERROR_STOP=1 >/dev/null <<SQL
 SELECT pg_terminate_backend(pid)
 FROM pg_stat_activity
 WHERE datname = '${TEST_DB_NAME}' AND pid <> pg_backend_pid();
@@ -35,9 +35,25 @@ CREATE DATABASE ${TEST_DB_NAME} OWNER ${DB_USER};
 SQL
 
 echo "Running backend tests against ${TEST_DATABASE_URL}..."
-(
+pytest_output_file="$(mktemp)"
+trap 'rm -f "${pytest_output_file}"' EXIT
+
+if (
   cd backend
   SPEEDRULINGO_DATABASE_URL="${TEST_DATABASE_URL}" \
   SPEEDRULINGO_TEST_DATABASE_URL="${TEST_DATABASE_URL}" \
   env -u VIRTUAL_ENV uv run pytest
-)
+) >"${pytest_output_file}" 2>&1; then
+  if grep -q '^=============================== warnings summary ===============================$' "${pytest_output_file}"; then
+    awk '
+      /^=============================== warnings summary ===============================$/ {in_warnings=1}
+      in_warnings && /^==================================== PASSES ====================================$/ {in_warnings=0; next}
+      in_warnings {print}
+    ' "${pytest_output_file}"
+    echo
+  fi
+  tail -n 1 "${pytest_output_file}"
+else
+  cat "${pytest_output_file}"
+  exit 1
+fi

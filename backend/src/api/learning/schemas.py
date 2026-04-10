@@ -18,6 +18,7 @@ class SentenceTokenPreview(BaseModel):
     lemma: str | None
     reading: str | None
     pos: str | None
+    word_audio_url: str | None = None
     hints: list[str] = []
 
 
@@ -34,6 +35,7 @@ class LessonItemResponse(BaseModel):
     answer_lang: str
     prompt_text: str
     sentence_id: str | None
+    sentence_audio_url: str | None = None
     sentence_ja_tokens: list[SentenceTokenPreview]
     sentence_ja_hints: list[HintSpan]
     sentence_en_tokens: list[SentenceTokenPreview]

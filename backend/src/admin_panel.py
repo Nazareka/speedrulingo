@@ -3,20 +3,33 @@ from __future__ import annotations
 from collections.abc import Sequence
 from datetime import UTC, datetime
 from html import escape
+from pathlib import Path
+import shutil
 from typing import Any, ClassVar, override
 from urllib.parse import urlencode
 
 from fastapi import FastAPI
 from sqladmin import Admin, BaseView, ModelView, expose
 from sqladmin.authentication import AuthenticationBackend
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import InstrumentedAttribute, Session, sessionmaker
 from starlette.requests import Request
 from starlette.responses import HTMLResponse, RedirectResponse
 
 from domain.auth.models import User, UserCourseEnrollment
-from domain.content.models import CourseVersion, Kanji, Lesson, Pattern, Section, Sentence, Unit, Word
+from domain.content.models import (
+    CourseVersion,
+    Kanji,
+    Lesson,
+    Pattern,
+    Section,
+    Sentence,
+    SentenceAudioAsset,
+    Unit,
+    Word,
+    WordAudioAsset,
+)
 from domain.learning.models import ExamAttempt, UserLessonProgress
 from security import verify_password
 
@@ -512,6 +525,7 @@ class UnitCompletionAdmin(BaseView):
                 "select,button{font:inherit;padding:6px 10px;}"
                 "</style></head><body>"
                 f"<h1>{page_title}</h1>"
+                f"{_admin_home_link_html()}"
                 f"{active_course_html}"
                 f"{message_html}"
                 "<form method='get'>"
@@ -528,6 +542,189 @@ class UnitCompletionAdmin(BaseView):
             return HTMLResponse(html)
 
 
+def _wipe_all_assets(
+    session: Session,
+    *,
+    model: type[SentenceAudioAsset] | type[WordAudioAsset],
+) -> int:
+    storage_paths = list(session.scalars(select(model.storage_path)))
+    deleted_count = len(storage_paths)
+
+    for storage_path in storage_paths:
+        path = Path(storage_path)
+        try:
+            path.unlink(missing_ok=True)
+        except IsADirectoryError:
+            shutil.rmtree(path, ignore_errors=True)
+
+    session.execute(delete(model))
+    session.flush()
+
+    # Best-effort cleanup of now-empty provider/voice directories left behind by file deletes.
+    visited_roots: set[Path] = set()
+    for storage_path in storage_paths:
+        current = Path(storage_path).parent
+        while current != current.parent and current not in visited_roots:
+            visited_roots.add(current)
+            try:
+                current.rmdir()
+            except OSError:
+                break
+            current = current.parent
+
+    return deleted_count
+
+
+def _wipe_all_sentence_audio(session: Session) -> int:
+    return _wipe_all_assets(session, model=SentenceAudioAsset)
+
+
+def _wipe_all_word_audio(session: Session) -> int:
+    return _wipe_all_assets(session, model=WordAudioAsset)
+
+
+def _admin_home_link_html() -> str:
+    return (
+        "<p style='margin:0 0 16px 0'>"
+        "<a href='/admin/' "
+        "style='display:inline-block;padding:8px 12px;border:1px solid #d0d7de;border-radius:6px;"
+        "text-decoration:none;color:#24292f;background:#f6f8fa'>Back to Admin</a>"
+        "</p>"
+    )
+
+
+class SentenceAudioAdmin(BaseView):
+    name = "Sentence Audio"
+    identity = "sentence-audio"
+    icon = "fa-solid fa-volume-high"
+    session_maker: ClassVar[sessionmaker[Session]]
+
+    @expose("/sentence-audio", methods=["GET", "POST"], identity="sentence-audio")
+    async def sentence_audio(self, request: Request) -> HTMLResponse | RedirectResponse:
+        message = request.query_params.get("message")
+
+        with self.session_maker() as session:
+            if request.method == "POST":
+                form = await request.form()
+                operation = form.get("operation")
+                if operation == "wipe_all_audio":
+                    deleted_count = _wipe_all_sentence_audio(session)
+                    session.commit()
+                    redirect_query = urlencode(
+                        {"message": f"Deleted {deleted_count} sentence audio assets from the database and disk."}
+                    )
+                    return RedirectResponse(url=f"{request.url.path}?{redirect_query}", status_code=303)
+
+            asset_count = session.scalar(select(func.count()).select_from(SentenceAudioAsset)) or 0
+            latest_asset = session.scalar(
+                select(SentenceAudioAsset)
+                .order_by(SentenceAudioAsset.created_at.desc(), SentenceAudioAsset.id.desc())
+                .limit(1)
+            )
+            message_html = (
+                f"<p style='color:#2b8a3e;font-weight:600'>{escape(message)}</p>"
+                if isinstance(message, str) and message
+                else ""
+            )
+            latest_asset_html = (
+                f"<p><strong>Latest asset:</strong> {escape(latest_asset.id)} "
+                f"({escape(latest_asset.status)})</p>"
+                if latest_asset is not None
+                else "<p><strong>Latest asset:</strong> none</p>"
+            )
+            html = (
+                "<!doctype html><html><head><meta charset='utf-8'>"
+                "<title>Sentence Audio</title>"
+                "<style>"
+                "body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:24px;line-height:1.4;}"
+                "button{font:inherit;padding:8px 12px;}"
+                ".danger{background:#c92a2a;border:1px solid #a61e1e;color:#fff;border-radius:6px;}"
+                ".card{border:1px solid #d0d7de;border-radius:10px;padding:16px;max-width:720px;}"
+                "</style></head><body>"
+                "<h1>Sentence Audio</h1>"
+                f"{_admin_home_link_html()}"
+                f"{message_html}"
+                f"<p><strong>Stored assets:</strong> {asset_count}</p>"
+                f"{latest_asset_html}"
+                "<div class='card'>"
+                "<p><strong>Danger zone</strong></p>"
+                "<p>Delete all generated sentence audio from both Postgres metadata and local disk so audio can be regenerated from scratch.</p>"
+                "<form method='post'>"
+                "<input type='hidden' name='operation' value='wipe_all_audio'>"
+                "<button class='danger' type='submit'>Wipe All Sentence Audio</button>"
+                "</form>"
+                "</div>"
+                "</body></html>"
+            )
+            return HTMLResponse(html)
+
+
+class WordAudioAdmin(BaseView):
+    name = "Word Audio"
+    identity = "word-audio"
+    icon = "fa-solid fa-wave-square"
+    session_maker: ClassVar[sessionmaker[Session]]
+
+    @expose("/word-audio", methods=["GET", "POST"], identity="word-audio")
+    async def word_audio(self, request: Request) -> HTMLResponse | RedirectResponse:
+        message = request.query_params.get("message")
+
+        with self.session_maker() as session:
+            if request.method == "POST":
+                form = await request.form()
+                operation = form.get("operation")
+                if operation == "wipe_all_audio":
+                    deleted_count = _wipe_all_word_audio(session)
+                    session.commit()
+                    redirect_query = urlencode(
+                        {"message": f"Deleted {deleted_count} word audio assets from the database and disk."}
+                    )
+                    return RedirectResponse(url=f"{request.url.path}?{redirect_query}", status_code=303)
+
+            asset_count = session.scalar(select(func.count()).select_from(WordAudioAsset)) or 0
+            latest_asset = session.scalar(
+                select(WordAudioAsset)
+                .order_by(WordAudioAsset.created_at.desc(), WordAudioAsset.id.desc())
+                .limit(1)
+            )
+            message_html = (
+                f"<p style='color:#2b8a3e;font-weight:600'>{escape(message)}</p>"
+                if isinstance(message, str) and message
+                else ""
+            )
+            latest_asset_html = (
+                f"<p><strong>Latest asset:</strong> {escape(latest_asset.id)} "
+                f"({escape(latest_asset.status)})</p>"
+                if latest_asset is not None
+                else "<p><strong>Latest asset:</strong> none</p>"
+            )
+            html = (
+                "<!doctype html><html><head><meta charset='utf-8'>"
+                "<title>Word Audio</title>"
+                "<style>"
+                "body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:24px;line-height:1.4;}"
+                "button{font:inherit;padding:8px 12px;}"
+                ".danger{background:#c92a2a;border:1px solid #a61e1e;color:#fff;border-radius:6px;}"
+                ".card{border:1px solid #d0d7de;border-radius:10px;padding:16px;max-width:720px;}"
+                "</style></head><body>"
+                "<h1>Word Audio</h1>"
+                f"{_admin_home_link_html()}"
+                f"{message_html}"
+                f"<p><strong>Stored assets:</strong> {asset_count}</p>"
+                f"{latest_asset_html}"
+                "<div class='card'>"
+                "<p><strong>Danger zone</strong></p>"
+                "<p>Delete all generated word audio from both Postgres metadata and local disk so audio can be regenerated from scratch.</p>"
+                "<form method='post'>"
+                "<input type='hidden' name='operation' value='wipe_all_audio'>"
+                "<button class='danger' type='submit'>Wipe All Word Audio</button>"
+                "</form>"
+                "</div>"
+                "</body></html>"
+            )
+            return HTMLResponse(html)
+
+
 def install_admin(
     app: FastAPI,
     *,
@@ -537,6 +734,8 @@ def install_admin(
 ) -> Admin:
     active_session_maker = session_maker or sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
     UnitCompletionAdmin.session_maker = active_session_maker
+    SentenceAudioAdmin.session_maker = active_session_maker
+    WordAudioAdmin.session_maker = active_session_maker
     admin = Admin(
         app=app,
         engine=engine,
@@ -554,4 +753,6 @@ def install_admin(
     admin.add_view(SentenceAdmin)
     admin.add_view(KanjiAdmin)
     admin.add_view(UnitCompletionAdmin)
+    admin.add_view(SentenceAudioAdmin)
+    admin.add_view(WordAudioAdmin)
     return admin

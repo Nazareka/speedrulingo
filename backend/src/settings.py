@@ -1,4 +1,5 @@
 from functools import lru_cache
+from pathlib import Path
 
 from pydantic import AliasChoices, Field, SecretStr
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -15,6 +16,8 @@ class Settings(BaseSettings):
     database_url: str = Field(default="postgresql+psycopg://speedrulingo:speedrulingo@localhost:5432/speedrulingo")
     dbos_system_database_url: str | None = Field(default=None)
     redis_url: str | None = Field(default=None)
+    sentence_audio_storage_root: Path = Field(default=Path("data/sentence_audio"))
+    word_audio_storage_root: Path = Field(default=Path("data/word_audio"))
     jwt_secret: str = Field(default="dev-secret-change-me-min-32-characters")
     openai_api_key: SecretStr | None = Field(
         default=None,
@@ -56,6 +59,22 @@ class Settings(BaseSettings):
     langsmith_endpoint: str | None = Field(
         default=None,
         validation_alias=AliasChoices("SPEEDRULINGO_LANGSMITH_ENDPOINT", "LANGSMITH_ENDPOINT"),
+    )
+    elevenlabs_api_key: SecretStr | None = Field(
+        default=None,
+        validation_alias=AliasChoices("SPEEDRULINGO_ELEVENLABS_API_KEY", "ELEVENLABS_API_KEY"),
+    )
+    elevenlabs_voice_id: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("SPEEDRULINGO_ELEVENLABS_VOICE_ID", "ELEVENLABS_VOICE_ID"),
+    )
+    elevenlabs_model_id: str = Field(
+        default="eleven_multilingual_v2",
+        validation_alias=AliasChoices("SPEEDRULINGO_ELEVENLABS_MODEL_ID", "ELEVENLABS_MODEL_ID"),
+    )
+    elevenlabs_base_url: str | None = Field(
+        default=None,
+        validation_alias=AliasChoices("SPEEDRULINGO_ELEVENLABS_BASE_URL", "ELEVENLABS_BASE_URL"),
     )
 
     llm_model_word_detail: str = "mock-gpt"

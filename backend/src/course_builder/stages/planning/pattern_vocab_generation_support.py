@@ -240,8 +240,7 @@ def persist_generated_word_example_sentences(
     word_rows = q.list_word_rows_for_sentence_matching()
     lexical_rows = [
         (canonical_writing_ja, word_id)
-        for word_id, canonical_writing_ja, _reading_kana, pos, _gloss_primary_en, _gloss_alternatives_en, _usage_note_en in word_rows
-        if not LexemePos.is_support(pos)
+        for word_id, canonical_writing_ja, _reading_kana, _pos, _gloss_primary_en, _gloss_alternatives_en, _usage_note_en in word_rows
     ]
     tokenization_vocab = build_vocab_items_from_word_rows(word_rows)
     existing_sentence_data = q.load_existing_course_sentence_data()

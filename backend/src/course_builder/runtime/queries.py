@@ -177,6 +177,27 @@ def get_existing_course_version_for_build(
     )
 
 
+def get_latest_completed_section_build_run(
+    db: Session,
+    *,
+    build_version: int,
+    config_path: str,
+    section_code: str,
+) -> CourseBuildRun | None:
+    return db.scalar(
+        select(CourseBuildRun)
+        .where(
+            CourseBuildRun.build_version == build_version,
+            CourseBuildRun.config_path == config_path,
+            CourseBuildRun.scope_kind == "section",
+            CourseBuildRun.section_code == section_code,
+            CourseBuildRun.status == "completed",
+        )
+        .order_by(desc(CourseBuildRun.created_at), desc(CourseBuildRun.id))
+        .limit(1)
+    )
+
+
 def list_child_section_build_runs(
     db: Session,
     *,
