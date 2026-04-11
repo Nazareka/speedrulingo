@@ -6,9 +6,9 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from course_builder.engine.models import BuildContext
 from course_builder.llm.unit_metadata_generation import graph as unit_metadata_generation_graph
 from course_builder.queries.planning import CurriculumLesson, LessonWithPlan
-from course_builder.runtime.models import BuildContext
 from course_builder.stages.assembly.pattern_example_sentences import (
     SentenceAttachmentCandidate,
     _assign_sentence_candidates,

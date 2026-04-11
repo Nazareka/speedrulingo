@@ -5,9 +5,9 @@ from typing import cast
 
 from sqlalchemy import func, select
 
+from course_builder.engine.models import BuildContext
 from course_builder.llm.core.models import ExistingWordPromptInfo
 from course_builder.queries.shared import CourseVersionQueries
-from course_builder.runtime.models import BuildContext
 from domain.content.models import (
     Lesson,
     LessonSentence,

@@ -10,6 +10,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from course_builder.config import CourseBuildConfig
+from course_builder.engine.models import BuildContext
 from course_builder.llm.core.models import ExistingWordPromptInfo
 from course_builder.llm.pattern_vocab_generation import (
     get_pattern_vocab_graph,
@@ -27,7 +28,6 @@ from course_builder.llm.pattern_vocab_generation.models import (
     PreparedPatternVocabGenerationInput,
 )
 from course_builder.llm.pattern_vocab_generation.utils import sentence_uses_generated_lemma
-from course_builder.runtime.models import BuildContext
 from course_builder.stages.bootstrap.bootstrap_seed_words import insert_bootstrap_seed_words
 from course_builder.stages.bootstrap.pattern_catalog import import_pattern_catalog
 from course_builder.stages.bootstrap.sections import import_section_config

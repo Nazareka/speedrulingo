@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from course_builder.lexicon import is_kana_text
+from core.lexicon import is_kana_text
 from course_builder.sentence_processing.models import SurfaceEntry, VocabItem
 
 _I_ROW_BY_FINAL = {

@@ -2,15 +2,15 @@ from __future__ import annotations
 
 from sqlalchemy.orm import Session
 
+from core.lexicon import LexemePos
 from course_builder.config import AnchorWordRefConfig
-from course_builder.lexicon import LexemePos
+from course_builder.engine.models import BuildContext
 from course_builder.llm.anchored_word_generation.json_schema import AnchoredWordPayload
 from course_builder.llm.core.models import ExistingWordPromptInfo
 from course_builder.llm.mechanical_word_generation import MechanicalLexemePromptInfo
 from course_builder.llm.mechanical_word_generation.json_schema import MechanicalWordPayload
 from course_builder.llm.pattern_vocab_generation.json_schema import WordBatchItemPayload
 from course_builder.queries.planning import PlanningQueries
-from course_builder.runtime.models import BuildContext
 from course_builder.sentence_processing import (
     VocabItem,
     build_japanese_sentence_analysis,

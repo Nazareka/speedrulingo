@@ -3,7 +3,7 @@ from __future__ import annotations
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from course_builder.lexicon import extract_kanji_chars, is_kana_text
+from core.lexicon import extract_kanji_chars, is_kana_text
 from domain.content.models import Lesson, LessonSentence, Section, Sentence, SentenceUnit, Unit, Word
 
 

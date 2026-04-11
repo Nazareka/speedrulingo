@@ -1,3 +1,8 @@
+"""Pydantic and TypedDict shapes for course build runs (inputs and summaries).
+
+Shared by ``engine`` orchestration, ``build_runs`` persistence, and ``workflows`` DBOS entrypoints.
+"""
+
 from __future__ import annotations
 
 from pathlib import Path

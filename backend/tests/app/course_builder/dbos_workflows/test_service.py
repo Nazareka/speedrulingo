@@ -9,9 +9,10 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from course_builder.runtime import BuildRequest, CourseBuildOrchestrator, SectionBuildSummary
-from course_builder.runtime.run_state import create_stage_run
-from course_builder.runtime.runner import BuildProgressSnapshot, BuildStageRunResult
+from course_builder.build_runs.models import BuildRequest, SectionBuildSummary
+from course_builder.build_runs.run_state import create_stage_run
+from course_builder.engine.orchestration import CourseBuildOrchestrator
+from course_builder.engine.runner import BuildProgressSnapshot, BuildStageRunResult
 from domain.content.models import CourseBuildLogEvent, CourseBuildRun, CourseBuildStageRun, CourseVersion
 
 COURSE_VERSION_ID = "11111111-1111-1111-1111-111111111111"
@@ -54,7 +55,7 @@ def test_cancel_build_run_marks_parent_child_and_active_stage_runs_cancelled(
     db_session: Session,
 ) -> None:
     monkeypatch.setattr(
-        "course_builder.runtime.orchestration.SessionLocal",
+        "course_builder.build_runs.tracking.SessionLocal",
         lambda: nullcontext(db_session),
     )
     parent_run = CourseBuildRun(
@@ -112,7 +113,7 @@ def test_run_section_until_done_does_not_start_next_stage_after_cancel(
     orchestrator = CourseBuildOrchestrator()
     _insert_course_version(db_session)
     monkeypatch.setattr(
-        "course_builder.runtime.orchestration.SessionLocal",
+        "course_builder.build_runs.tracking.SessionLocal",
         lambda: nullcontext(db_session),
     )
 
@@ -140,8 +141,7 @@ def test_run_section_until_done_does_not_start_next_stage_after_cancel(
 
     cancel_checks = iter([False, True])
     monkeypatch.setattr(
-        orchestrator,
-        "_is_run_cancelled",
+        "course_builder.engine.orchestration.BuildRunTracking.is_cancelled",
         lambda **_: next(cancel_checks),
     )
 
@@ -198,7 +198,7 @@ def test_run_section_until_done_returns_plain_summary(
         lambda **_: progress_snapshots.pop(0),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.orchestration.SessionLocal",
+        "course_builder.build_runs.tracking.SessionLocal",
         lambda: nullcontext(db_session),
     )
 
@@ -236,7 +236,7 @@ def test_run_all_sections_until_done_skips_completed_sections(
     _insert_course_version(db_session)
 
     monkeypatch.setattr(
-        "course_builder.runtime.orchestration.read_declared_section_codes",
+        "course_builder.engine.orchestration.read_declared_section_codes",
         lambda _: ["PRE_A1", "A1_1"],
     )
     monkeypatch.setattr(
@@ -245,7 +245,7 @@ def test_run_all_sections_until_done_skips_completed_sections(
         lambda *, build_version, config_path, section_code: section_code == "PRE_A1",
     )
     monkeypatch.setattr(
-        "course_builder.runtime.orchestration.SessionLocal",
+        "course_builder.build_runs.tracking.SessionLocal",
         lambda: nullcontext(db_session),
     )
 
@@ -310,7 +310,7 @@ def test_run_section_until_done_persists_build_run_state(
     ]
 
     monkeypatch.setattr(
-        "course_builder.runtime.orchestration.SessionLocal",
+        "course_builder.build_runs.tracking.SessionLocal",
         lambda: nullcontext(db_session),
     )
     monkeypatch.setattr(
@@ -368,7 +368,7 @@ def test_run_section_until_done_returns_noop_summary_when_already_complete(
     orchestrator = CourseBuildOrchestrator()
     _insert_course_version(db_session)
     monkeypatch.setattr(
-        "course_builder.runtime.orchestration.SessionLocal",
+        "course_builder.build_runs.tracking.SessionLocal",
         lambda: nullcontext(db_session),
     )
     monkeypatch.setattr(
@@ -406,15 +406,15 @@ def test_run_one_stage_persists_stage_internal_logs(
     build_run_id = _insert_build_run(db_session)
 
     monkeypatch.setattr(
-        "course_builder.runtime.orchestration.SessionLocal",
+        "course_builder.engine.orchestration.SessionLocal",
         lambda: nullcontext(db_session),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.orchestration.load_config_for_step_runner",
+        "course_builder.engine.orchestration.load_config_for_step_runner",
         lambda config_path, *, section_code: object(),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.orchestration.build_langsmith_tracing_context",
+        "course_builder.engine.orchestration.build_langsmith_tracing_context",
         lambda *, build_version, section_code: nullcontext(),
     )
 
@@ -441,7 +441,7 @@ def test_run_one_stage_persists_stage_internal_logs(
         )
 
     monkeypatch.setattr(
-        "course_builder.runtime.orchestration.run_build_stage_with_attempt_log",
+        "course_builder.engine.orchestration.run_build_stage_with_attempt_log",
         fake_run_build_stage_with_attempt_log,
     )
 

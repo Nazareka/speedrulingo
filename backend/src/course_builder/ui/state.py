@@ -8,16 +8,8 @@ from pydantic import Field
 import reflex as rx
 
 from app_logging import configure_logging
-from course_builder.runtime.dbos import (
-    build_all_sections_workflow,
-    build_section_workflow,
-    cancel_dbos_workflow_async,
-    generate_section_sentence_audio_workflow,
-    generate_section_word_audio_workflow,
-    launch_dbos,
-)
-from course_builder.runtime.orchestration import CourseBuildOrchestrator, read_declared_section_codes
-from course_builder.runtime.queries import (
+from course_builder.build_runs.models import BuildRequest, build_request
+from course_builder.build_runs.queries import (
     get_build_run,
     get_build_run_by_workflow_id,
     list_build_runs,
@@ -26,7 +18,7 @@ from course_builder.runtime.queries import (
     list_log_events_for_build_run_ids,
     list_stage_runs,
 )
-from course_builder.runtime.workflow_models import BuildRequest, build_request
+from course_builder.engine.orchestration import CourseBuildOrchestrator, read_declared_section_codes
 from course_builder.ui.models import (
     build_pretty_log_tree_rows,
     format_serialized_log_event_line,
@@ -34,6 +26,12 @@ from course_builder.ui.models import (
     serialize_log_event,
     serialize_stage_run,
 )
+from course_builder.workflows.audio import (
+    generate_section_sentence_audio_workflow,
+    generate_section_word_audio_workflow,
+)
+from course_builder.workflows.bootstrap import cancel_dbos_workflow_async, launch_dbos
+from course_builder.workflows.course_build import build_all_sections_workflow, build_section_workflow
 from db.engine import SessionLocal
 
 _RUNTIME_READY = False

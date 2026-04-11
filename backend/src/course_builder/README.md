@@ -53,8 +53,12 @@ Important subfolders:
 
 - [config.py](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/config.py)
   - strict config models and loader logic for the course YAML bundle
-- [runtime/](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/runtime)
-  - build context, checkpointing, stage orchestration, and stage registry
+- [engine/](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/engine)
+  - build context (`BuildContext`), synchronous stage runner, orchestration, stage registry, draft persistence
+- [build_runs/](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/build_runs)
+  - build-run and stage-run queries, log events, Redis live updates, `BuildRunTracking` for progress
+- [workflows/](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/workflows)
+  - DBOS workflow entrypoints and workflow request/summary models
 - [stages/bootstrap/](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/stages/bootstrap)
   - deterministic import of theme tags, pattern catalog, section config, and bootstrap seed words
 - [stages/planning/](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/stages/planning)
@@ -107,7 +111,7 @@ There is also a Reflex operator UI under [ui/](/Users/nazareka/projects/Speedrul
 
 ## Stage Order
 
-The stage order is defined in [stage_registry.py](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/runtime/stage_registry.py).
+The stage order is defined in [stage_registry.py](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/engine/stage_registry.py).
 
 Current build stages:
 
@@ -119,7 +123,7 @@ Current build stages:
 6. `content_assembly`
 7. `release`
 
-There is also an implicit stage 0 in the runtime layer that creates the draft `course_version` build row before the first real stage runs.
+There is also an implicit stage 0 in the engine layer that creates the draft `course_version` build row before the first real stage runs.
 
 ## What Each Stage Does
 
@@ -274,15 +278,15 @@ At a high level:
 
 The config layer is intentionally strict. The Pydantic models in [config.py](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/config.py) reject malformed or contradictory config early.
 
-## Runtime Model
+## Engine model
 
-The runtime layer gives the course builder a resumable, stage-based build process:
+The `engine` package gives the course builder a resumable, stage-based build process:
 
-- [runtime/models.py](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/runtime/models.py)
+- [engine/models.py](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/engine/models.py)
   - build context and stage protocol
-- [runtime/runner.py](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/runtime/runner.py)
+- [engine/runner.py](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/engine/runner.py)
   - checkpoint-aware execution of one stage at a time
-- [runtime/persistence.py](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/runtime/persistence.py)
+- [engine/persistence.py](/Users/nazareka/projects/Speedrulingo/backend/src/course_builder/engine/persistence.py)
   - draft build row creation
 
 This lets the pipeline:

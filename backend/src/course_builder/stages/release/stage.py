@@ -5,7 +5,7 @@ from typing import override
 
 from sqlalchemy.orm import Session
 
-from course_builder.runtime.models import BuildContext, BuildStep
+from course_builder.engine.models import BuildContext, BuildStep
 from course_builder.stages.release.publish_logic import publish_course_version
 from course_builder.stages.release.section_acceptance_checks import run_section_acceptance_checks
 

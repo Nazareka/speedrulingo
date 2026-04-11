@@ -1,25 +1,19 @@
 from __future__ import annotations
 
-from pathlib import Path
-from threading import Lock
-from typing import TypedDict, cast
+from typing import TypedDict
 
-from dbos import DBOS, DBOSConfig
+from dbos import DBOS
 
-from course_builder.runtime.live_updates import publish_build_run_event
-from course_builder.runtime.orchestration import CourseBuildOrchestrator, SectionRunner
-from course_builder.runtime.queries import get_latest_completed_section_build_run
-from course_builder.runtime.run_state import create_build_run
-from course_builder.runtime.runner import BuildStageRunResult
-from course_builder.runtime.workflow_models import (
-    AllSectionsBuildSummary,
+from course_builder.build_runs.live_updates import publish_build_run_event
+from course_builder.build_runs.models import (
     BuildRequest,
-    SectionBuildSummary,
     SectionSentenceAudioSummary,
     SectionWordAudioSummary,
 )
-from db.engine import SessionLocal
-from domain.content.audio_service import (
+from course_builder.build_runs.queries import get_latest_completed_section_build_run
+from course_builder.build_runs.run_state import create_build_run
+from course_builder.build_runs.tracking import BuildRunTracking
+from course_builder.workflows.audio_generation import (
     ensure_sentence_audio_asset,
     ensure_word_audio_asset,
     list_section_sentence_ids,
@@ -27,10 +21,8 @@ from domain.content.audio_service import (
     mark_sentence_audio_asset_failed,
     mark_word_audio_asset_failed,
 )
+from db.engine import SessionLocal
 from settings import get_settings
-
-_LAUNCH_LOCK = Lock()
-_DBOS_INITIALIZED = False
 
 
 class SentenceAudioStepResult(TypedDict):
@@ -41,139 +33,6 @@ class SentenceAudioStepResult(TypedDict):
 class WordAudioStepResult(TypedDict):
     asset_id: str
     reused: bool
-
-
-def build_dbos_config() -> DBOSConfig:
-    settings = get_settings()
-    return {
-        "name": "speedrulingo-course-builder",
-        "system_database_url": settings.dbos_system_database_url,
-    }
-
-
-def launch_dbos() -> None:
-    global _DBOS_INITIALIZED
-    with _LAUNCH_LOCK:
-        if _DBOS_INITIALIZED:
-            return
-        DBOS(config=build_dbos_config())
-        DBOS.launch()
-        _DBOS_INITIALIZED = True
-
-
-def cancel_dbos_workflow(*, workflow_id: str) -> None:
-    launch_dbos()
-    DBOS.cancel_workflow(workflow_id)
-
-
-async def cancel_dbos_workflow_async(*, workflow_id: str) -> None:
-    launch_dbos()
-    await DBOS.cancel_workflow_async(workflow_id)
-
-
-@DBOS.step()
-def run_one_stage_step(
-    *,
-    config: str,
-    build_version: int,
-    section_code: str,
-    build_run_id: str | None = None,
-    stage_name: str | None = None,
-) -> BuildStageRunResult:
-    orchestrator = CourseBuildOrchestrator()
-    return orchestrator.run_one_stage(
-        config_path=Path(config),
-        section_code=section_code,
-        build_version=build_version,
-        build_run_id=build_run_id,
-        stage_name=stage_name,
-    )
-
-
-def _run_section_with_dbos_steps(
-    request: BuildRequest,
-    *,
-    build_run_id: str | None = None,
-    parent_build_run_id: str | None = None,
-    workflow_id: str | None = None,
-) -> SectionBuildSummary:
-    def dbos_stage_runner(
-        *,
-        config_path: Path,
-        build_version: int,
-        section_code: str,
-        build_run_id: str | None = None,
-        stage_name: str | None = None,
-    ) -> BuildStageRunResult:
-        return run_one_stage_step(
-            config=str(config_path),
-            build_version=build_version,
-            section_code=section_code,
-            build_run_id=build_run_id,
-            stage_name=stage_name,
-        )
-
-    orchestrator = CourseBuildOrchestrator()
-    return orchestrator.run_section_until_done(
-        request,
-        stage_runner=dbos_stage_runner,
-        build_run_id=build_run_id,
-        parent_build_run_id=parent_build_run_id,
-        workflow_id=workflow_id,
-    )
-
-
-@DBOS.workflow()
-def build_section_workflow(
-    config: str,
-    build_version: int,
-    section_code: str,
-    all_stages: bool = True,
-) -> SectionBuildSummary:
-    return _run_section_with_dbos_steps(
-        BuildRequest(
-            config=config,
-            build_version=build_version,
-            section_code=section_code,
-            all_stages=all_stages,
-            all_sections=False,
-        ),
-        workflow_id=DBOS.workflow_id,
-    )
-
-
-@DBOS.workflow()
-def build_all_sections_workflow(
-    config: str,
-    build_version: int,
-    all_stages: bool = True,
-) -> AllSectionsBuildSummary:
-    orchestrator = CourseBuildOrchestrator()
-    request = BuildRequest(
-        config=config,
-        build_version=build_version,
-        all_stages=all_stages,
-        all_sections=True,
-    )
-
-    def section_runner(
-        section_request: BuildRequest,
-        *,
-        build_run_id: str | None = None,
-        parent_build_run_id: str | None = None,
-    ) -> SectionBuildSummary:
-        return _run_section_with_dbos_steps(
-            section_request,
-            build_run_id=build_run_id,
-            parent_build_run_id=parent_build_run_id,
-            workflow_id=None,
-        )
-
-    return orchestrator.run_all_sections_until_done(
-        request,
-        section_runner=cast(SectionRunner, section_runner),
-        workflow_id=DBOS.workflow_id,
-    )
 
 
 @DBOS.step()
@@ -224,7 +83,6 @@ def generate_section_sentence_audio_workflow(
     build_version: int,
     section_code: str,
 ) -> SectionSentenceAudioSummary:
-    orchestrator = CourseBuildOrchestrator()
     request = BuildRequest(
         config=config,
         build_version=build_version,
@@ -267,7 +125,7 @@ def generate_section_sentence_audio_workflow(
         )
         build_run_id = build_run.id
 
-    orchestrator._log_run_message(  # runtime workflows intentionally reuse orchestrator persistence helpers.
+    BuildRunTracking.log_message(  # DBOS workflows reuse orchestrator persistence helpers.
         build_run_id=build_run_id,
         level="INFO",
         message=(
@@ -287,9 +145,9 @@ def generate_section_sentence_audio_workflow(
         raise ValueError(msg)
 
     for sentence_index, sentence_id in enumerate(sentence_ids, start=1):
-        if orchestrator._is_run_cancelled(build_run_id=build_run_id):  # runtime workflows intentionally reuse orchestrator persistence helpers.
+        if BuildRunTracking.is_cancelled(build_run_id=build_run_id):  # DBOS workflows reuse orchestrator helpers.
             break
-        orchestrator._sync_run_progress(  # runtime workflows intentionally reuse orchestrator persistence helpers.
+        BuildRunTracking.sync_progress(
             build_run_id=build_run_id,
             completed_stage_count=sentence_index - 1,
             current_stage_name=f"sentence {sentence_index}/{len(sentence_ids)}",
@@ -299,13 +157,13 @@ def generate_section_sentence_audio_workflow(
             step_result = generate_sentence_audio_step(sentence_id=sentence_id)
         except Exception as exc:
             failed_count += 1
-            orchestrator._log_run_message(  # runtime workflows intentionally reuse orchestrator persistence helpers.
+            BuildRunTracking.log_message(
                 build_run_id=build_run_id,
                 level="ERROR",
                 message=f"Sentence audio generation failed sentence_id={sentence_id} error={exc}",
                 section_code=section_code,
             )
-            orchestrator._mark_run_failed(  # runtime workflows intentionally reuse orchestrator persistence helpers.
+            BuildRunTracking.mark_failed(
                 build_run_id=build_run_id,
                 error_message=str(exc),
                 current_stage_name=f"sentence {sentence_index}/{len(sentence_ids)}",
@@ -313,7 +171,7 @@ def generate_section_sentence_audio_workflow(
             raise
         if step_result["reused"]:
             reused_count += 1
-            orchestrator._log_run_message(  # runtime workflows intentionally reuse orchestrator persistence helpers.
+            BuildRunTracking.log_message(
                 build_run_id=build_run_id,
                 level="INFO",
                 message=f"Reused sentence audio sentence_id={sentence_id} voice_id={voice_id}",
@@ -321,23 +179,23 @@ def generate_section_sentence_audio_workflow(
             )
         else:
             generated_count += 1
-            orchestrator._log_run_message(  # runtime workflows intentionally reuse orchestrator persistence helpers.
+            BuildRunTracking.log_message(
                 build_run_id=build_run_id,
                 level="INFO",
                 message=f"Generated sentence audio sentence_id={sentence_id} voice_id={voice_id}",
                 section_code=section_code,
             )
-        if orchestrator._is_run_cancelled(build_run_id=build_run_id):  # runtime workflows intentionally reuse orchestrator persistence helpers.
+        if BuildRunTracking.is_cancelled(build_run_id=build_run_id):
             break
-        orchestrator._sync_run_progress(  # runtime workflows intentionally reuse orchestrator persistence helpers.
+        BuildRunTracking.sync_progress(
             build_run_id=build_run_id,
             completed_stage_count=sentence_index,
             current_stage_name=None if sentence_index == len(sentence_ids) else f"sentence {sentence_index + 1}/{len(sentence_ids)}",
             course_version_id=course_version_id,
         )
 
-    if not orchestrator._is_run_cancelled(build_run_id=build_run_id):  # runtime workflows intentionally reuse orchestrator persistence helpers.
-        orchestrator._mark_run_completed(  # runtime workflows intentionally reuse orchestrator persistence helpers.
+    if not BuildRunTracking.is_cancelled(build_run_id=build_run_id):
+        BuildRunTracking.mark_completed(
             build_run_id=build_run_id,
             course_version_id=course_version_id,
             completed_stage_count=generated_count + reused_count,
@@ -360,7 +218,6 @@ def generate_section_word_audio_workflow(
     build_version: int,
     section_code: str,
 ) -> SectionWordAudioSummary:
-    orchestrator = CourseBuildOrchestrator()
     request = BuildRequest(
         config=config,
         build_version=build_version,
@@ -403,7 +260,7 @@ def generate_section_word_audio_workflow(
         )
         build_run_id = build_run.id
 
-    orchestrator._log_run_message(
+    BuildRunTracking.log_message(
         build_run_id=build_run_id,
         level="INFO",
         message=(
@@ -423,9 +280,9 @@ def generate_section_word_audio_workflow(
         raise ValueError(msg)
 
     for word_index, word_id in enumerate(word_ids, start=1):
-        if orchestrator._is_run_cancelled(build_run_id=build_run_id):
+        if BuildRunTracking.is_cancelled(build_run_id=build_run_id):
             break
-        orchestrator._sync_run_progress(
+        BuildRunTracking.sync_progress(
             build_run_id=build_run_id,
             completed_stage_count=word_index - 1,
             current_stage_name=f"word {word_index}/{len(word_ids)}",
@@ -435,13 +292,13 @@ def generate_section_word_audio_workflow(
             step_result = generate_word_audio_step(word_id=word_id)
         except Exception as exc:
             failed_count += 1
-            orchestrator._log_run_message(
+            BuildRunTracking.log_message(
                 build_run_id=build_run_id,
                 level="ERROR",
                 message=f"Word audio generation failed word_id={word_id} error={exc}",
                 section_code=section_code,
             )
-            orchestrator._mark_run_failed(
+            BuildRunTracking.mark_failed(
                 build_run_id=build_run_id,
                 error_message=str(exc),
                 current_stage_name=f"word {word_index}/{len(word_ids)}",
@@ -449,7 +306,7 @@ def generate_section_word_audio_workflow(
             raise
         if step_result["reused"]:
             reused_count += 1
-            orchestrator._log_run_message(
+            BuildRunTracking.log_message(
                 build_run_id=build_run_id,
                 level="INFO",
                 message=f"Reused word audio word_id={word_id} voice_id={voice_id}",
@@ -457,23 +314,23 @@ def generate_section_word_audio_workflow(
             )
         else:
             generated_count += 1
-            orchestrator._log_run_message(
+            BuildRunTracking.log_message(
                 build_run_id=build_run_id,
                 level="INFO",
                 message=f"Generated word audio word_id={word_id} voice_id={voice_id}",
                 section_code=section_code,
             )
-        if orchestrator._is_run_cancelled(build_run_id=build_run_id):
+        if BuildRunTracking.is_cancelled(build_run_id=build_run_id):
             break
-        orchestrator._sync_run_progress(
+        BuildRunTracking.sync_progress(
             build_run_id=build_run_id,
             completed_stage_count=word_index,
             current_stage_name=None if word_index == len(word_ids) else f"word {word_index + 1}/{len(word_ids)}",
             course_version_id=course_version_id,
         )
 
-    if not orchestrator._is_run_cancelled(build_run_id=build_run_id):
-        orchestrator._mark_run_completed(
+    if not BuildRunTracking.is_cancelled(build_run_id=build_run_id):
+        BuildRunTracking.mark_completed(
             build_run_id=build_run_id,
             course_version_id=course_version_id,
             completed_stage_count=generated_count + reused_count,

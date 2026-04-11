@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
+from course_builder.engine.models import BuildContext
 from course_builder.queries.assembly import AssemblyQueries
-from course_builder.runtime.models import BuildContext
 from course_builder.sentence_processing.normalization import strip_english_for_tiles, strip_japanese_for_matching
 from domain.content.models import ItemSentenceTiles, SentenceTile, SentenceTileSet, SentenceUnit
 

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from course_builder.lexicon import LexemePos
+from core.lexicon import LexemePos
 from course_builder.llm.core.structured_output import build_response_format
 
 

@@ -7,7 +7,7 @@ from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
 from course_builder.config import CourseBuildConfigLoader
-from course_builder.runtime.models import BuildContext, compute_config_hash
+from course_builder.engine.models import BuildContext, compute_config_hash
 from course_builder.stages.assembly.tile_generation import (
     TileSpec,
     _build_english_tiles,

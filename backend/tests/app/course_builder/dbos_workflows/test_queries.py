@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from sqlalchemy.orm import Session
 
-from course_builder.runtime.queries import (
+from course_builder.build_runs.queries import (
     get_build_run,
     get_build_run_by_workflow_id,
     list_build_runs,

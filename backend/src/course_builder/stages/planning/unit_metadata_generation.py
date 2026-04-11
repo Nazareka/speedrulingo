@@ -6,6 +6,7 @@ from typing import override
 
 from sqlalchemy.orm import Session
 
+from course_builder.engine.models import BuildContext, BuildStep
 from course_builder.llm.core.models import ExistingWordPromptInfo
 from course_builder.llm.unit_metadata_generation import (
     PreparedUnitInput,
@@ -14,7 +15,6 @@ from course_builder.llm.unit_metadata_generation import (
     run_unit_metadata_generation,
 )
 from course_builder.queries.planning import CurriculumUnit, PlanningQueries
-from course_builder.runtime.models import BuildContext, BuildStep
 from course_builder.stages.planning.section_curriculum import load_section_curriculum
 from domain.content.models import (
     Unit,

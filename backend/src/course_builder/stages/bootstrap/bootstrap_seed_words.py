@@ -5,8 +5,8 @@ from typing import override
 
 from sqlalchemy.orm import Session
 
+from course_builder.engine.models import BuildContext, BuildStep
 from course_builder.queries.bootstrap import BootstrapQueries
-from course_builder.runtime.models import BuildContext, BuildStep
 from domain.content.models import SectionWord, Word
 
 

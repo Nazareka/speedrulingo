@@ -4,8 +4,8 @@ from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
 
+from course_builder.engine.models import BuildContext
 from course_builder.queries.release import ReleaseQueries
-from course_builder.runtime.models import BuildContext
 from domain.content.models import CourseVersion
 
 

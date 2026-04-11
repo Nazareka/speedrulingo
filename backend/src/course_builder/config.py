@@ -7,7 +7,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 import yaml
 
-from course_builder.lexicon import LexemePos, is_kana_text
+from core.lexicon import LexemePos, is_kana_text
 
 RATIO_SUM_TOLERANCE = 0.0001
 

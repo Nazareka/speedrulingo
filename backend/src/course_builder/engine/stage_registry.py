@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from course_builder.runtime.models import BuildStep
+from course_builder.engine.models import BuildStep
 from course_builder.stages.assembly.stage import ContentAssemblyStage
 from course_builder.stages.bootstrap.stage import BootstrapCatalogStage
 from course_builder.stages.planning.normal_lesson_planning import NormalLessonPlanningStage

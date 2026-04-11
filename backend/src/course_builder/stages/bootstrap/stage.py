@@ -5,7 +5,7 @@ from typing import override
 
 from sqlalchemy.orm import Session
 
-from course_builder.runtime.models import BuildContext, BuildStep
+from course_builder.engine.models import BuildContext, BuildStep
 from course_builder.stages.bootstrap.bootstrap_seed_words import insert_bootstrap_seed_words
 from course_builder.stages.bootstrap.pattern_catalog import import_pattern_catalog
 from course_builder.stages.bootstrap.sections import import_section_config

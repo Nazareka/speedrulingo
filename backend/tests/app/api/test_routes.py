@@ -10,7 +10,7 @@ from sqlalchemy import func, select
 from sqlalchemy.engine import Connection, Engine
 from sqlalchemy.orm import Session, sessionmaker
 
-from course_builder.lexicon import extract_kanji_chars
+from core.lexicon import extract_kanji_chars
 from db.session import get_db
 from domain.auth.models import User, UserCourseEnrollment
 from domain.content import audio_service

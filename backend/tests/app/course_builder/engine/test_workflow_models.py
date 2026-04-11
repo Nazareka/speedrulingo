@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from course_builder.runtime.workflow_models import BuildRequest
+from course_builder.build_runs.models import BuildRequest
 
 
 def test_build_request_rejects_section_code_with_all_sections() -> None:

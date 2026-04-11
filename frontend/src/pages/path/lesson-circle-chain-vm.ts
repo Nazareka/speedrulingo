@@ -28,7 +28,9 @@ export function lessonChainRowVm(
   prev: LessonSummary | null,
   focusLessonId: string | null,
   unitLocked: boolean,
+  orientation: "horizontal" | "vertical" = "horizontal",
 ): LessonChainRowVm {
+  const gradientDeg = orientation === "vertical" ? "180deg" : "90deg";
   const kindUi = getLessonKindUi(lesson.kind);
   const isDone = lesson.state === "completed";
   const isNext = !unitLocked && !isDone && lesson.id === focusLessonId;
@@ -49,14 +51,14 @@ export function lessonChainRowVm(
       connectorBefore = {
         isGradient: true,
         style: {
-          backgroundImage: `linear-gradient(90deg, ${prevKindUi.completedHex}, ${kindUi.completedHex})`,
+          backgroundImage: `linear-gradient(${gradientDeg}, ${prevKindUi.completedHex}, ${kindUi.completedHex})`,
         },
       };
     } else if (completedToNext) {
       connectorBefore = {
         isGradient: true,
         style: {
-          backgroundImage: `linear-gradient(90deg, ${prevKindUi.completedHex}, ${kindUi.lightFillHex})`,
+          backgroundImage: `linear-gradient(${gradientDeg}, ${prevKindUi.completedHex}, ${kindUi.lightFillHex})`,
         },
       };
     } else {

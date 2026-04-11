@@ -6,10 +6,10 @@ from hashlib import sha256
 from sqlalchemy import delete, select
 from sqlalchemy.orm import Session
 
-from course_builder.lexicon import LexemePos, extract_kanji_chars
+from core.lexicon import LexemePos, extract_kanji_chars
+from course_builder.engine.models import BuildContext
 from course_builder.queries.assembly import AssemblyQueries
 from course_builder.queries.planning import CurriculumLesson, PlanningQueries
-from course_builder.runtime.models import BuildContext
 from course_builder.stages.planning.section_curriculum import list_lessons_with_plan
 from domain.content.models import (
     Item,

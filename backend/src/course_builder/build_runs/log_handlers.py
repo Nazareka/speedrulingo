@@ -8,9 +8,9 @@ from typing import Protocol
 
 from sqlalchemy.orm import Session
 
-from course_builder.runtime.live_updates import publish_build_run_event
-from course_builder.runtime.queries import get_build_run
-from course_builder.runtime.run_state import append_build_log_event, touch_build_run_heartbeat
+from course_builder.build_runs.live_updates import publish_build_run_event
+from course_builder.build_runs.queries import get_build_run
+from course_builder.build_runs.run_state import append_build_log_event, touch_build_run_heartbeat
 from db.engine import SessionLocal
 
 _EMIT_GUARD = local()

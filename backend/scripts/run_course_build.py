@@ -8,7 +8,9 @@ from typing import Any
 from dbos import DBOS
 
 from app_logging import configure_logging
-from course_builder.runtime import build_all_sections_workflow, build_request, build_section_workflow, launch_dbos
+from course_builder.build_runs.models import build_request
+from course_builder.workflows.bootstrap import launch_dbos
+from course_builder.workflows.course_build import build_all_sections_workflow, build_section_workflow
 
 
 def build_parser() -> argparse.ArgumentParser:

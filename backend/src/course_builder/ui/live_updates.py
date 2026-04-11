@@ -11,7 +11,7 @@ from redis.asyncio import Redis
 from redis.exceptions import RedisError
 import reflex as rx
 
-from course_builder.runtime.live_updates import BUILD_RUN_EVENTS_CHANNEL, BuildRunEvent, related_build_run_ids
+from course_builder.build_runs.live_updates import BUILD_RUN_EVENTS_CHANNEL, BuildRunEvent, related_build_run_ids
 from course_builder.ui.reflex_compat import (
     get_course_builder_state_token,
     get_reflex_app,

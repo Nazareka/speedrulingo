@@ -9,7 +9,7 @@ from langgraph.runtime import Runtime
 from typing_extensions import TypedDict
 
 from course_builder.config import CourseBuildConfig
-from course_builder.llm.core.client import create_chat_openai as _create_chat_openai
+from course_builder.integrations.llm_client import create_chat_openai as _create_chat_openai
 from course_builder.llm.unit_metadata_generation.json_schema import UnitMetadataPayload
 from course_builder.llm.unit_metadata_generation.models import (
     PreparedUnitMetadataInput,

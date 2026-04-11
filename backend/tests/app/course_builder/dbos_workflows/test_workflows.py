@@ -4,14 +4,13 @@ from typing import Any
 
 import pytest
 
-from course_builder.runtime import AllSectionsBuildSummary, BuildRequest, SectionBuildSummary
-from course_builder.runtime.dbos import (
-    build_all_sections_workflow,
-    build_section_workflow,
+from course_builder.build_runs.models import AllSectionsBuildSummary, BuildRequest, SectionBuildSummary
+from course_builder.engine.runner import BuildStageRunResult
+from course_builder.workflows.audio import (
     generate_section_sentence_audio_workflow,
     generate_section_word_audio_workflow,
 )
-from course_builder.runtime.runner import BuildStageRunResult
+from course_builder.workflows.course_build import build_all_sections_workflow, build_section_workflow
 
 
 def test_build_section_workflow_uses_dbos_workflow_id_and_stage_step(
@@ -77,10 +76,10 @@ def test_build_section_workflow_uses_dbos_workflow_id_and_stage_step(
             "was_noop": False,
         }
 
-    monkeypatch.setattr("course_builder.runtime.dbos.DBOS", FakeDBOS)
-    monkeypatch.setattr("course_builder.runtime.dbos.run_one_stage_step", fake_run_one_stage_step)
+    monkeypatch.setattr("course_builder.workflows.course_build.DBOS", FakeDBOS)
+    monkeypatch.setattr("course_builder.workflows.course_build.run_one_stage_step", fake_run_one_stage_step)
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator.run_section_until_done",
+        "course_builder.workflows.course_build.CourseBuildOrchestrator.run_section_until_done",
         fake_run_section_until_done,
     )
 
@@ -163,13 +162,13 @@ def test_build_all_sections_workflow_passes_section_runner_and_workflow_id(
             "was_noop": False,
         }
 
-    monkeypatch.setattr("course_builder.runtime.dbos.DBOS", FakeDBOS)
+    monkeypatch.setattr("course_builder.workflows.course_build.DBOS", FakeDBOS)
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator.run_section_until_done",
+        "course_builder.workflows.course_build.CourseBuildOrchestrator.run_section_until_done",
         fake_run_section_until_done,
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator.run_all_sections_until_done",
+        "course_builder.workflows.course_build.CourseBuildOrchestrator.run_all_sections_until_done",
         fake_run_all_sections_until_done,
     )
 
@@ -260,41 +259,41 @@ def test_generate_section_sentence_audio_workflow_uses_completed_section_run(
     ) -> None:
         calls["progress"].append((completed_stage_count, current_stage_name, course_version_id))
 
-    monkeypatch.setattr("course_builder.runtime.dbos.DBOS", FakeDBOS)
-    monkeypatch.setattr("course_builder.runtime.dbos.SessionLocal", FakeSessionLocal)
+    monkeypatch.setattr("course_builder.workflows.audio.DBOS", FakeDBOS)
+    monkeypatch.setattr("course_builder.workflows.audio.SessionLocal", FakeSessionLocal)
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.get_settings",
+        "course_builder.workflows.audio.get_settings",
         lambda: type("Settings", (), {"elevenlabs_voice_id": "voice-123"})(),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.get_latest_completed_section_build_run",
+        "course_builder.workflows.audio.get_latest_completed_section_build_run",
         lambda db, build_version, config_path, section_code: FakeSectionRun(),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.list_section_sentence_ids",
+        "course_builder.workflows.audio.list_section_sentence_ids",
         lambda db, course_version_id, section_code: ["sentence-1", "sentence-2"],
     )
-    monkeypatch.setattr("course_builder.runtime.dbos.create_build_run", fake_create_build_run)
-    monkeypatch.setattr("course_builder.runtime.dbos.publish_build_run_event", lambda **kwargs: None)
-    monkeypatch.setattr("course_builder.runtime.dbos.generate_sentence_audio_step", fake_generate_sentence_audio_step)
+    monkeypatch.setattr("course_builder.workflows.audio.create_build_run", fake_create_build_run)
+    monkeypatch.setattr("course_builder.workflows.audio.publish_build_run_event", lambda **kwargs: None)
+    monkeypatch.setattr("course_builder.workflows.audio.generate_sentence_audio_step", fake_generate_sentence_audio_step)
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator._log_run_message",
+        "course_builder.workflows.audio.BuildRunTracking.log_message",
         staticmethod(fake_log_run_message),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator._sync_run_progress",
+        "course_builder.workflows.audio.BuildRunTracking.sync_progress",
         staticmethod(fake_sync_run_progress),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator._mark_run_completed",
+        "course_builder.workflows.audio.BuildRunTracking.mark_completed",
         staticmethod(lambda **kwargs: calls.setdefault("completed", kwargs)),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator._mark_run_failed",
+        "course_builder.workflows.audio.BuildRunTracking.mark_failed",
         staticmethod(lambda **kwargs: calls.setdefault("failed", kwargs)),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator._is_run_cancelled",
+        "course_builder.workflows.audio.BuildRunTracking.is_cancelled",
         staticmethod(lambda **kwargs: False),
     )
 
@@ -398,41 +397,41 @@ def test_generate_section_word_audio_workflow_uses_completed_section_run(
     ) -> None:
         calls["progress"].append((completed_stage_count, current_stage_name, course_version_id))
 
-    monkeypatch.setattr("course_builder.runtime.dbos.DBOS", FakeDBOS)
-    monkeypatch.setattr("course_builder.runtime.dbos.SessionLocal", FakeSessionLocal)
+    monkeypatch.setattr("course_builder.workflows.audio.DBOS", FakeDBOS)
+    monkeypatch.setattr("course_builder.workflows.audio.SessionLocal", FakeSessionLocal)
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.get_settings",
+        "course_builder.workflows.audio.get_settings",
         lambda: type("Settings", (), {"elevenlabs_voice_id": "voice-123"})(),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.get_latest_completed_section_build_run",
+        "course_builder.workflows.audio.get_latest_completed_section_build_run",
         lambda db, build_version, config_path, section_code: FakeSectionRun(),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.list_section_word_ids",
+        "course_builder.workflows.audio.list_section_word_ids",
         lambda db, course_version_id, section_code: ["word-1", "word-2"],
     )
-    monkeypatch.setattr("course_builder.runtime.dbos.create_build_run", fake_create_build_run)
-    monkeypatch.setattr("course_builder.runtime.dbos.publish_build_run_event", lambda **kwargs: None)
-    monkeypatch.setattr("course_builder.runtime.dbos.generate_word_audio_step", fake_generate_word_audio_step)
+    monkeypatch.setattr("course_builder.workflows.audio.create_build_run", fake_create_build_run)
+    monkeypatch.setattr("course_builder.workflows.audio.publish_build_run_event", lambda **kwargs: None)
+    monkeypatch.setattr("course_builder.workflows.audio.generate_word_audio_step", fake_generate_word_audio_step)
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator._log_run_message",
+        "course_builder.workflows.audio.BuildRunTracking.log_message",
         staticmethod(fake_log_run_message),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator._sync_run_progress",
+        "course_builder.workflows.audio.BuildRunTracking.sync_progress",
         staticmethod(fake_sync_run_progress),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator._mark_run_completed",
+        "course_builder.workflows.audio.BuildRunTracking.mark_completed",
         staticmethod(lambda **kwargs: calls.setdefault("completed", kwargs)),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator._mark_run_failed",
+        "course_builder.workflows.audio.BuildRunTracking.mark_failed",
         staticmethod(lambda **kwargs: calls.setdefault("failed", kwargs)),
     )
     monkeypatch.setattr(
-        "course_builder.runtime.dbos.CourseBuildOrchestrator._is_run_cancelled",
+        "course_builder.workflows.audio.BuildRunTracking.is_cancelled",
         staticmethod(lambda **kwargs: False),
     )
 

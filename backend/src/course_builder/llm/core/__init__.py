@@ -1,4 +1,4 @@
-from course_builder.llm.core.client import create_chat_openai
+from course_builder.integrations.llm_client import create_chat_openai
 from course_builder.llm.core.formatting import (
     format_pattern_scope_lines,
     format_prompt_word_line,

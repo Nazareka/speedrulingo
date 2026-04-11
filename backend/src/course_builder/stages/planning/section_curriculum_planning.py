@@ -5,11 +5,11 @@ from typing import override
 
 from sqlalchemy.orm import Session
 
+from course_builder.engine.models import BuildContext, BuildStep
 from course_builder.queries.planning import (
     CurriculumPatternExample,
     PlanningQueries,
 )
-from course_builder.runtime.models import BuildContext, BuildStep
 from course_builder.stages.planning.section_curriculum import build_section_curriculum
 from domain.content.models import PlannedLesson, PlannedUnit
 

@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from sqlalchemy import delete
 from sqlalchemy.orm import Session
 
+from course_builder.engine.models import BuildContext
 from course_builder.queries.planning import GeneratedWordSentenceRow, LessonWithPlan, PlanningQueries
-from course_builder.runtime.models import BuildContext
 from course_builder.sentence_processing import (
     VocabItem,
     build_japanese_sentence_analysis,

@@ -3,8 +3,9 @@ from __future__ import annotations
 from dataclasses import dataclass
 from math import ceil
 
+from core.lexicon import LexemePos
 from course_builder.config import CourseBuildConfig, SectionPlanningConfig
-from course_builder.lexicon import LexemePos
+from course_builder.engine.models import BuildContext
 from course_builder.queries.planning import (
     CurriculumLesson,
     CurriculumPattern,
@@ -15,7 +16,6 @@ from course_builder.queries.planning import (
     PlanningQueries,
     SectionCurriculumPlan,
 )
-from course_builder.runtime.models import BuildContext
 
 NONPATTERN_BUNDLE_CODES = {"BOOTSTRAP_SUPPORT_ONLY", "SECTION_LEXICAL_EXPANSION"}
 KANJI_TRANSITION_PATTERN_THRESHOLD = 3

@@ -6,8 +6,8 @@ from pathlib import Path
 import pytest
 from sqlalchemy.orm import Session
 
-from course_builder.runtime.orchestration import read_declared_section_codes, run_build_stage_with_attempt_log
-from course_builder.runtime.runner import BuildStageRunResult
+from course_builder.engine.orchestration import read_declared_section_codes, run_build_stage_with_attempt_log
+from course_builder.engine.runner import BuildStageRunResult
 from tests.helpers.builder import load_test_config
 
 
@@ -41,7 +41,7 @@ def test_run_build_stage_with_attempt_log_forwards_extra_logs(
         def emit(self, record: logging.LogRecord) -> None:
             extra_messages.append(record.getMessage())
 
-    monkeypatch.setattr("course_builder.runtime.orchestration.run_next_build_stage", fake_run_next_build_stage)
+    monkeypatch.setattr("course_builder.engine.orchestration.run_next_build_stage", fake_run_next_build_stage)
 
     result = run_build_stage_with_attempt_log(
         db=db_session,

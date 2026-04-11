@@ -8,8 +8,8 @@ from langchain_core.language_models.chat_models import BaseChatModel
 import pytest
 from sqlalchemy.orm import Session
 
+from core.lexicon import LexemePos
 from course_builder.config import CourseBuildConfig
-from course_builder.lexicon import LexemePos
 from course_builder.llm.mechanical_word_generation import (
     get_mechanical_word_generation_graph,
 )

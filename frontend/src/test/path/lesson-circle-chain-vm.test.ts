@@ -29,7 +29,14 @@ describe("lessonChainRowVm", () => {
     const cur = lesson("c", 1, { state: "completed" });
     const row = lessonChainRowVm(cur, prev, null, false);
     expect(row.connectorBefore?.isGradient).toBe(true);
-    expect(row.connectorBefore?.style?.backgroundImage).toContain("linear-gradient");
+    expect(row.connectorBefore?.style?.backgroundImage).toContain("linear-gradient(90deg");
+  });
+
+  it("uses vertical gradient angle when orientation is vertical", () => {
+    const prev = lesson("p", 0, { state: "completed" });
+    const cur = lesson("c", 1, { state: "completed" });
+    const row = lessonChainRowVm(cur, prev, null, false, "vertical");
+    expect(row.connectorBefore?.style?.backgroundImage).toContain("linear-gradient(180deg");
   });
 
   it("marks interactive when unit and lesson are unlocked", () => {

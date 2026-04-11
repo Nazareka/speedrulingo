@@ -5,8 +5,8 @@ from dataclasses import dataclass
 from pytest import MonkeyPatch
 from sqlalchemy.orm import Session
 
+from course_builder.engine.models import BuildContext
 from course_builder.llm.unit_metadata_generation import graph as unit_metadata_generation_graph
-from course_builder.runtime.models import BuildContext
 from course_builder.stages.assembly.hints_and_kanji_introductions import build_hints_and_kanji_introductions
 from course_builder.stages.assembly.lesson_item_generation import generate_lesson_items
 from course_builder.stages.assembly.pattern_example_sentences import persist_pattern_example_sentences

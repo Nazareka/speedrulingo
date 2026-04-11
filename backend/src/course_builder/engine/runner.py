@@ -9,10 +9,7 @@ from typing import Any, cast
 from sqlalchemy.exc import IntegrityError, ResourceClosedError
 from sqlalchemy.orm import Session
 
-from course_builder.config import CourseBuildConfig, CourseBuildConfigLoader
-from course_builder.runtime.models import BuildContext, BuildStep, compute_config_hash
-from course_builder.runtime.persistence import create_draft_build_row
-from course_builder.runtime.queries import (
+from course_builder.build_runs.queries import (
     get_build_run,
     get_completed_stage_indexes,
     get_course_version,
@@ -22,7 +19,10 @@ from course_builder.runtime.queries import (
     get_latest_section_build_run_id,
     list_completed_stage_identities,
 )
-from course_builder.runtime.stage_registry import get_registered_build_stages
+from course_builder.config import CourseBuildConfig, CourseBuildConfigLoader
+from course_builder.engine.models import BuildContext, BuildStep, compute_config_hash
+from course_builder.engine.persistence import create_draft_build_row
+from course_builder.engine.stage_registry import get_registered_build_stages
 from domain.content.models import CourseBuildRun
 
 LOGGER = logging.getLogger(__name__)

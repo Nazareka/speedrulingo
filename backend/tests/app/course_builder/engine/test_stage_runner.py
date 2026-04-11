@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from course_builder.runtime.runner import (
+from course_builder.engine.runner import (
     BuildProgressSnapshot,
     is_build_progress_fully_completed,
     is_section_build_fully_completed,

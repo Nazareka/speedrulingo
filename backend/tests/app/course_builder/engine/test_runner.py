@@ -7,8 +7,8 @@ import pytest
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from course_builder.runtime.models import BuildContext, BuildStep, compute_config_hash
-from course_builder.runtime.persistence import create_draft_build_row
+from course_builder.engine.models import BuildContext, BuildStep, compute_config_hash
+from course_builder.engine.persistence import create_draft_build_row
 from domain.content.models import CourseVersion, ThemeTag
 from tests.helpers.builder import CourseBuildTestRunner, load_test_config
 

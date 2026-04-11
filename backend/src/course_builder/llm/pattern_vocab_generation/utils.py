@@ -1,4 +1,4 @@
-from course_builder.lexicon import LexemePos, is_hiragana, is_kanji
+from core.lexicon import LexemePos, is_hiragana, is_kanji
 from course_builder.llm.pattern_vocab_generation.json_schema import WordBatchItemPayload
 
 

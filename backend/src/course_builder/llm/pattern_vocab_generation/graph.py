@@ -11,8 +11,8 @@ from langgraph.runtime import Runtime
 from langgraph.types import RetryPolicy
 from typing_extensions import TypedDict
 
+from core.lexicon import LexemePos, is_kana_text
 from course_builder.config import CourseBuildConfig
-from course_builder.lexicon import LexemePos, is_kana_text
 from course_builder.llm.core.formatting import (
     format_existing_word_lines,
     format_pattern_scope_lines,

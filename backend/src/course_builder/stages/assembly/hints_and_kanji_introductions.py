@@ -4,9 +4,9 @@ from dataclasses import dataclass
 
 from sqlalchemy.orm import Session
 
-from course_builder.lexicon import extract_kanji_chars
+from core.lexicon import extract_kanji_chars
+from course_builder.engine.models import BuildContext
 from course_builder.queries.assembly import AssemblyQueries
-from course_builder.runtime.models import BuildContext
 from course_builder.sentence_processing import VocabItem, build_japanese_sentence_analysis
 from domain.content.models import (
     Kanji,

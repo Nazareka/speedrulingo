@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from course_builder.runtime.models import BuildContext
+from course_builder.engine.models import BuildContext
 from course_builder.stages.release.publish_logic import PublishStats, publish_course_version
 from course_builder.stages.release.section_acceptance_checks import run_section_acceptance_checks
 from domain.content.models import CourseVersion, Item

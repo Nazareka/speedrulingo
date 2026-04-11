@@ -11,10 +11,10 @@ from langgraph.runtime import Runtime
 from typing_extensions import TypedDict
 
 from course_builder.config import CourseBuildConfig
+from course_builder.integrations.llm_client import create_chat_openai
 from course_builder.llm.anchored_word_generation import get_anchored_word_generation_graph
 from course_builder.llm.anchored_word_generation.json_schema import AnchoredWordPayload
 from course_builder.llm.anchored_word_generation.models import AnchoredWordGenerationResult
-from course_builder.llm.core.client import create_chat_openai
 from course_builder.llm.core.models import ExistingWordPromptInfo
 from course_builder.llm.master_pattern_vocab_generation.models import (
     MasterPatternVocabGenerationResult,

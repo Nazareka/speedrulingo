@@ -4,8 +4,8 @@ from datetime import UTC, datetime
 
 from sqlalchemy.orm import Session
 
-from course_builder.runtime.queries import get_build_run, get_stage_run_by_scope
-from course_builder.runtime.workflow_models import BuildRequest
+from course_builder.build_runs.models import BuildRequest
+from course_builder.build_runs.queries import get_build_run, get_stage_run_by_scope
 from domain.content.models import CourseBuildLogEvent, CourseBuildRun, CourseBuildStageRun
 
 RUN_STATUS_COMPLETED = "completed"

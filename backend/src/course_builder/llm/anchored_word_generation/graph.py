@@ -10,8 +10,8 @@ from langgraph.graph.state import CompiledStateGraph
 from langgraph.runtime import Runtime
 from typing_extensions import TypedDict
 
+from core.lexicon import is_kana_text
 from course_builder.config import CourseBuildConfig
-from course_builder.lexicon import is_kana_text
 from course_builder.llm.anchored_word_generation.json_schema import (
     AnchoredWordBatchPayload,
     AnchoredWordPayload,

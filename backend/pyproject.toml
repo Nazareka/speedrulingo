@@ -76,7 +76,7 @@ ignore = [
 ]
 
 [tool.ruff.lint.isort]
-known-first-party = ["speedrulingo"]
+known-first-party = ["core", "speedrulingo"]
 combine-as-imports = true
 force-sort-within-sections = true
 

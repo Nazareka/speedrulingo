@@ -5,13 +5,13 @@ from math import floor
 
 from sqlalchemy.orm import Session
 
+from course_builder.engine.models import BuildContext
 from course_builder.queries.assembly import (
     AssemblyQueries,
     PatternPoolRow,
     SentenceSelectionRow,
     WordPoolRow,
 )
-from course_builder.runtime.models import BuildContext
 from domain.content.models import (
     Lesson,
     LessonPatternLink,

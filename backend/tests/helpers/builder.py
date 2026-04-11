@@ -9,12 +9,12 @@ from sqlalchemy.exc import ResourceClosedError
 from sqlalchemy.orm import Session
 
 from course_builder.config import CourseBuildConfig, CourseBuildConfigLoader
-from course_builder.runtime.models import (
+from course_builder.engine.models import (
     BuildContext,
     BuildStep,
     compute_config_hash,
 )
-from course_builder.runtime.persistence import create_draft_build_row
+from course_builder.engine.persistence import create_draft_build_row
 from tests.helpers.config_builder import build_test_config_yaml
 from tests.helpers.test_config_source import TEST_CONFIG_YAML, write_config
 

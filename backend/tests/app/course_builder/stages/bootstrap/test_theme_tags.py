@@ -6,7 +6,7 @@ import pytest
 from sqlalchemy import func, select
 from sqlalchemy.orm import Session
 
-from course_builder.runtime.models import BuildContext
+from course_builder.engine.models import BuildContext
 from course_builder.stages.bootstrap.theme_tags import (
     ImportThemeTagsStep,
     ThemeTagImportStats,

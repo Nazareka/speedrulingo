@@ -6,6 +6,7 @@ from typing import override
 
 from sqlalchemy.orm import Session
 
+from course_builder.engine.models import BuildContext, BuildStep
 from course_builder.llm.anchored_word_generation import PreparedAnchoredWordGenerationInput
 from course_builder.llm.master_pattern_vocab_generation import (
     PreparedMasterPatternVocabGenerationInput,
@@ -15,7 +16,6 @@ from course_builder.llm.master_pattern_vocab_generation import (
 from course_builder.llm.mechanical_word_generation import PreparedMechanicalWordGenerationInput
 from course_builder.llm.pattern_vocab_generation.models import PreparedPatternVocabGenerationInput
 from course_builder.queries.planning import PlanningQueries
-from course_builder.runtime.models import BuildContext, BuildStep
 from course_builder.stages.planning.pattern_vocab_generation_support import (
     load_existing_word_prompt_info,
     persist_generated_mechanical_words,
