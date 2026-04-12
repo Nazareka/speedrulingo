@@ -15,7 +15,7 @@ export default defineConfig({
     /**
      * Coverage runs only with `vitest run --coverage` (see `package.json` `coverage` / `verify:ci`).
      * Aggregate thresholds match the current tested surface; stricter `session-*.ts` applies to
-     * files that remain in the report (see `exclude` — `shared/lesson/session-model.ts` matches).
+     * files that remain in the report (see `exclude` — `entities/lesson/session-model.ts` matches tests).
      */
     coverage: {
       provider: "v8",
@@ -26,11 +26,11 @@ export default defineConfig({
         "src/test/**",
         "**/*.d.ts",
         // Not covered by unit tests yet; keep them out so `session-*.ts` glob matches model-only.
-        "src/features/lesson/session-selectors.ts",
-        "src/features/lesson/session-transitions.ts",
-        "src/features/lesson/session-state.ts",
-        "src/shared/lesson/session-types.ts",
-        "src/features/lesson/use-lesson-session.ts",
+        "src/features/lesson/model/session-selectors.ts",
+        "src/features/lesson/model/session-transitions.ts",
+        "src/features/lesson/model/session-state.ts",
+        "src/entities/lesson/session-types.ts",
+        "src/features/lesson/model/use-lesson-session.ts",
       ],
       thresholds: {
         perFile: false,
@@ -38,13 +38,13 @@ export default defineConfig({
         statements: 6,
         branches: 55,
         functions: 38,
-        "src/features/lesson/session-*.ts": {
+        "src/features/lesson/model/session-*.ts": {
           lines: 88,
           functions: 85,
           branches: 85,
           statements: 88,
         },
-        "src/shared/lesson/session-*.ts": {
+        "src/entities/lesson/session-*.ts": {
           lines: 88,
           functions: 85,
           branches: 85,

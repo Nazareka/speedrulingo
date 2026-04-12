@@ -6,7 +6,7 @@ import {
   requireResponseData,
 } from "../../shared/api";
 import type { TokenResponse } from "../../shared/api/generated/types.gen";
-import { sessionKeys } from "../../shared/auth/session";
+import { sessionKeys } from "../../shared/auth/session-keys";
 import { setToken } from "../../shared/auth/token-store";
 
 export function useLoginMutation() {

@@ -1,566 +1,148 @@
-As a staff engineer, I would treat those folders as layers with clear responsibility boundaries, not just as “places to put files.”
+# Frontend `src/` structure
 
-Your current top-level split is already pretty reasonable:
-	•	app
-	•	pages
-	•	features
-	•	shared
-	•	test
+Single source of truth for how the Speedrulingo web app is organized. **Folder names matter less than import direction:** lower layers must not depend on higher layers.
 
-But the real value comes from defining what is allowed where.
+---
 
-The mental model
+## Layer model
 
-I usually prefer this direction:
-	•	app = application shell and global wiring
-	•	pages = route-level composition
-	•	features = business use cases and user actions
-	•	shared = reusable primitives, utilities, and low-level infrastructure
-	•	test = cross-project test setup and helpers
+| Layer | Responsibility | Imports from |
+| --- | --- | --- |
+| **`app/`** | Bootstrap: providers, router factory, route modules, global error UI | `widgets/`, `pages/`, `features/`, `entities/`, `shared/` |
+| **`pages/`** | Route adapters: params, search, compose a screen | `features/`, `entities/`, `shared/` only |
+| **`widgets/`** | Large composed sections reused across routes (not a full screen, not a “verb”) | `features/`, `entities/`, `shared/` only |
+| **`features/`** | User-visible capabilities: screens, orchestration, mutations, feature state | `entities/`, `shared/` only |
+| **`entities/`** | Domain **nouns**: types, pure derivations over API shapes, noun-scoped read queries / tiny UI | `shared/` and other `entities/` |
+| **`shared/`** | Infrastructure and generic primitives | `shared/` only |
+| **`test/`** | Vitest setup and shared test helpers (excluded from dependency-cruiser) | — |
 
-That is a strong baseline for a medium-to-large React app.
+**One-line roles**
 
-⸻
+- **`app`** — wires the running application (router + providers + global shell hooks).
+- **`pages`** — answers “which route is this?” by composing a feature screen.
+- **`widgets`** — answers “which reusable chrome block?” (e.g. app frame with nav).
+- **`features`** — answers “what can the user do here?” (verbs: learn, pick a unit, log in).
+- **`entities`** — answers “what domain things exist?” (nouns: path selection, lesson session shape, unit).
+- **`shared`** — answers “what could any app reuse?” (HTTP client, tokens, motion tokens).
 
-Recommended responsibility of each folder
+---
 
-app
+## Dependency rules
 
-This is the composition root of the frontend.
+These are enforced by **dependency-cruiser** (`.dependency-cruiser.cjs`), run via **`npm run check:imports`** and **`npm run verify`**.
 
-It should contain things that initialize or wire the whole app together.
+1. **`shared`** must not import `entities`, `features`, `widgets`, `pages`, or `app`.
+2. **`entities`** must not import `features`, `widgets`, `pages`, or `app`.
+3. **`features`** must not import `widgets`, `pages`, or `app`.
+4. **`widgets`** must not import `pages` or `app`.
+5. **`pages`** must not import `app` or `widgets`.
 
-Typical contents:
-	•	app entrypoint
-	•	router creation
-	•	query client creation
-	•	providers
-	•	global styles
-	•	app-wide config
-	•	auth/session bootstrapping
-	•	error boundaries
-	•	layout shell that is truly global
-	•	app initialization logic
+**Sibling features:** a feature must not import another feature’s tree, **except** the documented case: **`features/kana` may import `features/lesson`** for shared lesson chrome (layout, shortcuts, feedback shell, top bar). For shared **types and pure logic** used by both, prefer **`entities/lesson`** (and related entity modules).
 
-Examples:
-	•	app/main.tsx
-	•	app/router.tsx
-	•	app/providers.tsx
-	•	app/query-client.ts
-	•	app/styles.css
-	•	app/error-boundary.tsx
+**Invalidate remote caches** using stable keys from **`shared/auth/session-keys`**, **`entities/path/query-keys`**, or feature **`api/`** modules — not ad hoc strings scattered in UI.
 
-What should not go here:
-	•	page-specific UI
-	•	domain/business logic
-	•	reusable feature logic
-	•	random helper functions
+---
 
-Rule of thumb: if it exists because “the whole app needs this wired together,” it belongs in app.
+## Expected `src/` layout
 
-⸻
-
-pages
-
-This should contain route-level screens.
-
-A page should mostly do orchestration:
-	•	read route params
-	•	read search params
-	•	trigger page-level loaders if needed
-	•	compose several features/widgets together
-	•	define layout specific to that route
-	•	keep minimal logic
-
-A page is not where you want a lot of business logic to live.
-
-Good page example:
-	•	pages/lesson/ui/lesson-page.tsx
-	•	pages/settings/ui/settings-page.tsx
-
-A page should sound like:
-
-“To render this route, I combine feature A, feature B, and shared layout C.”
-
-Bad page example:
-	•	page directly calling APIs
-	•	page containing big forms with all validation logic inline
-	•	page manually transforming server DTOs into UI models everywhere
-	•	page containing business rules like unlock logic, submission rules, permission logic
-
-That kind of code belongs lower.
-
-⸻
-
-features
-
-This is the most important folder.
-
-A feature should represent a user-visible capability or business action.
-
-Examples:
-	•	sign in
-	•	update profile
-	•	submit answer
-	•	change lesson step
-	•	complete unit
-	•	create course version
-	•	review previous lesson
-	•	search words
-
-A feature can contain:
-	•	UI specific to that feature
-	•	hooks
-	•	actions/mutations
-	•	validation schemas
-	•	small local state
-	•	feature-specific API calls
-	•	adapters/mappers if needed
-	•	feature tests
-
-Example:
-
-features/
-  submit-answer/
-    ui/
-      submit-answer-button.tsx
-      answer-feedback.tsx
-    model/
-      use-submit-answer.ts
-      submit-answer.schema.ts
-      types.ts
-    api/
-      submit-answer.ts
-    lib/
-      map-answer-payload.ts
-
-This is where most business logic should live.
-
-A feature should be independently understandable:
-	•	what user action it supports
-	•	what state it manages
-	•	what data it reads/writes
-	•	what UI pieces it exposes
-
-What should not go here:
-	•	generic button/input/modal components
-	•	app-wide providers
-	•	generic utilities
-	•	arbitrary route containers
-
-⸻
-
-shared
-
-This is where teams often make a mess, so it needs strict discipline.
-
-shared is for things that are:
-	•	reusable
-	•	not tied to one feature
-	•	low-level
-	•	business-agnostic or nearly so
-
-Typical subfolders:
-	•	shared/ui — reusable UI primitives
-	•	shared/lib — utilities
-	•	shared/api — API client base, common request helpers
-	•	shared/config — environment/config helpers
-	•	shared/types — common types
-	•	shared/hooks — generic hooks
-	•	shared/constants — generic constants
-	•	shared/assets — icons/images/fonts
-
-Examples:
-	•	Button, Dialog, ProgressBar
-	•	cn, date formatting helpers, invariant helpers
-	•	API client instance from @hey-api/client-fetch
-	•	zod helpers
-	•	useDebounce, usePrevious
-	•	generic ApiError
-
-What should not go into shared:
-	•	lesson unlock rules
-	•	user progress logic
-	•	“temporary utils” that are actually feature-specific
-	•	components that are only reused because two pages happen to need the same business widget
-
-Important distinction:
-	•	shared/ui/Button → yes
-	•	shared/ui/LessonAnswerCard → probably no, unless it is truly generic
-	•	shared/lib/formatDate → yes
-	•	shared/lib/calculateLessonScore → usually no, that belongs to a feature/domain layer
-
-If something contains business vocabulary, it usually should not be in shared.
-
-⸻
-
-test
-
-Use this for test infrastructure, not necessarily all tests.
-
-Good things to keep here:
-	•	test setup
-	•	test utils
-	•	custom render helpers
-	•	mocks/fakes
-	•	MSW handlers
-	•	fixtures shared across multiple features
-	•	Vitest global setup
-
-Examples:
-	•	test/setup.ts
-	•	test/render.tsx
-	•	test/msw/server.ts
-	•	test/fixtures/user.ts
-
-I would not centralize every test file here.
-
-Usually better:
-	•	keep unit/feature tests close to code
-	•	use test/ only for shared testing infrastructure
-
-So:
-	•	features/login/model/use-login.test.ts
-	•	shared/lib/date.test.ts
-	•	plus global stuff in test/
-
-That scales better.
-
-⸻
-
-Folders I would probably add
-
-Your current structure is good, but for a serious app I would strongly consider adding one or two of these.
-
-entities
-
-This is useful if the app has rich domain objects that appear across many features.
-
-Examples:
-	•	user
-	•	lesson
-	•	unit
-	•	course
-	•	word
-	•	sentence
-	•	session
-
-This folder holds the domain representation, not actions.
-
-Typical contents:
-	•	types
-	•	entity-level hooks
-	•	selectors
-	•	tiny display components
-	•	mappers from API DTO to app model
-
-Example:
-
-entities/
-  lesson/
-    model/
-      types.ts
-      lesson.ts
-      lesson.selectors.ts
-    api/
-      lesson.query.ts
-    ui/
-      lesson-badge.tsx
-      lesson-status-chip.tsx
-
-Why this helps:
-
-Without entities, teams often put everything into either features or shared, and both become muddy.
-
-Use entities when:
-	•	several features depend on the same domain object
-	•	you want a clear separation between “thing” and “action on the thing”
-
-For a non-trivial product, I usually like:
-	•	entities = nouns
-	•	features = verbs
-
-That is a very useful distinction.
-
-⸻
-
-widgets
-
-This is optional, but useful when pages are composed from larger UI blocks.
-
-A widget is a page section made of several entities/features/shared components.
-
-Examples:
-	•	lesson header
-	•	sidebar navigation
-	•	dashboard summary panel
-	•	course overview block
-
-This is not business action, and not a whole route either.
-
-Example:
-
-widgets/
-  lesson-header/
-  course-sidebar/
-  profile-summary/
-
-When it helps:
-	•	pages are becoming large
-	•	you need reusable route-level chunks
-	•	pages starts filling with giant JSX blocks
-
-If your app is still moderate, you can skip widgets for now.
-
-⸻
-
-processes or flows
-
-Only if you truly have multi-step cross-feature workflows.
-
-Examples:
-	•	onboarding flow
-	•	checkout
-	•	signup wizard
-	•	multi-step course builder run
-
-Most teams do not need this folder early.
-
-Only add it if you clearly have long-lived flows that coordinate multiple features/entities/pages.
-
-⸻
-
-Structure I would personally recommend
-
-For your kind of stack, I would probably use this:
-
+```
 src/
+  main.tsx              # Vite entry (next to app/ is fine)
   app/
-    providers/
-    router/
+    providers.tsx
+    route-error-fallback.tsx
+    router/             # root-route, auth-routes, learning-routes, account-routes, index (createRouter)
+  pages/                # *-page.tsx — thin route shells
+  widgets/              # optional; e.g. app-shell/
+  features/
+    <area>/
+      api/              # TanStack Query: queries, mutations, keys re-export if needed
+      model/            # hooks, view-model, session orchestration
+      ui/               # feature components
+      lib/              # feature-only helpers (e.g. lesson layout + shortcuts)
+      *-screen.tsx      # composed route body, or under ui/
+  entities/
+    <noun>/
+      *.ts              # model, query-keys, unit-lessons, etc.
+  shared/
+    api/                # generated OpenAPI client + handwritten client wrapper
+    auth/               # token-store, session-keys, session queries
+    lib/
+    ui/                 # layout primitives, tokens/
     styles/
-    config/
-    main.tsx
+  test/                 # setup, test-utils, shared test query client
+```
 
-  pages/
-    lesson/
-    settings/
-    dashboard/
+Smaller features may stay **flat** (`features/kanji/`) until they grow; larger ones use **`api/` / `model/` / `ui/`** consistently (**`lesson`**, **`path`**, **`kana`**).
 
-  widgets/
-    lesson-header/
-    sidebar/
-    dashboard-summary/
+---
 
-  features/
-    auth/
-    submit-answer/
-    complete-lesson/
-    update-profile/
+## `entities/` vs `features/` (nouns vs verbs)
 
-  entities/
-    user/
-    lesson/
-    unit/
-    course/
+| | **`entities/<noun>/`** | **`features/<area>/`** |
+| --- | --- | --- |
+| **Holds** | Stable domain “things”: types, pure functions over DTOs, path/lesson **read** keys, small presentational pieces tied to that noun | User **actions** and **screens**: mutations, multi-step flows, composed UI |
+| **May include** | Read-only React Query hooks for that noun | Session orchestration, forms, route-driven state |
 
-  shared/
-    api/
-    ui/
-    lib/
-    hooks/
-    config/
-    types/
-    assets/
+**Examples (this repo)**
 
-  test/
-    setup/
-    mocks/
-    fixtures/
+- **`entities/path/model.ts`** — `PathSelection`, slides, normalization over `PathResponse`.
+- **`entities/path/unit-lessons.ts`** — lesson ordering, progress width string, entry lesson id (pure).
+- **`entities/path/query-keys.ts`** — TanStack Query key roots for path data (invalidation from any layer).
+- **`entities/lesson/session-types.ts`**, **`session-model.ts`**, **`session-completion.ts`** — shared runtime shape and math for main lesson + kana.
+- **`entities/unit/queries.ts`**, **`unit-guide-card.tsx`** — unit as a reusable noun.
 
-If the app is smaller, remove widgets and entities and keep:
+**Feature-only view-model** (circle-chain rows, picker-specific VM, carousel transition state) stays under **`features/path/model/`** (or similar), not in **`entities/`**.
 
-src/
-  app/
-  pages/
-  features/
-  shared/
-  test/
+---
 
-That is still good.
+## `pages/` vs screens
 
-⸻
+- There is **no** top-level `screens/` folder.
+- A **screen** is the composed route body: typically **`*Screen.tsx`** under **`features/<area>/`** (or **`features/<area>/ui/`**).
+- A **page** only wires the router (params, search, navigation) and renders the screen.
 
-Dependency rules I would enforce
+---
 
-Folder structure matters less than import rules.
+## `shared/` discipline
 
-A clean version would be:
-	•	app can import from anywhere
-	•	pages can import from features, entities, widgets, shared
-	•	widgets can import from features, entities, shared
-	•	features can import from entities, shared
-	•	entities can import from shared
-	•	shared can import only from shared
+- **No** product workflow rules (unlock logic, scoring business rules) unless they are truly generic.
+- **`shared/api/generated/`** — OpenAPI output only; never hand-edit.
+- **`shared/api/client/`** and **`shared/api/index.ts`** — app-owned HTTP configuration, headers, **`requireResponseData`**, re-exports.
+- **`shared/auth/token-store.ts`** — persistence for the API client; not React Query.
+- **`shared/auth/session-keys.ts`** — stable key roots for **`me`** and **current course** (import when invalidating after auth).
+- **`shared/auth/session.ts`** — **`me` / `current-course`** query option builders and thin **`useQuery`** hooks only. **Do not** grow it with logout orchestration, permission matrices, profile business rules, or redirect policy — put those in **`features/`** or route code.
+- **`shared/ui/tokens/`** — shared **motion**, **button**, **form** class strings; avoid turning it into a dump of one-off feature classes.
 
-And never the reverse.
+---
 
-So:
-	•	shared must not import features
-	•	entities must not import pages
-	•	features should not import pages
-	•	pages should not be reused as components elsewhere
+## `app/` and router
 
-This matters more than naming.
+- **`app/router/index.tsx`** — **`createRouter`**, **`AppRouter`** export; keep it thin.
+- Route definitions split across **`root-route`**, **`auth-routes`**, **`learning-routes`**, **`account-routes`** as needed.
+- **`widgets/app-shell/app-frame.tsx`** holds global navigation chrome; **`app/route-error-fallback.tsx`** handles root error UI.
 
-⸻
+---
 
-How I would define each layer in one sentence
-	•	app: bootstraps and wires the application
-	•	pages: route screens that compose things
-	•	widgets: large reusable screen sections
-	•	features: user actions and business capabilities
-	•	entities: domain objects and their representation
-	•	shared: generic reusable building blocks
-	•	test: testing infrastructure
+## Tests
 
-⸻
+- Place unit tests **next to** the code under **`features/`** and **`entities/`**.
+- Keep **`src/test/`** for **`setup.ts`**, **`test-utils`**, and shared test doubles (e.g. **`create-test-query-client`**).
 
-Example with your stack
+---
 
-Given your dependencies, I would expect something like:
+## Anti-patterns
 
-In shared
-	•	Radix wrappers
-	•	reusable dialog/progress primitives
-	•	lucide icon helpers
-	•	generic form fields
-	•	zod helper utilities
-	•	query helpers
-	•	API client from @hey-api/client-fetch
+1. **`shared/`** as a junk drawer for “stuff two features use” — extract a noun to **`entities/`** or keep logic in the feature that owns the workflow.
+2. **Fat `pages/`** with API calls and domain rules — push down to **`features/`** and **`entities/`**.
+3. **Features named by tech** (`hooks/`, `modals/` at the top level) — name by capability (`lesson/`, `auth/`).
+4. **Bypassing import rules** — update **`.dependency-cruiser.cjs`** if you add a new top-level feature directory or a new allowed exception.
 
-In features
-	•	react-hook-form forms
-	•	mutation hooks with React Query
-	•	form validation schemas
-	•	submission logic
-	•	action-specific UI
+---
 
-In pages
-	•	TanStack Router route components
-	•	route param handling
-	•	composition of widgets/features
+## Related tooling
 
-In app
-	•	RouterProvider
-	•	QueryClientProvider
-	•	global error boundary
-	•	root layout
-
-⸻
-
-Common mistakes
-
-1. shared becomes “dumping ground”
-
-This is the most common failure.
-
-Fix:
-only put things there if they are genuinely generic.
-
-2. pages become giant smart components
-
-Then route files turn into unmaintainable blobs.
-
-Fix:
-pages should compose, not own all logic.
-
-3. features become too technical instead of business-oriented
-
-Example:
-	•	features/forms
-	•	features/modals
-	•	features/hooks
-
-Those are not features. Those are implementation categories.
-
-Better:
-	•	features/login
-	•	features/create-course
-	•	features/submit-answer
-
-4. API code scattered everywhere
-
-Then every page and feature talks to backend differently.
-
-Fix:
-have a consistent API access pattern.
-
-5. No import boundaries
-
-Then even a nice folder tree rots quickly.
-
-Fix:
-enforce boundaries with ESLint or code review discipline.
-
-⸻
-
-My practical recommendation for you
-
-For a real project, I would choose one of these two.
-
-Option A — simpler, good default
-
-src/
-  app/
-  pages/
-  features/
-  shared/
-  test/
-
-Use this if the app is still medium-sized.
-
-Option B — more scalable
-
-src/
-  app/
-  pages/
-  widgets/
-  features/
-  entities/
-  shared/
-  test/
-
-Use this if:
-	•	domain is serious
-	•	many screens reuse same domain objects
-	•	app will grow for a while
-	•	multiple developers will touch it
-
-As a staff engineer, I would likely start with Option B only if I already know the product is substantial. Otherwise I would start with Option A, but leave room to introduce entities and widgets later.
-
-⸻
-
-Final opinion
-
-Your current folders are not bad at all.
-But I would tighten them like this:
-	•	keep app
-	•	keep pages
-	•	keep features
-	•	keep shared
-	•	keep test
-	•	add entities when domain objects start being reused across many features
-	•	add widgets when pages become composition-heavy
-
-The most important part is not adding more folders.
-It is making sure each folder answers a different question:
-	•	app — how is the application wired?
-	•	pages — what route is this?
-	•	features — what can the user do?
-	•	entities — what thing does the app know about?
-	•	shared — what is generic enough to reuse anywhere?
-
-That separation usually gives the cleanest long-term frontend architecture.
-
-I can also sketch a concrete folder tree for a sample app, like auth + dashboard + lesson flow, using exactly your stack.
+| Command | Purpose |
+| --- | --- |
+| **`npm run check:imports`** | dependency-cruiser against `src/` |
+| **`npm run verify`** | Biome + TypeScript + import check + tests |

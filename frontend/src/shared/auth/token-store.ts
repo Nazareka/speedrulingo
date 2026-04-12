@@ -11,3 +11,7 @@ export function setToken(token: string): void {
 export function clearToken(): void {
   localStorage.removeItem(TOKEN_KEY);
 }
+
+export function hasAuthToken(): boolean {
+  return getToken().length > 0;
+}

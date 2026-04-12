@@ -17,8 +17,9 @@
     "generate:api": "./scripts/generate-api.sh",
     "knip": "knip",
     "knip:exports": "knip --exports",
-    "verify": "biome check . && tsc -b --noEmit && vitest run",
-    "verify:ci": "biome check . && tsc -b --noEmit && vitest run --coverage && knip"
+    "check:imports": "depcruise src --config .dependency-cruiser.cjs --output-type err",
+    "verify": "biome check . && tsc -b --noEmit && npm run check:imports && vitest run",
+    "verify:ci": "biome check . && tsc -b --noEmit && npm run check:imports && vitest run --coverage && knip"
   },
   "dependencies": {
     "@headlessui/react": "^2.2.9",
@@ -46,6 +47,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "@vitest/coverage-v8": "^2.1.5",
     "autoprefixer": "^10.4.27",
+    "dependency-cruiser": "^16.10.4",
     "jsdom": "^25.0.0",
     "knip": "^6.3.0",
     "postcss": "^8.5.8",

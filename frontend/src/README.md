@@ -1,14 +1,16 @@
 # `src/` layout
 
-Canonical boundaries (see [GUIDE.md](../GUIDE.md) and [APPLYING-GUIDE-TO-SRC.md](../APPLYING-GUIDE-TO-SRC.md)):
+Canonical boundaries are documented in **[`STRUCTURE.md`](../STRUCTURE.md)** (layers, nouns vs verbs, import rules).
 
 | Area | Role |
-|------|------|
-| **`app/`** | App shell: providers, router entry, layout. |
-| **`pages/`** | Route-level screens (compose features + shared UI). |
-| **`features/<domain>/`** | Domain logic: TanStack Query hooks/mutations, feature components. No generated API edits. |
-| **`shared/`** | Cross-cutting: API client config + HTTP helpers (`shared/api/`), auth token store, session queries, **`shared/lib/query-client.ts`** (singleton `queryClient` for React Query + TanStack Router loaders), UI primitives, global styles. |
-| **`shared/api/generated/`** | Hey API OpenAPI output — **generated only**, never hand-edited. |
-| **`test/`** | Vitest helpers: `createTestQueryClient`, `TestProviders` / `renderWithProviders` (Query + Motion; use `RouterProvider` + `context.queryClient` for router tests). `setup.ts` loads Testing Library matchers. |
+| --- | --- |
+| **`app/`** | Providers, router assembly, global error UI. |
+| **`pages/`** | Thin route shells (`*-page.tsx`). |
+| **`widgets/`** | Optional composed sections (e.g. app shell). |
+| **`features/<area>/`** | Screens, orchestration, mutations — user capabilities. |
+| **`entities/<noun>/`** | Domain types, pure derivations, noun-scoped reads. |
+| **`shared/`** | API client, auth token + session queries, env, tokens, global styles. |
+| **`shared/api/generated/`** | OpenAPI output — generated only. |
+| **`test/`** | Vitest setup, `test-utils`, shared test query client. |
 
-**Imports:** Prefer feature → `shared`, and `pages` → `features` / `shared`. Avoid `features` importing from `pages`.
+**Imports:** Enforced by dependency-cruiser (`npm run check:imports`). See **`STRUCTURE.md`** for the matrix and exceptions.

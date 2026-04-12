@@ -1,8 +1,5 @@
-import { client } from "./generated/client.gen";
-
+/**
+ * Public API entry: **generated** OpenAPI output in `./generated/`, handwritten client helpers in `./client/`.
+ */
+export * from "./client";
 export * from "./generated";
-export { authedRequestHeaders, authHeaders, requireResponseData } from "./http";
-
-export function configureApiClient(baseUrl: string): void {
-  client.setConfig({ ...client.getConfig(), baseUrl });
-}

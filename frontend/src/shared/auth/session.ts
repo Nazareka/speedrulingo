@@ -1,3 +1,15 @@
+/**
+ * Authenticated “who am I / which course” reads used by multiple features and widgets.
+ *
+ * **Keep this module small.** Allowed here:
+ * – `sessionKeys` wiring (see `session-keys.ts`)
+ * – `queryOptions` builders for `/me` and current course
+ * – Thin `useQuery` wrappers tied to those options
+ *
+ * **Do not add:** logout flows, permission matrices, profile business rules, or redirect
+ * policy — those belong in `features/` (or route code) so this file stays cache/query only.
+ * Token persistence stays in `token-store.ts`.
+ */
 import { queryOptions, useQuery } from "@tanstack/react-query";
 
 import {
@@ -7,16 +19,8 @@ import {
   requireResponseData,
 } from "../api";
 import type { CurrentCourseResponse, MeResponse } from "../api/generated/types.gen";
-import { getToken } from "./token-store";
-
-export const sessionKeys = {
-  me: ["session", "me"] as const,
-  currentCourse: ["session", "current-course"] as const,
-};
-
-function isAuthenticated(): boolean {
-  return getToken().length > 0;
-}
+import { sessionKeys } from "./session-keys";
+import { getToken, hasAuthToken } from "./token-store";
 
 export function meQueryOptions(enabled: boolean) {
   return queryOptions({
@@ -45,10 +49,10 @@ export function currentCourseQueryOptions(enabled: boolean) {
   });
 }
 
-export function useMeQuery(enabled = isAuthenticated()) {
+export function useMeQuery(enabled = hasAuthToken()) {
   return useQuery(meQueryOptions(enabled));
 }
 
-export function useCurrentCourseQuery(enabled = isAuthenticated()) {
+export function useCurrentCourseQuery(enabled = hasAuthToken()) {
   return useQuery(currentCourseQueryOptions(enabled));
 }
