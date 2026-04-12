@@ -1,7 +1,6 @@
 import type { LessonItemResponse } from "../../shared/api/generated/types.gen";
-
+import type { DraftAnswer, FeedbackState } from "../../shared/lesson/session-types";
 import { isMultipleChoiceItem, normalizeAnswer } from "./item-helpers";
-import type { DraftAnswer, FeedbackState } from "./session-types";
 import { stableShuffle } from "./tile-helpers";
 
 /** Normalized answer string for the active item from draft + item kind. */

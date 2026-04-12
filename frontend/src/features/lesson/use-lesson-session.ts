@@ -1,23 +1,20 @@
 import { useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-
-import {
-  useCheckLessonAnswer,
-  useCompleteLesson,
-  useLoadLessonItem,
-} from "../../features/lesson-runner/queries";
 import { pathKeys } from "../../features/path/queries";
 import { unitKeys } from "../../features/units/queries";
 import type { LessonItemResponse } from "../../shared/api/generated/types.gen";
-import { getErrorMessage } from "../../shared/lib/api-error";
+import { buildOrderedCompletionAnswers } from "../../shared/lesson/session-completion";
 import {
-  buildOrderedCompletionAnswers,
   hasMoreMainItemsToLoad,
   lessonCurrentIndex,
   lessonTotalCount,
   remainingReviewCount as remainingReviewCountModel,
   topBarCompletedItemCount,
-} from "./session-model";
+} from "../../shared/lesson/session-model";
+import type { FeedbackState } from "../../shared/lesson/session-types";
+import { useLessonSpaceShortcut } from "../../shared/lesson/use-lesson-space-shortcut";
+import { getErrorMessage } from "../../shared/lib/api-error";
+import { useCheckLessonAnswer, useCompleteLesson, useLoadLessonItem } from "./queries";
 import {
   computeAvailableSentenceTiles,
   draftUserAnswer,
@@ -34,8 +31,6 @@ import {
   clearAdvanceInvariantError,
   feedbackFromCheckItemResult,
 } from "./session-transitions";
-import type { FeedbackState } from "./session-types";
-import { isLessonAnswerControlTarget, isSpaceTargetInsideInteractiveControl } from "./shortcuts";
 import { buildTileInstances } from "./tile-helpers";
 
 type UseLessonSessionResult = {
@@ -78,8 +73,6 @@ export function useLessonSession(lessonId: string): UseLessonSessionResult {
   const nextItemMutation = useLoadLessonItem(lessonId);
   const checkAnswerMutation = useCheckLessonAnswer(lessonId);
   const completeLessonMutation = useCompleteLesson(lessonId);
-  const advanceQueueRef = useRef<() => Promise<void>>(async () => {});
-  const handleCheckRef = useRef<() => Promise<void>>(async () => {});
   const isAdvancingRef = useRef(false);
   const isCheckingRef = useRef(false);
 
@@ -361,61 +354,18 @@ export function useLessonSession(lessonId: string): UseLessonSessionResult {
   const continueFooterError = advanceInvariantError ?? nextItemLoadError ?? completeLessonError;
   const continuePending = nextItemMutation.isPending || completeLessonMutation.isPending;
 
-  advanceQueueRef.current = advanceQueue;
-  handleCheckRef.current = handleCheck;
-
-  useEffect(() => {
-    function handleWindowKeyDown(event: KeyboardEvent) {
-      if (event.code !== "Space") {
-        return;
-      }
-
-      if (isSpaceTargetInsideInteractiveControl(event.target)) {
-        // Focus usually stays on the selected choice / tile button; native Space would click, not Check.
-        if (!(canCheck && !feedback && isLessonAnswerControlTarget(event.target))) {
-          return;
-        }
-      }
-
-      if (
-        isLeaveDialogOpen ||
-        isLessonFinished ||
-        checkAnswerMutation.isPending ||
-        completeLessonMutation.isPending ||
-        nextItemMutation.isPending
-      ) {
-        return;
-      }
-
-      if (feedback) {
-        event.preventDefault();
-        void advanceQueueRef.current();
-        return;
-      }
-
-      if (canCheck) {
-        event.preventDefault();
-        const active = document.activeElement;
-        if (active instanceof HTMLElement && isLessonAnswerControlTarget(active)) {
-          active.blur();
-        }
-        void handleCheckRef.current();
-      }
-    }
-
-    window.addEventListener("keydown", handleWindowKeyDown);
-    return () => {
-      window.removeEventListener("keydown", handleWindowKeyDown);
-    };
-  }, [
+  useLessonSpaceShortcut({
+    advanceQueue,
+    blockProgress:
+      checkAnswerMutation.isPending ||
+      completeLessonMutation.isPending ||
+      nextItemMutation.isPending,
     canCheck,
     feedback,
+    handleCheck,
     isLeaveDialogOpen,
     isLessonFinished,
-    checkAnswerMutation.isPending,
-    completeLessonMutation.isPending,
-    nextItemMutation.isPending,
-  ]);
+  });
 
   return {
     currentItem,

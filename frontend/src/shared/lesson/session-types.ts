@@ -1,4 +1,4 @@
-import type { LessonItemResponse } from "../../shared/api/generated/types.gen";
+import type { LessonItemResponse } from "../api/generated/types.gen";
 
 export type FeedbackState = {
   expectedAnswer: string;

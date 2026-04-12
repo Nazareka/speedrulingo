@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     database_url: str = Field(default="postgresql+psycopg://speedrulingo:speedrulingo@localhost:5432/speedrulingo")
     dbos_system_database_url: str | None = Field(default=None)
     redis_url: str | None = Field(default=None)
+    audio_storage_root: Path = Field(default=Path("data/audio"))
     sentence_audio_storage_root: Path = Field(default=Path("data/sentence_audio"))
     word_audio_storage_root: Path = Field(default=Path("data/word_audio"))
     jwt_secret: str = Field(default="dev-secret-change-me-min-32-characters")

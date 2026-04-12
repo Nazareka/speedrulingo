@@ -1,4 +1,4 @@
-import type { FeedbackState } from "./session-types";
+import type { FeedbackState } from "../../shared/lesson/session-types";
 
 export function answerStateClasses(
   isSelected: boolean,

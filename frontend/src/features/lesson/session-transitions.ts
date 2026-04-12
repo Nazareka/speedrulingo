@@ -1,7 +1,6 @@
 import type { LessonItemResponse } from "../../shared/api/generated/types.gen";
-
+import type { FeedbackState, LessonSessionState } from "../../shared/lesson/session-types";
 import { emptyDraftForItem } from "./item-helpers";
-import type { FeedbackState, LessonSessionState } from "./session-types";
 
 const ADVANCE_MISSING_ANSWERS_MESSAGE =
   "Could not finish the lesson: some answers are missing. Try again or contact support.";

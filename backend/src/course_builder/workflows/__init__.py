@@ -11,6 +11,7 @@ Use ``course_builder.workflows.bootstrap`` / ``course_builder.workflows.course_b
 from course_builder.build_runs.models import (
     AllSectionsBuildSummary,
     BuildRequest,
+    KanaAudioSummary,
     SectionBuildSummary,
     SectionSentenceAudioSummary,
     SectionWordAudioSummary,
@@ -26,6 +27,7 @@ from course_builder.workflows.bootstrap import (
 __all__ = [
     "AllSectionsBuildSummary",
     "BuildRequest",
+    "KanaAudioSummary",
     "SectionBuildSummary",
     "SectionSentenceAudioSummary",
     "SectionWordAudioSummary",

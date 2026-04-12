@@ -1,6 +1,6 @@
 import type { LessonItemResponse } from "../../shared/api/generated/types.gen";
 
-import type { DraftAnswer } from "./session-types";
+import type { DraftAnswer } from "../../shared/lesson/session-types";
 
 /** `LessonItemResponse` is a flat type; this narrows `item_type` to multiple-choice kinds. */
 export type MultipleChoiceLessonItem = Omit<LessonItemResponse, "item_type"> & {

@@ -1,4 +1,4 @@
-import type { LessonSessionState } from "./session-types";
+import type { LessonSessionState } from "../../shared/lesson/session-types";
 
 export function createInitialLessonSessionState(): LessonSessionState {
   return {

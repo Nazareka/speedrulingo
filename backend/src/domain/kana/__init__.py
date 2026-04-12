@@ -1,0 +1,1 @@
+"""Kana learning domain."""

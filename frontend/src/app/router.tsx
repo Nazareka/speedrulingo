@@ -9,12 +9,14 @@ import {
   redirect,
   useRouterState,
 } from "@tanstack/react-router";
-import { BookOpen, Home, LogOut, User } from "lucide-react";
+import { BookOpen, Home, LogOut, Shapes, User } from "lucide-react";
 import { useEffect } from "react";
-
+import { refreshKanaOverviewQuery } from "../features/kana/queries";
 import { kanjiLessonsQueryOptions } from "../features/kanji/queries";
 import { pathQueryOptions } from "../features/path/queries";
 import { AccountPage } from "../pages/account-page";
+import { KanaLessonPage } from "../pages/kana-lesson-page";
+import { KanaPage } from "../pages/kana-page";
 import { KanjiPage } from "../pages/kanji-page";
 import { LessonPage } from "../pages/lesson";
 import { LoginPage } from "../pages/login-page";
@@ -52,9 +54,10 @@ function AppFrame() {
   const pathname = useRouterState({
     select: (state) => state.location.pathname,
   });
-  const isLessonMode = pathname.startsWith("/lesson/");
+  const isLessonMode = pathname.startsWith("/lesson/") || pathname.startsWith("/kana/lesson/");
   const isAuthMode = pathname === "/login" || pathname === "/register";
   const isPathActive = pathname === "/path";
+  const isKanaActive = pathname === "/kana";
   const isKanjiActive = pathname === "/kanji";
   const isAccountActive = pathname === "/account";
 
@@ -103,6 +106,14 @@ function AppFrame() {
             >
               <Home aria-hidden="true" className="h-4 w-4" />
               <span className={isPathActive ? "font-semibold" : ""}>Path</span>
+            </Link>
+
+            <Link
+              className={`${navLinkBase} ${isKanaActive ? navKanjiActive : navKanji}`}
+              to="/kana"
+            >
+              <Shapes aria-hidden="true" className="h-4 w-4" />
+              <span className={isKanaActive ? "font-semibold" : ""}>Kana</span>
             </Link>
 
             <Link
@@ -206,6 +217,32 @@ const kanjiRoute = createRoute({
   loader: ({ context }) => context.queryClient.ensureQueryData(kanjiLessonsQueryOptions()),
 });
 
+const kanaRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/kana",
+  component: KanaPage,
+  beforeLoad: () => {
+    if (!hasToken()) {
+      throw redirect({ to: "/login" });
+    }
+  },
+  loader: async ({ context }) => {
+    // Fresh overview when landing on /kana (e.g. after /kana/lesson/…); fetchQuery updates cache directly.
+    await refreshKanaOverviewQuery(context.queryClient);
+  },
+});
+
+const kanaLessonRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: "/kana/lesson/$lessonId",
+  component: KanaLessonPage,
+  beforeLoad: () => {
+    if (!hasToken()) {
+      throw redirect({ to: "/login" });
+    }
+  },
+});
+
 const accountRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: "/account",
@@ -228,6 +265,8 @@ const routeTree = rootRoute.addChildren([
   registerRoute,
   pathRoute,
   lessonRoute,
+  kanaRoute,
+  kanaLessonRoute,
   kanjiRoute,
   accountRoute,
 ]);

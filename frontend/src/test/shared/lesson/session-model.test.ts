@@ -1,13 +1,13 @@
 import { describe, expect, it } from "vitest";
 
+import { buildOrderedCompletionAnswers } from "../../../shared/lesson/session-completion";
 import {
-  buildOrderedCompletionAnswers,
   lessonCurrentIndex,
   lessonTotalCount,
   progressBarCssWidth,
   remainingReviewCount,
   topBarCompletedItemCount,
-} from "../../pages/lesson/session-model";
+} from "../../../shared/lesson/session-model";
 
 describe("progressBarCssWidth", () => {
   it("returns percentage width clamped to 0–100", () => {
@@ -68,7 +68,7 @@ describe("buildOrderedCompletionAnswers", () => {
       b: { order_index: 0, item_id: "b" },
     } as unknown as Record<
       string,
-      import("../../shared/api/generated/types.gen").LessonItemResponse
+      import("../../../shared/api/generated/types.gen").LessonItemResponse
     >;
     const finalAnswers = { a: "x", b: "y" };
     const result = buildOrderedCompletionAnswers(itemCache, finalAnswers);
@@ -84,7 +84,7 @@ describe("buildOrderedCompletionAnswers", () => {
       b: { order_index: 1, item_id: "b" },
     } as unknown as Record<
       string,
-      import("../../shared/api/generated/types.gen").LessonItemResponse
+      import("../../../shared/api/generated/types.gen").LessonItemResponse
     >;
     const finalAnswers = { a: "only" };
     const result = buildOrderedCompletionAnswers(itemCache, finalAnswers);

@@ -30,6 +30,7 @@ from domain.content.models import (
     Word,
     WordAudioAsset,
 )
+from domain.kana.models import KanaAudioAsset, KanaLesson, UserKanaProgress
 from domain.learning.models import ExamAttempt, UserLessonProgress
 from security import verify_password
 
@@ -542,10 +543,170 @@ class UnitCompletionAdmin(BaseView):
             return HTMLResponse(html)
 
 
+def _clear_user_kana_progress(
+    session: Session,
+    *,
+    user_id: str,
+    course_version_id: str,
+) -> str:
+    """Remove all kana practice state for the user's enrollment on the given course build."""
+    enrollment = session.scalar(
+        select(UserCourseEnrollment).where(
+            UserCourseEnrollment.user_id == user_id,
+            UserCourseEnrollment.course_version_id == course_version_id,
+        )
+    )
+    if enrollment is None:
+        return "No enrollment for this user on the active course — nothing to clear."
+
+    eid = enrollment.id
+    progress_n = (
+        session.scalar(select(func.count()).select_from(UserKanaProgress).where(UserKanaProgress.enrollment_id == eid))
+        or 0
+    )
+    lessons_n = session.scalar(select(func.count()).select_from(KanaLesson).where(KanaLesson.enrollment_id == eid)) or 0
+    session.execute(delete(KanaLesson).where(KanaLesson.enrollment_id == eid))
+    session.execute(delete(UserKanaProgress).where(UserKanaProgress.enrollment_id == eid))
+    return f"Cleared {progress_n} kana progress row(s) and {lessons_n} kana lesson(s)."
+
+
+class KanaProgressAdmin(BaseView):
+    name = "Kana Progress"
+    identity = "kana-progress"
+    icon = "fa-solid fa-font"
+    session_maker: ClassVar[sessionmaker[Session]]
+
+    @expose("/kana-progress", methods=["GET", "POST"], identity="kana-progress")
+    async def kana_progress(self, request: Request) -> HTMLResponse | RedirectResponse:
+        selected_user_id = request.query_params.get("user_id")
+        message = request.query_params.get("message")
+
+        with self.session_maker() as session:
+            active_course = _get_active_course(session)
+            if request.method == "POST":
+                form = await request.form()
+                raw_user_id = form.get("user_id")
+                raw_operation = form.get("operation")
+                selected_user_id = raw_user_id if isinstance(raw_user_id, str) else selected_user_id
+                operation = raw_operation if isinstance(raw_operation, str) else None
+                if active_course is not None and selected_user_id is not None and operation == "clear_kana_progress":
+                    status_message = _clear_user_kana_progress(
+                        session,
+                        user_id=selected_user_id,
+                        course_version_id=active_course.id,
+                    )
+                    session.commit()
+                    redirect_query = urlencode({"user_id": selected_user_id, "message": status_message})
+                    return RedirectResponse(url=f"{request.url.path}?{redirect_query}", status_code=303)
+
+            users = list(session.scalars(select(User).order_by(User.email.asc())))
+            selected_user = next((user for user in users if user.id == selected_user_id), users[0] if users else None)
+            enrollment = (
+                session.scalar(
+                    select(UserCourseEnrollment).where(
+                        UserCourseEnrollment.user_id == selected_user.id,
+                        UserCourseEnrollment.course_version_id == active_course.id,
+                    )
+                )
+                if active_course is not None and selected_user is not None
+                else None
+            )
+            progress_count = (
+                session.scalar(
+                    select(func.count())
+                    .select_from(UserKanaProgress)
+                    .where(UserKanaProgress.enrollment_id == enrollment.id)
+                )
+                if enrollment is not None
+                else None
+            )
+            lesson_count = (
+                session.scalar(
+                    select(func.count()).select_from(KanaLesson).where(KanaLesson.enrollment_id == enrollment.id)
+                )
+                if enrollment is not None
+                else None
+            )
+
+            page_title = "Kana Progress"
+            message_html = (
+                f"<p style='color:#2b8a3e;font-weight:600'>{escape(message)}</p>"
+                if isinstance(message, str) and message
+                else ""
+            )
+            active_course_html = (
+                f"<p><strong>Active course:</strong> {escape(active_course.code)} "
+                f"(version {active_course.version}, build {active_course.build_version})</p>"
+                if active_course is not None
+                else "<p><strong>Active course:</strong> none</p>"
+            )
+            user_options_html = "".join(
+                (
+                    f"<option value='{escape(user.id)}'"
+                    f"{' selected' if selected_user is not None and user.id == selected_user.id else ''}>"
+                    f"{escape(user.email)}</option>"
+                )
+                for user in users
+            )
+            stats_html = ""
+            if active_course is not None and selected_user is not None:
+                if enrollment is None:
+                    stats_html = "<p><em>No enrollment on the active course yet — the learner has not started.</em></p>"
+                else:
+                    stats_html = (
+                        f"<p><strong>Enrollment:</strong> {escape(enrollment.id)}</p>"
+                        f"<p><strong>User kana progress rows:</strong> {progress_count or 0}</p>"
+                        f"<p><strong>In-progress kana lessons:</strong> {lesson_count or 0}</p>"
+                    )
+
+            can_clear_kana = (
+                active_course is not None
+                and selected_user is not None
+                and enrollment is not None
+                and ((progress_count or 0) > 0 or (lesson_count or 0) > 0)
+            )
+            clear_disabled = "" if can_clear_kana else " disabled"
+
+            html = (
+                "<!doctype html><html><head><meta charset='utf-8'>"
+                f"<title>{page_title}</title>"
+                "<style>"
+                "body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:24px;line-height:1.4;}"
+                "select,button{font:inherit;padding:6px 10px;}"
+                ".danger{background:#c92a2a;border:1px solid #a61e1e;color:#fff;border-radius:6px;}"
+                ".card{border:1px solid #d0d7de;border-radius:10px;padding:16px;max-width:720px;margin-top:16px;}"
+                "</style></head><body>"
+                f"<h1>{page_title}</h1>"
+                f"{_admin_home_link_html()}"
+                f"{active_course_html}"
+                f"{message_html}"
+                "<p>Clear all <strong>kana character progress</strong> and <strong>in-flight kana lessons</strong> "
+                "for the selected user on the <strong>active course</strong> (the kana practice page).</p>"
+                "<form method='get'>"
+                "<label for='user_id'><strong>User:</strong></label> "
+                f"<select id='user_id' name='user_id'>{user_options_html}</select> "
+                "<button type='submit'>Load</button>"
+                "</form>"
+                f"{stats_html}"
+                "<div class='card'>"
+                "<p><strong>Reset kana practice</strong></p>"
+                "<p>This removes per-character exposure counts and any unfinished kana lesson sessions. "
+                "It does not delete course content or audio assets.</p>"
+                "<form method='post'>"
+                f"<input type='hidden' name='user_id' value='{escape(selected_user.id) if selected_user else ''}'>"
+                "<input type='hidden' name='operation' value='clear_kana_progress'>"
+                f"<button class='danger' type='submit'{clear_disabled}>Clear kana progress</button>"
+                "</form>"
+                "</div>"
+                "</body></html>"
+            )
+            return HTMLResponse(html)
+
+
 def _wipe_all_assets(
     session: Session,
     *,
-    model: type[SentenceAudioAsset] | type[WordAudioAsset],
+    model: type[SentenceAudioAsset] | type[WordAudioAsset] | type[KanaAudioAsset],
 ) -> int:
     storage_paths = list(session.scalars(select(model.storage_path)))
     deleted_count = len(storage_paths)
@@ -581,6 +742,10 @@ def _wipe_all_sentence_audio(session: Session) -> int:
 
 def _wipe_all_word_audio(session: Session) -> int:
     return _wipe_all_assets(session, model=WordAudioAsset)
+
+
+def _wipe_all_character_audio(session: Session) -> int:
+    return _wipe_all_assets(session, model=KanaAudioAsset)
 
 
 def _admin_home_link_html() -> str:
@@ -725,6 +890,72 @@ class WordAudioAdmin(BaseView):
             return HTMLResponse(html)
 
 
+class CharacterAudioAdmin(BaseView):
+    name = "Character Audio"
+    identity = "character-audio"
+    icon = "fa-solid fa-font"
+    session_maker: ClassVar[sessionmaker[Session]]
+
+    @expose("/character-audio", methods=["GET", "POST"], identity="character-audio")
+    async def character_audio(self, request: Request) -> HTMLResponse | RedirectResponse:
+        message = request.query_params.get("message")
+
+        with self.session_maker() as session:
+            if request.method == "POST":
+                form = await request.form()
+                operation = form.get("operation")
+                if operation == "wipe_all_audio":
+                    deleted_count = _wipe_all_character_audio(session)
+                    session.commit()
+                    redirect_query = urlencode(
+                        {"message": f"Deleted {deleted_count} character audio assets from the database and disk."}
+                    )
+                    return RedirectResponse(url=f"{request.url.path}?{redirect_query}", status_code=303)
+
+            asset_count = session.scalar(select(func.count()).select_from(KanaAudioAsset)) or 0
+            latest_asset = session.scalar(
+                select(KanaAudioAsset)
+                .order_by(KanaAudioAsset.created_at.desc(), KanaAudioAsset.id.desc())
+                .limit(1)
+            )
+            message_html = (
+                f"<p style='color:#2b8a3e;font-weight:600'>{escape(message)}</p>"
+                if isinstance(message, str) and message
+                else ""
+            )
+            latest_asset_html = (
+                f"<p><strong>Latest asset:</strong> {escape(latest_asset.id)} "
+                f"({escape(latest_asset.status)})</p>"
+                if latest_asset is not None
+                else "<p><strong>Latest asset:</strong> none</p>"
+            )
+            html = (
+                "<!doctype html><html><head><meta charset='utf-8'>"
+                "<title>Character Audio</title>"
+                "<style>"
+                "body{font-family:system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;margin:24px;line-height:1.4;}"
+                "button{font:inherit;padding:8px 12px;}"
+                ".danger{background:#c92a2a;border:1px solid #a61e1e;color:#fff;border-radius:6px;}"
+                ".card{border:1px solid #d0d7de;border-radius:10px;padding:16px;max-width:720px;}"
+                "</style></head><body>"
+                "<h1>Character Audio</h1>"
+                f"{_admin_home_link_html()}"
+                f"{message_html}"
+                f"<p><strong>Stored assets:</strong> {asset_count}</p>"
+                f"{latest_asset_html}"
+                "<div class='card'>"
+                "<p><strong>Danger zone</strong></p>"
+                "<p>Delete all generated character audio from both Postgres metadata and local disk so kana audio can be regenerated from scratch.</p>"
+                "<form method='post'>"
+                "<input type='hidden' name='operation' value='wipe_all_audio'>"
+                "<button class='danger' type='submit'>Wipe All Character Audio</button>"
+                "</form>"
+                "</div>"
+                "</body></html>"
+            )
+            return HTMLResponse(html)
+
+
 def install_admin(
     app: FastAPI,
     *,
@@ -734,8 +965,10 @@ def install_admin(
 ) -> Admin:
     active_session_maker = session_maker or sessionmaker(bind=engine, autoflush=False, autocommit=False, future=True)
     UnitCompletionAdmin.session_maker = active_session_maker
+    KanaProgressAdmin.session_maker = active_session_maker
     SentenceAudioAdmin.session_maker = active_session_maker
     WordAudioAdmin.session_maker = active_session_maker
+    CharacterAudioAdmin.session_maker = active_session_maker
     admin = Admin(
         app=app,
         engine=engine,
@@ -753,6 +986,8 @@ def install_admin(
     admin.add_view(SentenceAdmin)
     admin.add_view(KanjiAdmin)
     admin.add_view(UnitCompletionAdmin)
+    admin.add_view(KanaProgressAdmin)
     admin.add_view(SentenceAudioAdmin)
     admin.add_view(WordAudioAdmin)
+    admin.add_view(CharacterAudioAdmin)
     return admin

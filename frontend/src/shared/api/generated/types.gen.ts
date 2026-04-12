@@ -40,6 +40,75 @@ export type ItemResult = {
     is_correct: boolean;
 };
 
+export type KanaAnswerOption = {
+    option_id: string;
+    char: string;
+    audio_url?: string | null;
+};
+
+export type KanaCharacterProgress = {
+    character_id: string;
+    char: string;
+    script: 'hiragana' | 'katakana';
+    group_key: string;
+    audio_url?: string | null;
+    times_seen: number;
+    target_exposures: number;
+    state: 'locked' | 'new' | 'learning' | 'mastered';
+    is_next_lesson_new?: boolean;
+};
+
+export type KanaContinueResponse = {
+    lesson_id: string;
+    total_items: number;
+};
+
+export type KanaItemResult = {
+    item_id: string;
+    expected_option_id: string;
+    user_option_id: string;
+    is_correct: boolean;
+};
+
+export type KanaLessonItemResponse = {
+    item_id: string;
+    lesson_id: string;
+    item_type: 'audio_to_kana_choice' | 'kana_to_audio_choice';
+    order_index: number;
+    cursor: number;
+    total_items: number;
+    is_last_item: boolean;
+    prompt_char?: string | null;
+    prompt_audio_url?: string | null;
+    answer_options: Array<KanaAnswerOption>;
+};
+
+export type KanaOverviewResponse = {
+    scripts: Array<KanaScriptGroup>;
+    current_lesson_id: string | null;
+    total_characters: number;
+    mastered_characters: number;
+};
+
+export type KanaScriptGroup = {
+    script: 'hiragana' | 'katakana';
+    characters: Array<KanaCharacterProgress>;
+};
+
+export type KanaSubmitRequest = {
+    answers: Array<SubmittedKanaAnswer>;
+};
+
+export type KanaSubmitResponse = {
+    lesson_id: string;
+    score: number;
+    correct_items: number;
+    total_items: number;
+    passed: boolean;
+    progress_state: 'planned' | 'abandoned' | 'completed';
+    item_results: Array<KanaItemResult>;
+};
+
 export type KanjiDetailResponse = {
     kanji_char: string;
     primary_meaning: string | null;
@@ -181,6 +250,11 @@ export type SubmitResponse = {
 export type SubmittedAnswer = {
     item_id: string;
     user_answer: string;
+};
+
+export type SubmittedKanaAnswer = {
+    item_id: string;
+    option_id: string;
 };
 
 export type TokenResponse = {
@@ -403,6 +477,119 @@ export type UnitDetailApiV1UnitsUnitIdGetResponses = {
 
 export type UnitDetailApiV1UnitsUnitIdGetResponse = UnitDetailApiV1UnitsUnitIdGetResponses[keyof UnitDetailApiV1UnitsUnitIdGetResponses];
 
+export type KanaOverviewApiV1KanaOverviewGetData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/kana/overview';
+};
+
+export type KanaOverviewApiV1KanaOverviewGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: KanaOverviewResponse;
+};
+
+export type KanaOverviewApiV1KanaOverviewGetResponse = KanaOverviewApiV1KanaOverviewGetResponses[keyof KanaOverviewApiV1KanaOverviewGetResponses];
+
+export type KanaContinueApiV1KanaContinuePostData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/api/v1/kana/continue';
+};
+
+export type KanaContinueApiV1KanaContinuePostResponses = {
+    /**
+     * Successful Response
+     */
+    200: KanaContinueResponse;
+};
+
+export type KanaContinueApiV1KanaContinuePostResponse = KanaContinueApiV1KanaContinuePostResponses[keyof KanaContinueApiV1KanaContinuePostResponses];
+
+export type KanaNextItemApiV1KanaLessonsLessonIdNextItemGetData = {
+    body?: never;
+    path: {
+        lesson_id: string;
+    };
+    query?: {
+        cursor?: number;
+    };
+    url: '/api/v1/kana/lessons/{lesson_id}/next-item';
+};
+
+export type KanaNextItemApiV1KanaLessonsLessonIdNextItemGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type KanaNextItemApiV1KanaLessonsLessonIdNextItemGetError = KanaNextItemApiV1KanaLessonsLessonIdNextItemGetErrors[keyof KanaNextItemApiV1KanaLessonsLessonIdNextItemGetErrors];
+
+export type KanaNextItemApiV1KanaLessonsLessonIdNextItemGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: KanaLessonItemResponse;
+};
+
+export type KanaNextItemApiV1KanaLessonsLessonIdNextItemGetResponse = KanaNextItemApiV1KanaLessonsLessonIdNextItemGetResponses[keyof KanaNextItemApiV1KanaLessonsLessonIdNextItemGetResponses];
+
+export type KanaSubmitApiV1KanaLessonsLessonIdSubmitPostData = {
+    body: KanaSubmitRequest;
+    path: {
+        lesson_id: string;
+    };
+    query?: never;
+    url: '/api/v1/kana/lessons/{lesson_id}/submit';
+};
+
+export type KanaSubmitApiV1KanaLessonsLessonIdSubmitPostErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type KanaSubmitApiV1KanaLessonsLessonIdSubmitPostError = KanaSubmitApiV1KanaLessonsLessonIdSubmitPostErrors[keyof KanaSubmitApiV1KanaLessonsLessonIdSubmitPostErrors];
+
+export type KanaSubmitApiV1KanaLessonsLessonIdSubmitPostResponses = {
+    /**
+     * Successful Response
+     */
+    200: KanaSubmitResponse;
+};
+
+export type KanaSubmitApiV1KanaLessonsLessonIdSubmitPostResponse = KanaSubmitApiV1KanaLessonsLessonIdSubmitPostResponses[keyof KanaSubmitApiV1KanaLessonsLessonIdSubmitPostResponses];
+
+export type KanaAudioApiV1KanaAudioAssetIdGetData = {
+    body?: never;
+    path: {
+        asset_id: string;
+    };
+    query?: never;
+    url: '/api/v1/kana/audio/{asset_id}';
+};
+
+export type KanaAudioApiV1KanaAudioAssetIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type KanaAudioApiV1KanaAudioAssetIdGetError = KanaAudioApiV1KanaAudioAssetIdGetErrors[keyof KanaAudioApiV1KanaAudioAssetIdGetErrors];
+
+export type KanaAudioApiV1KanaAudioAssetIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
 export type NextItemApiV1LessonsLessonIdNextItemGetData = {
     body?: never;
     path: {
@@ -478,6 +665,31 @@ export type SentenceAudioApiV1SentenceAudioAssetIdGetErrors = {
 export type SentenceAudioApiV1SentenceAudioAssetIdGetError = SentenceAudioApiV1SentenceAudioAssetIdGetErrors[keyof SentenceAudioApiV1SentenceAudioAssetIdGetErrors];
 
 export type SentenceAudioApiV1SentenceAudioAssetIdGetResponses = {
+    /**
+     * Successful Response
+     */
+    200: unknown;
+};
+
+export type WordAudioApiV1WordAudioAssetIdGetData = {
+    body?: never;
+    path: {
+        asset_id: string;
+    };
+    query?: never;
+    url: '/api/v1/word-audio/{asset_id}';
+};
+
+export type WordAudioApiV1WordAudioAssetIdGetErrors = {
+    /**
+     * Validation Error
+     */
+    422: HttpValidationError;
+};
+
+export type WordAudioApiV1WordAudioAssetIdGetError = WordAudioApiV1WordAudioAssetIdGetErrors[keyof WordAudioApiV1WordAudioAssetIdGetErrors];
+
+export type WordAudioApiV1WordAudioAssetIdGetResponses = {
     /**
      * Successful Response
      */

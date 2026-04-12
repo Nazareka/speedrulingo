@@ -1,13 +1,12 @@
 import { motion } from "framer-motion";
 import { useMemo } from "react";
-
+import type { FeedbackState } from "../../shared/lesson/session-types";
+import { LESSON_ANSWER_CONTROL } from "../../shared/lesson/shortcuts";
+import { optionTypographyClass } from "../../shared/lesson/typography";
+import { FAST_TRANSITION } from "../../shared/lesson/ui-constants";
 import { answerStateClasses } from "./answer-styles";
 import type { MultipleChoiceLessonItem } from "./item-helpers";
-import type { FeedbackState } from "./session-types";
-import { LESSON_ANSWER_CONTROL } from "./shortcuts";
 import { buildTileInstances, stableShuffle } from "./tile-helpers";
-import { optionTypographyClass } from "./typography";
-import { FAST_TRANSITION } from "./ui-constants";
 
 function multipleChoiceOptionAriaLabel(
   option: string,

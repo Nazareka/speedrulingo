@@ -2,7 +2,7 @@ import { useEffect, useId, useState } from "react";
 
 import type { SentenceTokenPreview } from "../../shared/api/generated/types.gen";
 
-import { promptTypographyClass } from "./typography";
+import { promptTypographyClass } from "../../shared/lesson/typography";
 
 type HintableTokenProps = {
   isOpen: boolean;

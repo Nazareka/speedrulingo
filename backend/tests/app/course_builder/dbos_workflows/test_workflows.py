@@ -4,9 +4,14 @@ from typing import Any
 
 import pytest
 
-from course_builder.build_runs.models import AllSectionsBuildSummary, BuildRequest, SectionBuildSummary
+from course_builder.build_runs.models import (
+    AllSectionsBuildSummary,
+    BuildRequest,
+    SectionBuildSummary,
+)
 from course_builder.engine.runner import BuildStageRunResult
 from course_builder.workflows.audio import (
+    generate_kana_audio_workflow,
     generate_section_sentence_audio_workflow,
     generate_section_word_audio_workflow,
 )
@@ -459,4 +464,129 @@ def test_generate_section_word_audio_workflow_uses_completed_section_run(
     }
     assert calls["word_ids"] == ["word-1", "word-2"]
     assert calls["completed"]["build_run_id"] == "word-audio-run-1"
+    assert calls["completed"]["completed_stage_count"] == 2
+
+
+def test_generate_kana_audio_workflow_uses_script_scoped_character_list(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: dict[str, Any] = {"progress": [], "logs": []}
+
+    class FakeDBOS:
+        workflow_id = "kana-audio-workflow-123"
+
+    class FakeSession:
+        def commit(self) -> None:
+            calls.setdefault("commit_count", 0)
+            calls["commit_count"] += 1
+
+        def rollback(self) -> None:
+            calls["rolled_back"] = True
+
+    class FakeSessionLocal:
+        def __enter__(self) -> FakeSession:
+            return FakeSession()
+
+        def __exit__(self, exc_type: object, exc: object, tb: object) -> None:
+            return None
+
+    class FakeBuildRun:
+        id = "kana-audio-run-1"
+        parent_build_run_id = None
+
+    def fake_create_build_run(
+        db: object,
+        *,
+        request: BuildRequest,
+        scope_kind: str,
+        total_stage_count: int,
+        parent_build_run_id: str | None = None,
+        workflow_id: str | None = None,
+        requested_by: str | None = None,
+    ) -> FakeBuildRun:
+        calls["create_build_run"] = {
+            "section_code": request.section_code,
+            "scope_kind": scope_kind,
+            "total_stage_count": total_stage_count,
+            "workflow_id": workflow_id,
+        }
+        return FakeBuildRun()
+
+    def fake_generate_kana_audio_step(*, character_id: str) -> dict[str, object]:
+        calls.setdefault("character_ids", []).append(character_id)
+        return {"asset_id": f"asset-{character_id}", "reused": character_id == "char-1"}
+
+    def fake_log_run_message(
+        *,
+        build_run_id: str,
+        level: str,
+        message: str,
+        section_code: str | None = None,
+        stage_name: str | None = None,
+    ) -> None:
+        calls["logs"].append((build_run_id, level, message, section_code, stage_name))
+
+    def fake_sync_run_progress(
+        *,
+        build_run_id: str,
+        completed_stage_count: int,
+        current_stage_name: str | None,
+        course_version_id: str | None = None,
+    ) -> None:
+        calls["progress"].append((completed_stage_count, current_stage_name, course_version_id))
+
+    monkeypatch.setattr("course_builder.workflows.audio.DBOS", FakeDBOS)
+    monkeypatch.setattr("course_builder.workflows.audio.SessionLocal", FakeSessionLocal)
+    monkeypatch.setattr(
+        "course_builder.workflows.audio.get_settings",
+        lambda: type("Settings", (), {"elevenlabs_voice_id": "voice-123"})(),
+    )
+    monkeypatch.setattr(
+        "course_builder.workflows.audio.list_kana_character_ids",
+        lambda db, script: ["char-1", "char-2"] if script == "hiragana" else [],
+    )
+    monkeypatch.setattr("course_builder.workflows.audio.create_build_run", fake_create_build_run)
+    monkeypatch.setattr("course_builder.workflows.audio.publish_build_run_event", lambda **kwargs: None)
+    monkeypatch.setattr("course_builder.workflows.audio.generate_kana_audio_step", fake_generate_kana_audio_step)
+    monkeypatch.setattr(
+        "course_builder.workflows.audio.BuildRunTracking.log_message",
+        staticmethod(fake_log_run_message),
+    )
+    monkeypatch.setattr(
+        "course_builder.workflows.audio.BuildRunTracking.sync_progress",
+        staticmethod(fake_sync_run_progress),
+    )
+    monkeypatch.setattr(
+        "course_builder.workflows.audio.BuildRunTracking.mark_completed",
+        staticmethod(lambda **kwargs: calls.setdefault("completed", kwargs)),
+    )
+    monkeypatch.setattr(
+        "course_builder.workflows.audio.BuildRunTracking.mark_failed",
+        staticmethod(lambda **kwargs: calls.setdefault("failed", kwargs)),
+    )
+    monkeypatch.setattr(
+        "course_builder.workflows.audio.BuildRunTracking.is_cancelled",
+        staticmethod(lambda **kwargs: False),
+    )
+
+    summary = generate_kana_audio_workflow.__wrapped__(  # type: ignore[attr-defined]  # DBOS preserves the wrapped function.
+        script="hiragana",
+    )
+
+    assert summary == {
+        "build_run_id": "kana-audio-run-1",
+        "script": "hiragana",
+        "total_character_count": 2,
+        "generated_character_count": 1,
+        "reused_character_count": 1,
+        "failed_character_count": 0,
+    }
+    assert calls["create_build_run"] == {
+        "section_code": "hiragana",
+        "scope_kind": "kana_audio",
+        "total_stage_count": 2,
+        "workflow_id": "kana-audio-workflow-123",
+    }
+    assert calls["character_ids"] == ["char-1", "char-2"]
+    assert calls["completed"]["build_run_id"] == "kana-audio-run-1"
     assert calls["completed"]["completed_stage_count"] == 2

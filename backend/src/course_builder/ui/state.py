@@ -27,6 +27,7 @@ from course_builder.ui.models import (
     serialize_stage_run,
 )
 from course_builder.workflows.audio import (
+    generate_kana_audio_workflow,
     generate_section_sentence_audio_workflow,
     generate_section_word_audio_workflow,
 )
@@ -91,6 +92,7 @@ class CourseBuilderUIState(rx.State):
     cancel_message: str = ""
     sentence_audio_message: str = ""
     word_audio_message: str = ""
+    kana_audio_message: str = ""
 
     @rx.var
     def build_runs_count(self) -> int:
@@ -179,6 +181,7 @@ class CourseBuilderUIState(rx.State):
         self.cancel_message = ""
         self.sentence_audio_message = ""
         self.word_audio_message = ""
+        self.kana_audio_message = ""
         try:
             request = self._build_request_from_form()
         except ValueError as exc:
@@ -212,6 +215,7 @@ class CourseBuilderUIState(rx.State):
         self.cancel_message = ""
         self.sentence_audio_message = ""
         self.word_audio_message = ""
+        self.kana_audio_message = ""
         if not self.selected_run:
             self.error_message = "No build run selected"
             return
@@ -236,6 +240,7 @@ class CourseBuilderUIState(rx.State):
         self.cancel_message = ""
         self.sentence_audio_message = ""
         self.word_audio_message = ""
+        self.kana_audio_message = ""
         if not self.can_generate_selected_run_audio:
             self.error_message = "Sentence audio generation requires a completed section run"
             return
@@ -262,6 +267,7 @@ class CourseBuilderUIState(rx.State):
         self.cancel_message = ""
         self.sentence_audio_message = ""
         self.word_audio_message = ""
+        self.kana_audio_message = ""
         if not self.can_generate_selected_run_word_audio:
             self.error_message = "Word audio generation requires a completed section run"
             return
@@ -279,6 +285,25 @@ class CourseBuilderUIState(rx.State):
         )
         self.launched_workflow_id = handle.get_workflow_id()
         self.word_audio_message = f"Started word audio workflow {self.launched_workflow_id}"
+        self._reload_dashboard_data()
+
+    def start_hiragana_audio_generation(self) -> None:
+        self._start_kana_audio_generation(script="hiragana")
+
+    def start_katakana_audio_generation(self) -> None:
+        self._start_kana_audio_generation(script="katakana")
+
+    def _start_kana_audio_generation(self, *, script: str) -> None:
+        _ensure_ui_runtime()
+        self.error_message = ""
+        self.launch_message = ""
+        self.cancel_message = ""
+        self.sentence_audio_message = ""
+        self.word_audio_message = ""
+        self.kana_audio_message = ""
+        handle = DBOS.start_workflow(generate_kana_audio_workflow, script)
+        self.launched_workflow_id = handle.get_workflow_id()
+        self.kana_audio_message = f"Started {script} audio workflow {self.launched_workflow_id}"
         self._reload_dashboard_data()
 
     def _build_request_from_form(self) -> BuildRequest:

@@ -1,20 +1,43 @@
+import { Volume2 } from "lucide-react";
+
 import type { FeedbackState } from "./session-types";
 import { optionTypographyClass } from "./typography";
 import { PRIMARY_BUTTON_CLASS } from "./ui-constants";
+
+export type KanaIncorrectAudio = {
+  itemType: "audio_to_kana_choice" | "kana_to_audio_choice";
+  correctOptionAudioUrl: string | null | undefined;
+  onPlayCorrectSound: () => void;
+  correctSoundBusy: boolean;
+};
 
 type LessonFeedbackTrayProps = {
   feedback: FeedbackState;
   onContinue: () => void;
   continuePending?: boolean;
   continueError?: string | null;
+  /** When set, incorrect kana→audio items can show a speaker replay instead of plain text. */
+  kanaIncorrectAudio?: KanaIncorrectAudio;
 };
 
 export function LessonFeedbackTray(props: LessonFeedbackTrayProps) {
-  const { feedback, onContinue, continuePending = false, continueError = null } = props;
+  const {
+    feedback,
+    onContinue,
+    continuePending = false,
+    continueError = null,
+    kanaIncorrectAudio,
+  } = props;
 
   const trayTone = feedback.isCorrect
     ? "border-[var(--lesson-success-border)] bg-[var(--lesson-success-bg)]"
     : "border-[var(--lesson-error-border)] bg-[color:var(--lesson-error-bg)]";
+
+  const showKanaCorrectSound =
+    !feedback.isCorrect &&
+    kanaIncorrectAudio !== undefined &&
+    kanaIncorrectAudio.itemType === "kana_to_audio_choice" &&
+    Boolean(kanaIncorrectAudio.correctOptionAudioUrl);
 
   return (
     <div className={`rounded-[1.15rem] border px-5 py-4 ${trayTone}`}>
@@ -48,7 +71,22 @@ export function LessonFeedbackTray(props: LessonFeedbackTrayProps) {
               </p>
             ) : null}
 
-            {!feedback.isCorrect ? (
+            {!feedback.isCorrect && showKanaCorrectSound && kanaIncorrectAudio ? (
+              <div className="mt-3">
+                <p className="text-[var(--lesson-text-soft)] text-sm">Correct sound:</p>
+                <button
+                  className="mt-2 inline-flex items-center justify-center rounded-2xl border border-[var(--lesson-border)] bg-[var(--lesson-surface)] p-3 text-[var(--lesson-accent)] transition hover:bg-[var(--lesson-surface-muted)]"
+                  onClick={kanaIncorrectAudio.onPlayCorrectSound}
+                  type="button"
+                >
+                  <Volume2
+                    className={`h-10 w-10 ${kanaIncorrectAudio.correctSoundBusy ? "motion-safe:animate-pulse" : ""}`}
+                  />
+                </button>
+              </div>
+            ) : null}
+
+            {!feedback.isCorrect && !showKanaCorrectSound ? (
               <div className="mt-2">
                 <p className="text-[var(--lesson-text-soft)] text-sm">Correct answer:</p>
                 <p

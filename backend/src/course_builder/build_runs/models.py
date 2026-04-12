@@ -90,3 +90,12 @@ class SectionWordAudioSummary(TypedDict):
     generated_word_count: int
     reused_word_count: int
     failed_word_count: int
+
+
+class KanaAudioSummary(TypedDict):
+    build_run_id: str
+    script: str
+    total_character_count: int
+    generated_character_count: int
+    reused_character_count: int
+    failed_character_count: int

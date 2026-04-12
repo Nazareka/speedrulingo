@@ -1,21 +1,20 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
-import { AnimatePresence, LayoutGroup, motion, useReducedMotion } from "framer-motion";
+import { AnimatePresence, LayoutGroup, useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { LessonBottomZone, type LessonBottomZoneProps } from "../../features/lesson/bottom-zone";
+import { LessonCompleteScreen } from "../../features/lesson/complete-screen";
+import { MultipleChoiceExercise } from "../../features/lesson/exercise-multiple-choice";
+import { WordBankExercise } from "../../features/lesson/exercise-word-bank";
+import { isMultipleChoiceItem } from "../../features/lesson/item-helpers";
+import { lessonItemLabel } from "../../features/lesson/item-label";
+import { HintablePrompt } from "../../features/lesson/prompt";
+import { useLessonSession } from "../../features/lesson/use-lesson-session";
 import { authedRequestHeaders } from "../../shared/api";
-import { LessonBottomZone, type LessonBottomZoneProps } from "./bottom-zone";
-import { LessonCompleteScreen } from "./complete-screen";
-import { MultipleChoiceExercise } from "./exercise-multiple-choice";
-import { WordBankExercise } from "./exercise-word-bank";
-import { isMultipleChoiceItem } from "./item-helpers";
-import { lessonItemLabel } from "./item-label";
-import { LeaveLessonDialog } from "./leave-dialog";
-import { HintablePrompt } from "./prompt";
-import { LessonTopBar } from "./top-bar";
-import { PRIMARY_BUTTON_CLASS, QUICK_TRANSITION } from "./ui-constants";
-import { useLessonSession } from "./use-session";
-
-const LESSON_PAGE_SHELL_CLASS =
-  "min-h-screen bg-[var(--lesson-bg)] font-['Inter','SF_Pro_Display','SF_Pro_Text','Geist',system-ui,sans-serif] text-stone-900";
+import { LESSON_PAGE_SHELL_CLASS } from "../../shared/lesson/layout";
+import { LeaveLessonDialog } from "../../shared/lesson/leave-dialog";
+import { LessonItemMotionSection } from "../../shared/lesson/lesson-item-motion-section";
+import { LessonTopBar } from "../../shared/lesson/top-bar";
+import { PRIMARY_BUTTON_CLASS } from "../../shared/lesson/ui-constants";
 
 export function LessonPage() {
   const params = useParams({ from: "/lesson/$lessonId" });
@@ -258,13 +257,11 @@ export function LessonPage() {
 
       <main className="mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8">
         <AnimatePresence initial={false} mode="wait">
-          <motion.section
-            animate={{ opacity: 1, y: 0 }}
+          <LessonItemMotionSection
             className="rounded-[1.6rem] border border-[var(--lesson-border)] bg-[var(--lesson-surface)] px-6 py-8 shadow-[0_12px_30px_rgba(22,28,37,0.045)] md:px-10 md:py-10"
-            exit={{ opacity: 0, y: prefersReducedMotion ? 0 : -4 }}
-            initial={{ opacity: 0, y: prefersReducedMotion ? 0 : 6 }}
-            key={currentItem.item_id}
-            transition={prefersReducedMotion ? { duration: 0 } : QUICK_TRANSITION}
+            itemKey={currentItem.item_id}
+            motionY={{ exit: -4, initial: 6 }}
+            prefersReducedMotion={prefersReducedMotion}
           >
             <div className="mx-auto max-w-[48rem]">
               <p className="font-medium text-[0.8rem] text-[var(--lesson-text-faint)] tracking-[0.01em]">
@@ -320,7 +317,7 @@ export function LessonPage() {
 
               <LessonBottomZone {...bottomZoneProps} />
             </div>
-          </motion.section>
+          </LessonItemMotionSection>
         </AnimatePresence>
       </main>
 

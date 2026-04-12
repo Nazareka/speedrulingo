@@ -413,6 +413,18 @@ def build_run_detail() -> rx.Component:
                             ),
                             rx.spacer(),
                             rx.hstack(
+                                rx.button(
+                                    "Generate hiragana audio",
+                                    on_click=CourseBuilderUIState.start_hiragana_audio_generation,
+                                    color_scheme="grass",
+                                    variant="soft",
+                                ),
+                                rx.button(
+                                    "Generate katakana audio",
+                                    on_click=CourseBuilderUIState.start_katakana_audio_generation,
+                                    color_scheme="grass",
+                                    variant="soft",
+                                ),
                                 rx.cond(
                                     CourseBuilderUIState.can_generate_selected_run_audio,
                                     rx.button(

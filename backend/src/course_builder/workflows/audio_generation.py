@@ -19,10 +19,10 @@ from domain.content.audio_service import (
     SentenceAudioIdentity,
     WordAudioIdentity,
     audio_asset_ready_on_disk,
+    create_or_update_audio_asset,
     create_or_update_sentence_audio_asset,
     create_or_update_word_audio_asset,
-    get_reusable_sentence_audio_asset,
-    get_reusable_word_audio_asset,
+    get_reusable_audio_asset,
     get_sentence_audio_asset_by_identity,
     get_word_audio_asset_by_identity,
     sentence_audio_identity,
@@ -112,13 +112,13 @@ def list_section_word_ids(
 
 
 def _sentence_audio_path(*, identity: SentenceAudioIdentity) -> Path:
-    root = get_settings().sentence_audio_storage_root
-    return root / identity.provider / identity.voice_id / f"{identity.text_hash}.mp3"
+    root = get_settings().audio_storage_root
+    return root / identity.audio.provider / identity.audio.voice_id / f"{identity.audio.text_hash}.mp3"
 
 
 def _word_audio_path(*, identity: WordAudioIdentity) -> Path:
-    root = get_settings().word_audio_storage_root
-    return root / identity.provider / identity.voice_id / f"{identity.text_hash}.mp3"
+    root = get_settings().audio_storage_root
+    return root / identity.audio.provider / identity.audio.voice_id / f"{identity.audio.text_hash}.mp3"
 
 
 def _write_audio_bytes(*, storage_path: Path, payload: bytes) -> None:
@@ -148,11 +148,12 @@ def ensure_sentence_audio_asset(
     if existing_asset is not None and audio_asset_ready_on_disk(existing_asset):
         return existing_asset, True
 
-    reusable_asset = get_reusable_sentence_audio_asset(db, identity=identity)
+    reusable_asset = get_reusable_audio_asset(db, identity=identity.audio)
     if reusable_asset is not None:
         asset = create_or_update_sentence_audio_asset(
             db,
             identity=identity,
+            audio_asset=reusable_asset,
             storage_path=Path(reusable_asset.storage_path),
             mime_type=reusable_asset.mime_type,
         )
@@ -163,14 +164,24 @@ def ensure_sentence_audio_asset(
         return asset, True
 
     storage_path = _sentence_audio_path(identity=identity)
+    shared_asset = create_or_update_audio_asset(
+        db,
+        identity=identity.audio,
+        storage_path=storage_path,
+        mime_type=MIME_TYPE_MP3,
+    )
     asset = create_or_update_sentence_audio_asset(
         db,
         identity=identity,
+        audio_asset=shared_asset,
         storage_path=storage_path,
         mime_type=MIME_TYPE_MP3,
     )
     audio_bytes = client.synthesize(text=identity.source_text)
     _write_audio_bytes(storage_path=storage_path, payload=audio_bytes)
+    shared_asset.byte_size = len(audio_bytes)
+    shared_asset.status = AUDIO_STATUS_READY
+    shared_asset.generation_error = None
     asset.byte_size = len(audio_bytes)
     asset.status = AUDIO_STATUS_READY
     asset.generation_error = None
@@ -198,11 +209,12 @@ def ensure_word_audio_asset(
     if existing_asset is not None and audio_asset_ready_on_disk(existing_asset):
         return existing_asset, True
 
-    reusable_asset = get_reusable_word_audio_asset(db, identity=identity)
+    reusable_asset = get_reusable_audio_asset(db, identity=identity.audio)
     if reusable_asset is not None:
         asset = create_or_update_word_audio_asset(
             db,
             identity=identity,
+            audio_asset=reusable_asset,
             storage_path=Path(reusable_asset.storage_path),
             mime_type=reusable_asset.mime_type,
         )
@@ -213,14 +225,24 @@ def ensure_word_audio_asset(
         return asset, True
 
     storage_path = _word_audio_path(identity=identity)
+    shared_asset = create_or_update_audio_asset(
+        db,
+        identity=identity.audio,
+        storage_path=storage_path,
+        mime_type=MIME_TYPE_MP3,
+    )
     asset = create_or_update_word_audio_asset(
         db,
         identity=identity,
+        audio_asset=shared_asset,
         storage_path=storage_path,
         mime_type=MIME_TYPE_MP3,
     )
     audio_bytes = client.synthesize(text=identity.source_text)
     _write_audio_bytes(storage_path=storage_path, payload=audio_bytes)
+    shared_asset.byte_size = len(audio_bytes)
+    shared_asset.status = AUDIO_STATUS_READY
+    shared_asset.generation_error = None
     asset.byte_size = len(audio_bytes)
     asset.status = AUDIO_STATUS_READY
     asset.generation_error = None
@@ -248,9 +270,18 @@ def mark_sentence_audio_asset_failed(
         model_id=settings.elevenlabs_model_id,
     )
     storage_path = _sentence_audio_path(identity=identity)
+    shared_asset = create_or_update_audio_asset(
+        db,
+        identity=identity.audio,
+        storage_path=storage_path,
+        mime_type=MIME_TYPE_MP3,
+    )
+    shared_asset.status = AUDIO_STATUS_FAILED
+    shared_asset.generation_error = error_message
     asset = create_or_update_sentence_audio_asset(
         db,
         identity=identity,
+        audio_asset=shared_asset,
         storage_path=storage_path,
         mime_type=MIME_TYPE_MP3,
     )
@@ -279,9 +310,18 @@ def mark_word_audio_asset_failed(
         model_id=settings.elevenlabs_model_id,
     )
     storage_path = _word_audio_path(identity=identity)
+    shared_asset = create_or_update_audio_asset(
+        db,
+        identity=identity.audio,
+        storage_path=storage_path,
+        mime_type=MIME_TYPE_MP3,
+    )
+    shared_asset.status = AUDIO_STATUS_FAILED
+    shared_asset.generation_error = error_message
     asset = create_or_update_word_audio_asset(
         db,
         identity=identity,
+        audio_asset=shared_asset,
         storage_path=storage_path,
         mime_type=MIME_TYPE_MP3,
     )

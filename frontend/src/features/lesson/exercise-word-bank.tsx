@@ -1,7 +1,7 @@
-import type { FeedbackState } from "./session-types";
-import { LESSON_ANSWER_CONTROL } from "./shortcuts";
+import type { FeedbackState } from "../../shared/lesson/session-types";
+import { LESSON_ANSWER_CONTROL } from "../../shared/lesson/shortcuts";
+import { optionTypographyClass } from "../../shared/lesson/typography";
 import type { TileInstance } from "./tile-helpers";
-import { optionTypographyClass } from "./typography";
 
 type WordBankExerciseProps = {
   addTile: (tile: string) => void;

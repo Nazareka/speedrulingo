@@ -16,6 +16,7 @@ from domain.auth.models import User, UserCourseEnrollment
 from domain.content import audio_service
 from domain.content.display import append_alternate_script_hint
 from domain.content.models import (
+    AudioAsset,
     CourseVersion,
     Item,
     ItemKanjiKanaMatch,
@@ -36,6 +37,8 @@ from domain.content.models import (
     Word,
     WordAudioAsset,
 )
+from domain.kana.catalog import ensure_kana_catalog_seeded
+from domain.kana.models import KanaAudioAsset, KanaCharacter, KanaLesson, KanaLessonItem, UserKanaProgress
 from domain.learning.models import ExamAttempt, UserLessonProgress
 import main as app_main
 from security import hash_password
@@ -537,6 +540,118 @@ def test_sqladmin_can_set_and_unset_unit_completion(client: TestClient, db_sessi
         admin_session.commit()
 
 
+def test_sqladmin_can_clear_kana_progress(client: TestClient, db_session: Session) -> None:
+    bind = db_session.get_bind()
+    admin_bind = bind.engine if isinstance(bind, Connection) else bind
+    admin_session_factory = sessionmaker(
+        bind=admin_bind,
+        autoflush=False,
+        autocommit=False,
+        future=True,
+    )
+    with admin_session_factory() as admin_session:
+        admin = User(
+            email="admin-kana@example.com",
+            password_hash=hash_password("password123"),
+            is_admin=True,
+        )
+        learner = User(
+            email="learner-kana@example.com",
+            password_hash=hash_password("password123"),
+        )
+        active_course = CourseVersion(
+            code="admin-kana-test",
+            version=1,
+            build_version=1,
+            status="active",
+            config_version="test",
+            config_hash="test-hash",
+        )
+        admin_session.add_all([admin, learner, active_course])
+        admin_session.flush()
+        enrollment = UserCourseEnrollment(user_id=learner.id, course_version_id=active_course.id)
+        admin_session.add(enrollment)
+        admin_session.flush()
+        ensure_kana_catalog_seeded(admin_session)
+        char_a = admin_session.scalar(select(KanaCharacter).where(KanaCharacter.char == "あ").limit(1))
+        assert char_a is not None
+        admin_session.add(
+            UserKanaProgress(
+                enrollment_id=enrollment.id,
+                character_id=char_a.id,
+                times_seen=2,
+                times_prompted_as_character=1,
+                times_prompted_as_audio=0,
+                state="learning",
+            )
+        )
+        admin_session.add(
+            KanaLesson(
+                enrollment_id=enrollment.id,
+                status="planned",
+                total_items=3,
+            )
+        )
+        admin_session.commit()
+
+        learner_id = learner.id
+        active_course_id = active_course.id
+
+    login_response = client.post(
+        "/admin/login",
+        data={"username": "admin-kana@example.com", "password": "password123"},
+        follow_redirects=False,
+    )
+    assert login_response.status_code == 302
+
+    page_response = client.get(f"/admin/kana-progress?user_id={learner_id}", follow_redirects=False)
+    assert page_response.status_code == 200
+    assert "Kana Progress" in page_response.text
+    assert "learner-kana@example.com" in page_response.text
+
+    clear_response = client.post(
+        "/admin/kana-progress",
+        data={"user_id": learner_id, "operation": "clear_kana_progress"},
+        follow_redirects=False,
+    )
+    assert clear_response.status_code == 303
+
+    with admin_session_factory() as admin_session:
+        enrollment_row = admin_session.scalar(
+            select(UserCourseEnrollment).where(
+                UserCourseEnrollment.user_id == learner_id,
+                UserCourseEnrollment.course_version_id == active_course_id,
+            )
+        )
+        assert enrollment_row is not None
+        assert (
+            admin_session.scalar(
+                select(func.count()).select_from(UserKanaProgress).where(
+                    UserKanaProgress.enrollment_id == enrollment_row.id
+                )
+            )
+            == 0
+        )
+        assert (
+            admin_session.scalar(
+                select(func.count()).select_from(KanaLesson).where(KanaLesson.enrollment_id == enrollment_row.id)
+            )
+            == 0
+        )
+
+    with admin_session_factory() as admin_session:
+        cleanup_course = admin_session.get(CourseVersion, active_course_id)
+        cleanup_learner = admin_session.get(User, learner_id)
+        cleanup_admin = admin_session.scalar(select(User).where(User.email == "admin-kana@example.com").limit(1))
+        if cleanup_course is not None:
+            admin_session.delete(cleanup_course)
+        if cleanup_learner is not None:
+            admin_session.delete(cleanup_learner)
+        if cleanup_admin is not None:
+            admin_session.delete(cleanup_admin)
+        admin_session.commit()
+
+
 def test_sqladmin_can_wipe_all_sentence_audio(
     client: TestClient, db_session: Session, tmp_path: Path
 ) -> None:
@@ -578,8 +693,23 @@ def test_sqladmin_can_wipe_all_sentence_audio(
         audio_path.write_bytes(b"fake-mp3")
         admin_session.add_all([admin, sentence])
         admin_session.flush()
+        shared_asset = AudioAsset(
+            provider="elevenlabs",
+            voice_id="voice-1",
+            model_id="model-1",
+            language_code="ja",
+            text_hash="hash-1",
+            source_text="sample",
+            storage_path=str(audio_path),
+            mime_type="audio/mpeg",
+            byte_size=8,
+            status="ready",
+        )
+        admin_session.add(shared_asset)
+        admin_session.flush()
         admin_session.add(
             SentenceAudioAsset(
+                audio_asset_id=shared_asset.id,
                 sentence_id=sentence.id,
                 provider="elevenlabs",
                 voice_id="voice-1",
@@ -675,14 +805,29 @@ def test_sqladmin_can_wipe_all_word_audio(
         audio_path.write_bytes(b"fake-mp3")
         admin_session.add_all([admin, word])
         admin_session.flush()
+        shared_asset = AudioAsset(
+            provider="elevenlabs",
+            voice_id="voice-1",
+            model_id="model-1",
+            language_code="ja",
+            text_hash="hash-word-1",
+            source_text="学校",
+            storage_path=str(audio_path),
+            mime_type="audio/mpeg",
+            byte_size=8,
+            status="ready",
+        )
+        admin_session.add(shared_asset)
+        admin_session.flush()
         admin_session.add(
             WordAudioAsset(
+                audio_asset_id=shared_asset.id,
                 word_id=word.id,
                 provider="elevenlabs",
                 voice_id="voice-1",
                 model_id="model-1",
                 language_code="ja",
-                text_hash="hash-1",
+                text_hash="hash-word-1",
                 source_text="学校",
                 storage_path=str(audio_path),
                 mime_type="audio/mpeg",
@@ -779,8 +924,23 @@ def test_next_item_includes_word_audio_urls_for_japanese_prompt_tokens(
     audio_dir.mkdir(parents=True, exist_ok=True)
     audio_path = audio_dir / "sample.mp3"
     audio_path.write_bytes(b"fake-mp3")
+    shared_asset = AudioAsset(
+        provider="elevenlabs",
+        voice_id="voice-lesson-test",
+        model_id="model-lesson-test",
+        language_code="ja",
+        text_hash="hash-lesson-word-audio",
+        source_text=linked_word.canonical_writing_ja,
+        storage_path=str(audio_path),
+        mime_type="audio/mpeg",
+        byte_size=8,
+        status="ready",
+    )
+    db_session.add(shared_asset)
+    db_session.flush()
     db_session.add(
         WordAudioAsset(
+            audio_asset_id=shared_asset.id,
             word_id=linked_word.id,
             provider="elevenlabs",
             voice_id="voice-lesson-test",
@@ -1135,3 +1295,140 @@ def test_next_item_shuffles_normal_lesson_without_breaking_intro_order(
         ("sentence_tiles", "ja", "en"),
         ("sentence_tiles", "en", "ja"),
     ]
+
+
+def test_kana_overview_continue_and_submit_flow(kana_client: TestClient, db_session: Session) -> None:
+    token = _register_and_get_token(kana_client)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    overview_response = kana_client.get("/api/v1/kana/overview", headers=headers)
+    assert overview_response.status_code == 200
+    overview = overview_response.json()
+    assert overview["scripts"]
+    assert overview["total_characters"] > 0
+    assert overview["mastered_characters"] == 0
+    assert all("audio_url" in character for script in overview["scripts"] for character in script["characters"])
+
+    continue_response = kana_client.post("/api/v1/kana/continue", headers=headers)
+    assert continue_response.status_code == 200
+    lesson_id = continue_response.json()["lesson_id"]
+
+    overview_after_plan = kana_client.get("/api/v1/kana/overview", headers=headers)
+    assert overview_after_plan.status_code == 200
+    overview_after_payload = overview_after_plan.json()
+    assert overview_after_payload["current_lesson_id"] == lesson_id
+    flat_chars = [c for sg in overview_after_payload["scripts"] for c in sg["characters"]]
+    assert any(c.get("is_next_lesson_new") is True for c in flat_chars)
+
+    lesson_items: list[dict[str, object]] = []
+    total_items = continue_response.json()["total_items"]
+    for cursor in range(total_items):
+        item_response = kana_client.get(
+            f"/api/v1/kana/lessons/{lesson_id}/next-item",
+            headers=headers,
+            params={"cursor": cursor},
+        )
+        assert item_response.status_code == 200
+        lesson_items.append(item_response.json())
+
+    assert {item["item_type"] for item in lesson_items} == {"audio_to_kana_choice", "kana_to_audio_choice"}
+    first_item = lesson_items[0]
+    first_answer_options = cast(list[dict[str, object]], first_item["answer_options"])
+    first_option_id = cast(str, first_answer_options[0]["option_id"])
+    partial_submit = kana_client.post(
+        f"/api/v1/kana/lessons/{lesson_id}/submit",
+        headers=headers,
+        json={"answers": [{"item_id": first_item["item_id"], "option_id": first_option_id}]},
+    )
+    assert partial_submit.status_code == 200
+    assert partial_submit.json()["progress_state"] == "planned"
+    for item in lesson_items:
+        answer_options = cast(list[dict[str, object]], item["answer_options"])
+        assert answer_options
+    submit_payload: dict[str, list[dict[str, str]]] = {"answers": []}
+    for item in lesson_items:
+        lesson_item = db_session.get(KanaLessonItem, item["item_id"])
+        assert lesson_item is not None
+        submit_payload["answers"].append(
+            {
+                "item_id": lesson_item.id,
+                "option_id": lesson_item.option_character_ids[lesson_item.correct_option_index],
+            }
+        )
+
+    submit_response = kana_client.post(
+        f"/api/v1/kana/lessons/{lesson_id}/submit",
+        headers=headers,
+        json=submit_payload,
+    )
+    assert submit_response.status_code == 200
+    submit_data = submit_response.json()
+    assert submit_data["passed"] is True
+    assert submit_data["progress_state"] == "completed"
+
+    overview_after_complete = kana_client.get("/api/v1/kana/overview", headers=headers)
+    assert overview_after_complete.status_code == 200
+    overview_complete_payload = overview_after_complete.json()
+    next_lesson_id = overview_complete_payload["current_lesson_id"]
+    assert next_lesson_id is not None
+    assert next_lesson_id != lesson_id
+    flat_after_complete = [c for sg in overview_complete_payload["scripts"] for c in sg["characters"]]
+    assert any(c.get("is_next_lesson_new") is True for c in flat_after_complete)
+
+    second_continue = kana_client.post("/api/v1/kana/continue", headers=headers)
+    assert second_continue.status_code == 200
+    assert second_continue.json()["lesson_id"] == next_lesson_id
+
+    enrollment_id = kana_client.get("/api/v1/auth/me", headers=headers).json()["enrollment_id"]
+    progress_count = int(
+        db_session.scalar(select(func.count()).select_from(UserKanaProgress).where(UserKanaProgress.enrollment_id == enrollment_id))
+        or 0
+    )
+    assert progress_count > 0
+
+
+def test_kana_audio_route_serves_shared_asset(kana_client: TestClient, db_session: Session, tmp_path: Path) -> None:
+    ensure_kana_catalog_seeded(db_session)
+    token = _register_and_get_token(kana_client)
+    headers = {"Authorization": f"Bearer {token}"}
+
+    character = db_session.scalar(select(KanaCharacter).where(KanaCharacter.char == "あ").limit(1))
+    assert character is not None
+    audio_dir = tmp_path / "kana-audio-test" / "elevenlabs" / "voice-1"
+    audio_dir.mkdir(parents=True, exist_ok=True)
+    audio_path = audio_dir / "a.mp3"
+    audio_path.write_bytes(b"kana-audio")
+    shared_asset = AudioAsset(
+        provider="elevenlabs",
+        voice_id="voice-1",
+        model_id="model-1",
+        language_code="ja",
+        text_hash="hash-kana-a",
+        source_text="あ",
+        storage_path=str(audio_path),
+        mime_type="audio/mpeg",
+        byte_size=10,
+        status="ready",
+    )
+    db_session.add(shared_asset)
+    db_session.flush()
+    kana_asset = KanaAudioAsset(
+        audio_asset_id=shared_asset.id,
+        character_id=character.id,
+        provider="elevenlabs",
+        voice_id="voice-1",
+        model_id="model-1",
+        language_code="ja",
+        text_hash="hash-kana-a",
+        source_text="あ",
+        storage_path=str(audio_path),
+        mime_type="audio/mpeg",
+        byte_size=10,
+        status="ready",
+    )
+    db_session.add(kana_asset)
+    db_session.commit()
+
+    response = kana_client.get(f"/api/v1/kana/audio/{kana_asset.id}", headers=headers)
+    assert response.status_code == 200
+    assert response.content == b"kana-audio"

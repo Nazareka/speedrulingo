@@ -74,6 +74,113 @@ export const zItemResult = z.object({
     is_correct: z.boolean()
 });
 
+export const zKanaAnswerOption = z.object({
+    option_id: z.string(),
+    char: z.string(),
+    audio_url: z.union([
+        z.string(),
+        z.null()
+    ]).optional()
+});
+
+export const zKanaCharacterProgress = z.object({
+    character_id: z.string(),
+    char: z.string(),
+    script: z.enum([
+        'hiragana',
+        'katakana'
+    ]),
+    group_key: z.string(),
+    audio_url: z.union([
+        z.string(),
+        z.null()
+    ]).optional(),
+    times_seen: z.number().int(),
+    target_exposures: z.number().int(),
+    state: z.enum([
+        'locked',
+        'new',
+        'learning',
+        'mastered'
+    ]),
+    is_next_lesson_new: z.boolean().optional().default(false)
+});
+
+export const zKanaContinueResponse = z.object({
+    lesson_id: z.string(),
+    total_items: z.number().int()
+});
+
+export const zKanaItemResult = z.object({
+    item_id: z.string(),
+    expected_option_id: z.string(),
+    user_option_id: z.string(),
+    is_correct: z.boolean()
+});
+
+export const zKanaLessonItemResponse = z.object({
+    item_id: z.string(),
+    lesson_id: z.string(),
+    item_type: z.enum([
+        'audio_to_kana_choice',
+        'kana_to_audio_choice'
+    ]),
+    order_index: z.number().int(),
+    cursor: z.number().int(),
+    total_items: z.number().int(),
+    is_last_item: z.boolean(),
+    prompt_char: z.union([
+        z.string(),
+        z.null()
+    ]).optional(),
+    prompt_audio_url: z.union([
+        z.string(),
+        z.null()
+    ]).optional(),
+    answer_options: z.array(zKanaAnswerOption)
+});
+
+export const zKanaScriptGroup = z.object({
+    script: z.enum([
+        'hiragana',
+        'katakana'
+    ]),
+    characters: z.array(zKanaCharacterProgress)
+});
+
+export const zKanaOverviewResponse = z.object({
+    scripts: z.array(zKanaScriptGroup),
+    current_lesson_id: z.union([
+        z.string(),
+        z.null()
+    ]),
+    total_characters: z.number().int(),
+    mastered_characters: z.number().int()
+});
+
+export const zSubmittedKanaAnswer = z.object({
+    item_id: z.string(),
+    option_id: z.string().min(1)
+});
+
+export const zKanaSubmitRequest = z.object({
+    answers: z.array(zSubmittedKanaAnswer).min(1)
+});
+
+export const zKanaSubmitResponse = z.object({
+    lesson_id: z.string(),
+    score: z.number(),
+    correct_items: z.number().int(),
+    total_items: z.number().int(),
+    passed: z.boolean(),
+    progress_state: z.enum([
+        'planned',
+        'abandoned',
+        'completed'
+    ]),
+    item_results: z.array(zKanaItemResult)
+});
+
 export const zKanjiUsageRow = z.object({
     lesson_id: z.string(),
     unit_id: z.string(),
@@ -304,6 +411,14 @@ export const zCurrentCourseApiV1CourseCurrentGetResponse = zCurrentCourseRespons
 export const zUnitsApiV1UnitsGetResponse = z.array(zUnitSummary);
 
 export const zUnitDetailApiV1UnitsUnitIdGetResponse = zUnitDetail;
+
+export const zKanaOverviewApiV1KanaOverviewGetResponse = zKanaOverviewResponse;
+
+export const zKanaContinueApiV1KanaContinuePostResponse = zKanaContinueResponse;
+
+export const zKanaNextItemApiV1KanaLessonsLessonIdNextItemGetResponse = zKanaLessonItemResponse;
+
+export const zKanaSubmitApiV1KanaLessonsLessonIdSubmitPostResponse = zKanaSubmitResponse;
 
 export const zNextItemApiV1LessonsLessonIdNextItemGetResponse = zLessonItemResponse;
 
