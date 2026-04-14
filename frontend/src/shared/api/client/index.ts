@@ -1,2 +1,9 @@
 export { configureApiClient } from "./configure-client";
-export { authedRequestHeaders, authHeaders, requireResponseData } from "./http";
+export {
+  type ApiSdkResult,
+  authedRequestHeaders,
+  authHeaders,
+  isSessionExpiredError,
+  requireResponseData,
+  SessionExpiredError,
+} from "./http";

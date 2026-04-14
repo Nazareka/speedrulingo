@@ -17,7 +17,9 @@ export function useLoadLessonItem(lessonId: string) {
         path: { lesson_id: lessonId },
         query: { cursor },
       });
-      return requireResponseData(result.data as LessonItemResponse | undefined);
+      return requireResponseData(
+        result as { data: LessonItemResponse | undefined; response: Response },
+      );
     },
   });
 }
@@ -51,7 +53,7 @@ async function submitLesson(
       answers,
     },
   });
-  return requireResponseData(result.data as SubmitResponse | undefined);
+  return requireResponseData(result as { data: SubmitResponse | undefined; response: Response });
 }
 
 /** Single-item answer check (same HTTP endpoint as completion, separate mutation for UI state). */

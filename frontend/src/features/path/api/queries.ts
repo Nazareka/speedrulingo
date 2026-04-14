@@ -11,7 +11,7 @@ export function pathQueryOptions() {
     queryKey: pathKeys.all,
     queryFn: async ({ signal }) => {
       const result = await pathApiV1PathGet({ headers: authedRequestHeaders(), signal });
-      return requireResponseData(result.data as PathResponse | undefined);
+      return requireResponseData(result as { data: PathResponse | undefined; response: Response });
     },
     staleTime: 30_000,
   });

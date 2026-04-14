@@ -28,7 +28,9 @@ export function kanaOverviewQueryOptions() {
         headers: authedRequestHeaders(),
         signal,
       });
-      return requireResponseData(result.data as KanaOverviewResponse | undefined);
+      return requireResponseData(
+        result as { data: KanaOverviewResponse | undefined; response: Response },
+      );
     },
     // Planned-lesson highlights (`is_next_lesson_new`) must match the server immediately; a long
     // stale window kept grey tiles until something else refetched (e.g. opening /kana/lesson/…).
@@ -47,7 +49,9 @@ export function useContinueKanaLearning() {
       const result = await kanaContinueApiV1KanaContinuePost({
         headers: authedRequestHeaders(),
       });
-      return requireResponseData(result.data as KanaContinueResponse | undefined);
+      return requireResponseData(
+        result as { data: KanaContinueResponse | undefined; response: Response },
+      );
     },
   });
 }
@@ -68,7 +72,9 @@ export async function loadKanaLessonItem(
     query: { cursor },
     ...(signal ? { signal } : {}),
   });
-  return requireResponseData(result.data as KanaLessonItemResponse | undefined);
+  return requireResponseData(
+    result as { data: KanaLessonItemResponse | undefined; response: Response },
+  );
 }
 
 export function useLoadKanaLessonItem(lessonId: string) {
@@ -94,7 +100,9 @@ export function useSubmitKanaLesson(lessonId: string) {
           })),
         },
       });
-      return requireResponseData(result.data as KanaSubmitResponse | undefined);
+      return requireResponseData(
+        result as { data: KanaSubmitResponse | undefined; response: Response },
+      );
     },
   });
 }

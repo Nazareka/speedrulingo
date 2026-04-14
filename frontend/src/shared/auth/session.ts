@@ -27,7 +27,7 @@ export function meQueryOptions(enabled: boolean) {
     queryKey: sessionKeys.me,
     queryFn: async ({ signal }) => {
       const result = await meApiV1AuthMeGet({ headers: authHeaders(getToken()), signal });
-      return requireResponseData(result.data as MeResponse | undefined);
+      return requireResponseData(result as { data: MeResponse | undefined; response: Response });
     },
     staleTime: 60_000,
     enabled,
@@ -42,7 +42,9 @@ export function currentCourseQueryOptions(enabled: boolean) {
         headers: authHeaders(getToken()),
         signal,
       });
-      return requireResponseData(result.data as CurrentCourseResponse | undefined);
+      return requireResponseData(
+        result as { data: CurrentCourseResponse | undefined; response: Response },
+      );
     },
     staleTime: 60_000,
     enabled,

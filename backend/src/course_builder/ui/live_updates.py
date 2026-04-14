@@ -17,7 +17,7 @@ from course_builder.ui.reflex_compat import (
     get_reflex_app,
     has_live_state_owner,
 )
-from course_builder.ui.state import CourseBuilderUIState, _ensure_ui_runtime
+from course_builder.ui.state import CourseBuilderUIState, _ensure_ui_runtime, build_dashboard_snapshot
 from settings import get_settings
 
 LOGGER = logging.getLogger(__name__)
@@ -135,7 +135,21 @@ async def _refresh_subscribed_clients(*, app: rx.App, event: BuildRunEvent) -> N
         try:
             async with app.modify_state(state_token) as state:
                 ui_state = await state.get_state(CourseBuilderUIState)
-                ui_state.refresh_for_live_update()
+                config_path = ui_state.config_path
+                current_section_code = ui_state.section_code
+                all_sections = ui_state.all_sections
+                selected_run_id = ui_state.selected_run_id
+                launched_workflow_id = ui_state.launched_workflow_id
+            snapshot = build_dashboard_snapshot(
+                config_path=config_path,
+                current_section_code=current_section_code,
+                all_sections=all_sections,
+                selected_run_id=selected_run_id,
+                launched_workflow_id=launched_workflow_id,
+            )
+            async with app.modify_state(state_token) as state:
+                ui_state = await state.get_state(CourseBuilderUIState)
+                ui_state.refresh_for_live_update(snapshot)
         except Exception:
             BUILD_RUN_SUBSCRIPTIONS.unregister(state_token=state_token)
             LOGGER.exception("Failed to push live update to subscribed Reflex client")

@@ -24,7 +24,7 @@ function unitDetailQueryOptions(unitId: string | null) {
         path: { unit_id: unitId },
         signal,
       });
-      return requireResponseData(result.data as UnitDetail | undefined);
+      return requireResponseData(result as { data: UnitDetail | undefined; response: Response });
     },
     enabled: Boolean(unitId),
     staleTime: 30_000,

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -66,6 +67,108 @@ def _dict_value(mapping: object, key: str) -> object | None:
     if isinstance(mapping, dict):
         return mapping.get(key)
     return None
+
+
+@dataclass(slots=True)
+class DashboardSnapshot:
+    available_section_codes: list[str]
+    section_code: str
+    selected_run_id: str
+    launched_workflow_id: str
+    build_runs: list[dict[str, object]]
+    selected_run: dict[str, object]
+    child_section_runs: list[dict[str, object]]
+    stage_runs: list[dict[str, object]]
+    log_events: list[dict[str, object]]
+    pretty_log_rows: list[dict[str, object]]
+    log_text: str
+
+
+def _resolve_section_codes(*, config_path: str, current_section_code: str, all_sections: bool) -> tuple[list[str], str]:
+    normalized_config_path = config_path.strip()
+    if not normalized_config_path:
+        return [], ""
+    try:
+        section_codes = read_declared_section_codes(Path(normalized_config_path))
+    except (FileNotFoundError, ValueError, TypeError):
+        return [], ""
+    if all_sections:
+        return section_codes, ""
+    if current_section_code in section_codes:
+        return section_codes, current_section_code
+    return section_codes, section_codes[0]
+
+
+def build_dashboard_snapshot(
+    *,
+    config_path: str,
+    current_section_code: str,
+    all_sections: bool,
+    selected_run_id: str,
+    launched_workflow_id: str,
+) -> DashboardSnapshot:
+    available_section_codes, resolved_section_code = _resolve_section_codes(
+        config_path=config_path,
+        current_section_code=current_section_code,
+        all_sections=all_sections,
+    )
+
+    with SessionLocal() as db:
+        runs = list_build_runs(db, limit=100)
+        serialized_runs = [serialize_build_run(build_run) for build_run in runs]
+
+        resolved_selected_run_id = selected_run_id
+        cleared_launched_workflow_id = launched_workflow_id
+        if launched_workflow_id:
+            workflow_run = get_build_run_by_workflow_id(db, workflow_id=launched_workflow_id)
+            if workflow_run is not None:
+                resolved_selected_run_id = workflow_run.id
+                cleared_launched_workflow_id = ""
+
+        if not resolved_selected_run_id and runs:
+            resolved_selected_run_id = runs[0].id
+
+        selected_run = get_build_run(db, build_run_id=resolved_selected_run_id) if resolved_selected_run_id else None
+        if selected_run is None:
+            return DashboardSnapshot(
+                available_section_codes=available_section_codes,
+                section_code=resolved_section_code,
+                selected_run_id="",
+                launched_workflow_id=cleared_launched_workflow_id,
+                build_runs=serialized_runs,
+                selected_run={},
+                child_section_runs=[],
+                stage_runs=[],
+                log_events=[],
+                pretty_log_rows=[],
+                log_text="",
+            )
+
+        child_runs = list_child_section_build_runs(db, parent_build_run_id=selected_run.id)
+        serialized_selected_run = serialize_build_run(selected_run)
+        serialized_child_runs = [serialize_build_run(build_run) for build_run in child_runs]
+        serialized_stage_runs = [serialize_stage_run(stage_run) for stage_run in list_stage_runs(db, build_run_id=selected_run.id)]
+        if selected_run.scope_kind == "all_sections":
+            log_events = list_log_events_for_build_run_ids(
+                db,
+                build_run_ids=[selected_run.id, *[build_run.id for build_run in child_runs]],
+            )
+        else:
+            log_events = list_log_events(db, build_run_id=selected_run.id)
+        serialized_log_events = [serialize_log_event(event) for event in log_events]
+        return DashboardSnapshot(
+            available_section_codes=available_section_codes,
+            section_code=resolved_section_code,
+            selected_run_id=selected_run.id,
+            launched_workflow_id=cleared_launched_workflow_id,
+            build_runs=serialized_runs,
+            selected_run=serialized_selected_run,
+            child_section_runs=serialized_child_runs,
+            stage_runs=serialized_stage_runs,
+            log_events=serialized_log_events,
+            pretty_log_rows=build_pretty_log_tree_rows(serialized_log_events),
+            log_text="\n".join(_format_log_line(event) for event in serialized_log_events),
+        )
 
 
 class CourseBuilderUIState(rx.State):
@@ -150,22 +253,64 @@ class CourseBuilderUIState(rx.State):
         if mode in {"pretty", "raw"}:
             self.log_view_mode = mode
 
-    def load_dashboard(self) -> Any:
+    @rx.event(background=True)  # type: ignore[operator]  # Reflex background decorator is callable at runtime; stubs expose EventNamespace too loosely.
+    async def load_dashboard(self) -> None:
         _ensure_ui_runtime()
-        self._reload_available_section_codes()
-        self._reload_dashboard_data()
-        return
+        async with self:
+            config_path = self.config_path
+            current_section_code = self.section_code
+            all_sections = self.all_sections
+            selected_run_id = self.selected_run_id
+            launched_workflow_id = self.launched_workflow_id
+        snapshot = build_dashboard_snapshot(
+            config_path=config_path,
+            current_section_code=current_section_code,
+            all_sections=all_sections,
+            selected_run_id=selected_run_id,
+            launched_workflow_id=launched_workflow_id,
+        )
+        async with self:
+            self._apply_dashboard_snapshot(snapshot)
 
-    def refresh_now(self) -> None:
+    @rx.event(background=True)  # type: ignore[operator]  # Reflex background decorator is callable at runtime; stubs expose EventNamespace too loosely.
+    async def refresh_now(self) -> None:
         _ensure_ui_runtime()
-        self._reload_dashboard_data()
+        async with self:
+            config_path = self.config_path
+            current_section_code = self.section_code
+            all_sections = self.all_sections
+            selected_run_id = self.selected_run_id
+            launched_workflow_id = self.launched_workflow_id
+        snapshot = build_dashboard_snapshot(
+            config_path=config_path,
+            current_section_code=current_section_code,
+            all_sections=all_sections,
+            selected_run_id=selected_run_id,
+            launched_workflow_id=launched_workflow_id,
+        )
+        async with self:
+            self._apply_dashboard_snapshot(snapshot)
 
-    def select_run(self, build_run_id: str) -> None:
-        self.selected_run_id = build_run_id
-        self._reload_dashboard_data()
+    @rx.event(background=True)  # type: ignore[operator]  # Reflex background decorator is callable at runtime; stubs expose EventNamespace too loosely.
+    async def select_run(self, build_run_id: str) -> None:
+        async with self:
+            self.selected_run_id = build_run_id
+            config_path = self.config_path
+            current_section_code = self.section_code
+            all_sections = self.all_sections
+            launched_workflow_id = self.launched_workflow_id
+        snapshot = build_dashboard_snapshot(
+            config_path=config_path,
+            current_section_code=current_section_code,
+            all_sections=all_sections,
+            selected_run_id=build_run_id,
+            launched_workflow_id=launched_workflow_id,
+        )
+        async with self:
+            self._apply_dashboard_snapshot(snapshot)
 
-    def refresh_for_live_update(self) -> None:
-        self._reload_dashboard_data()
+    def refresh_for_live_update(self, snapshot: DashboardSnapshot) -> None:
+        self._apply_dashboard_snapshot(snapshot)
 
     def toggle_all_sections(self, checked: bool) -> None:
         self.all_sections = checked
@@ -325,65 +470,37 @@ class CourseBuilderUIState(rx.State):
         )
 
     def _reload_available_section_codes(self) -> None:
-        config_path = self.config_path.strip()
-        if not config_path:
-            self.available_section_codes = []
-            self.section_code = ""
-            return
-        try:
-            section_codes = read_declared_section_codes(Path(config_path))
-        except (FileNotFoundError, ValueError, TypeError):
-            self.available_section_codes = []
-            self.section_code = ""
-            return
+        section_codes, section_code = _resolve_section_codes(
+            config_path=self.config_path,
+            current_section_code=self.section_code,
+            all_sections=self.all_sections,
+        )
         self.available_section_codes = section_codes
-        if self.all_sections:
-            self.section_code = ""
-            return
-        if self.section_code not in section_codes:
-            self.section_code = section_codes[0]
+        self.section_code = section_code
 
     def _reload_dashboard_data(self) -> None:
-        with SessionLocal() as db:
-            runs = list_build_runs(db, limit=100)
-            self.build_runs = [serialize_build_run(build_run) for build_run in runs]
+        snapshot = build_dashboard_snapshot(
+            config_path=self.config_path,
+            current_section_code=self.section_code,
+            all_sections=self.all_sections,
+            selected_run_id=self.selected_run_id,
+            launched_workflow_id=self.launched_workflow_id,
+        )
+        self._apply_dashboard_snapshot(snapshot)
 
-            if self.launched_workflow_id:
-                workflow_run = get_build_run_by_workflow_id(db, workflow_id=self.launched_workflow_id)
-                if workflow_run is not None:
-                    self.selected_run_id = workflow_run.id
-                    self.launched_workflow_id = ""
-
-            if not self.selected_run_id and runs:
-                self.selected_run_id = runs[0].id
-
-            selected_run = get_build_run(db, build_run_id=self.selected_run_id) if self.selected_run_id else None
-            if selected_run is None:
-                self.selected_run_id = ""
-                self.selected_run = {}
-                self.child_section_runs = []
-                self.stage_runs = []
-                self.log_events = []
-                self.pretty_log_rows = []
-                self.log_text = ""
-                self._sync_live_subscription()
-                return
-
-            self.selected_run = serialize_build_run(selected_run)
-            child_runs = list_child_section_build_runs(db, parent_build_run_id=selected_run.id)
-            self.child_section_runs = [serialize_build_run(build_run) for build_run in child_runs]
-            self.stage_runs = [serialize_stage_run(stage_run) for stage_run in list_stage_runs(db, build_run_id=selected_run.id)]
-            if selected_run.scope_kind == "all_sections":
-                log_events = list_log_events_for_build_run_ids(
-                    db,
-                    build_run_ids=[selected_run.id, *[build_run.id for build_run in child_runs]],
-                )
-            else:
-                log_events = list_log_events(db, build_run_id=selected_run.id)
-            self.log_events = [serialize_log_event(event) for event in log_events]
-            self.pretty_log_rows = build_pretty_log_tree_rows(self.log_events)
-            self.log_text = "\n".join(_format_log_line(event) for event in self.log_events)
-            self._sync_live_subscription()
+    def _apply_dashboard_snapshot(self, snapshot: DashboardSnapshot) -> None:
+        self.available_section_codes = snapshot.available_section_codes
+        self.section_code = snapshot.section_code
+        self.selected_run_id = snapshot.selected_run_id
+        self.launched_workflow_id = snapshot.launched_workflow_id
+        self.build_runs = snapshot.build_runs
+        self.selected_run = snapshot.selected_run
+        self.child_section_runs = snapshot.child_section_runs
+        self.stage_runs = snapshot.stage_runs
+        self.log_events = snapshot.log_events
+        self.pretty_log_rows = snapshot.pretty_log_rows
+        self.log_text = snapshot.log_text
+        self._sync_live_subscription()
 
     def _sync_live_subscription(self) -> None:
         from course_builder.ui.live_updates import BUILD_RUN_SUBSCRIPTIONS

@@ -14,7 +14,10 @@ export function useLoginMutation() {
   return useMutation({
     mutationFn: async (payload: { email: string; password: string }) => {
       const result = await loginApiV1AuthLoginPost({ body: payload });
-      return requireResponseData(result.data as TokenResponse | undefined);
+      return requireResponseData(
+        result as { data: TokenResponse | undefined; response: Response },
+        "public",
+      );
     },
     onSuccess: async (data) => {
       setToken(data.access_token);
@@ -31,7 +34,10 @@ export function useRegisterMutation() {
   return useMutation({
     mutationFn: async (payload: { email: string; password: string }) => {
       const result = await registerApiV1AuthRegisterPost({ body: payload });
-      return requireResponseData(result.data as TokenResponse | undefined);
+      return requireResponseData(
+        result as { data: TokenResponse | undefined; response: Response },
+        "public",
+      );
     },
     onSuccess: async (data) => {
       setToken(data.access_token);

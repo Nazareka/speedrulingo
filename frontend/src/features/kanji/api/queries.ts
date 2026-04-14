@@ -24,7 +24,9 @@ export function kanjiLessonsQueryOptions() {
         headers: authedRequestHeaders(),
         signal,
       });
-      return requireResponseData(result.data as KanjiLessonsResponse | undefined);
+      return requireResponseData(
+        result as { data: KanjiLessonsResponse | undefined; response: Response },
+      );
     },
     staleTime: 30_000,
   });
@@ -42,7 +44,9 @@ function kanjiDetailQueryOptions(kanjiChar: string | null) {
         path: { kanji_char: kanjiChar },
         signal,
       });
-      return requireResponseData(result.data as KanjiDetailResponse | undefined);
+      return requireResponseData(
+        result as { data: KanjiDetailResponse | undefined; response: Response },
+      );
     },
     enabled: kanjiChar !== null,
     staleTime: 30_000,
