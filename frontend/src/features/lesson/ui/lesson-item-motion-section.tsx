@@ -12,7 +12,11 @@ type LessonItemMotionSectionProps = {
   motionY: { exit: number; initial: number };
 };
 
-/** Shared Framer wrapper for the active lesson item card (AnimatePresence child). */
+/**
+ * Framer wrapper for the active lesson item card. When used under `AnimatePresence`, the **parent**
+ * must set React `key={currentItem.item_id}` on this component — a `key` only on the inner
+ * `motion.section` is not enough for exit/enter animations.
+ */
 export function LessonItemMotionSection(props: LessonItemMotionSectionProps) {
   const { itemKey, prefersReducedMotion, className, children, motionY } = props;
 

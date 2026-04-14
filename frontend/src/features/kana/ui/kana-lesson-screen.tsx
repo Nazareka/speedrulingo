@@ -184,6 +184,7 @@ function KanaLessonScreenBody(props: KanaLessonScreenBodyProps) {
         ) : null}
         <AnimatePresence initial={false} mode="wait">
           <LessonItemMotionSection
+            key={currentItem.item_id}
             className="rounded-[1.75rem] border border-[var(--lesson-border)] bg-[var(--lesson-surface)] p-6 shadow-[0_12px_30px_rgba(22,28,37,0.05)] md:p-8"
             itemKey={currentItem.item_id}
             motionY={{ exit: 8, initial: 12 }}

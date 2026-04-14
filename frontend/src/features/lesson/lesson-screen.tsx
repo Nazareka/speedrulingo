@@ -262,6 +262,7 @@ export function LessonScreen({ lessonId }: LessonScreenProps) {
       <main className="mx-auto max-w-5xl px-4 py-6 md:px-6 md:py-8">
         <AnimatePresence initial={false} mode="wait">
           <LessonItemMotionSection
+            key={currentItem.item_id}
             className="rounded-[1.6rem] border border-[var(--lesson-border)] bg-[var(--lesson-surface)] px-6 py-8 shadow-[0_12px_30px_rgba(22,28,37,0.045)] md:px-10 md:py-10"
             itemKey={currentItem.item_id}
             motionY={{ exit: -4, initial: 6 }}
