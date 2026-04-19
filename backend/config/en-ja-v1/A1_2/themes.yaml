@@ -4,8 +4,8 @@ themes:
       name: "Hobbies and free time"
     - code: "OUTINGS_AND_EVENTS"
       name: "Outings and events"
-    - code: "SHOPPING_AND_TRANSACTIONS"
-      name: "Shopping and transactions"
+    - code: "SHOPPING_PRICES_AND_TRANSACTIONS"
+      name: "Shopping, prices, and transactions"
   secondary:
     - code: "TRANSPORT_AND_TOWN"
       name: "Transport and town"

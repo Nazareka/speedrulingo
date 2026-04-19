@@ -42,9 +42,9 @@ def test_insert_bootstrap_seed_words_persists_words_and_section_scope(db_session
         "学生",
         "本",
     ]
-    assert persisted_words[2].is_bootstrap_seed is True
-    assert persisted_words[2].is_safe_pool is False
-    assert persisted_words[3].is_safe_pool is False
+    assert persisted_words[2].source_kind == "manual_seed"
+    assert persisted_words[2].generation_pipeline is None
+    assert persisted_words[3].generation_pipeline is None
 
     persisted_section_words = db_session.scalars(select(SectionWord.role).order_by(SectionWord.word_id)).all()
     assert sorted(persisted_section_words) == ["new", "new", "new", "new", "new", "new"]

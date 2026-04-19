@@ -35,8 +35,8 @@ class CurriculumWord:
     reading_kana: str
     pos: str
     intro_order: int
-    is_bootstrap_seed: bool
-    source_kind: str = "llm"
+    source_kind: str = "manual"
+    generation_pipeline: str | None = None
     theme_codes: tuple[str, ...] = ()
     example_pattern_codes: tuple[str, ...] = ()
 
@@ -151,8 +151,8 @@ class PlanningQueries(CourseVersionQueries):
                 reading_kana=row.reading_kana,
                 pos=row.pos,
                 intro_order=row.intro_order,
-                is_bootstrap_seed=row.is_bootstrap_seed,
                 source_kind=row.source_kind,
+                generation_pipeline=row.generation_pipeline,
                 theme_codes=theme_codes_by_word_id.get(row.id, ()),
                 example_pattern_codes=example_pattern_codes_by_word_id.get(row.id, ()),
             )
@@ -163,8 +163,8 @@ class PlanningQueries(CourseVersionQueries):
                     Word.reading_kana,
                     Word.pos,
                     Word.intro_order,
-                    Word.is_bootstrap_seed,
                     Word.source_kind,
+                    Word.generation_pipeline,
                 )
                 .where(Word.course_version_id == self.course_version_id)
                 .order_by(Word.intro_order)
@@ -385,7 +385,7 @@ class PlanningQueries(CourseVersionQueries):
                 .join(SectionWord, SectionWord.word_id == Word.id)
                 .where(
                     SectionWord.section_id == section_id,
-                    Word.is_bootstrap_seed.is_(True),
+                    Word.source_kind == "manual_seed",
                     Word.pos == "expression",
                 )
                 .order_by(Word.intro_order)

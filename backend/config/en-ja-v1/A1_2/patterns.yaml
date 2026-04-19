@@ -20,8 +20,8 @@ patterns:
     short_description: "Ability with hobbies, sports, languages, or instruments."
 
   - code: "O_KUDASAI"
-    min_extra_words: 2
-    max_extra_words: 5
+    min_extra_words: 3
+    max_extra_words: 6
     name: "X を ください"
     templates:
       - "X を ください"
@@ -120,8 +120,8 @@ patterns:
     short_description: "Going somewhere to do an activity."
 
   - code: "GA_HOSHII_DESU"
-    min_extra_words: 3
-    max_extra_words: 6
+    min_extra_words: 4
+    max_extra_words: 7
     name: "X が ほしいです"
     templates:
       - "X が ほしいです"
@@ -175,8 +175,8 @@ patterns:
     short_description: "Basic polite negative verb form."
 
   - code: "VERB_MASU_PAST"
-    min_extra_words: 4
-    max_extra_words: 8
+    min_extra_words: 5
+    max_extra_words: 9
     name: "Vました"
     templates:
       - "Vました"

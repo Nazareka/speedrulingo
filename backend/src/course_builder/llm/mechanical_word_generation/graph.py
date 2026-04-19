@@ -26,6 +26,7 @@ from course_builder.llm.mechanical_word_generation.prompts import MECHANICAL_WOR
 
 GENERATE: Final[Literal["generate_mechanical_words"]] = "generate_mechanical_words"
 MAX_ALTERNATE_GLOSSES: Final[int] = 2
+PROMPT_CACHE_KEY: Final[str] = "course_builder:mechanical_word_generation:v1"
 LOGGER = logging.getLogger(__name__)
 
 
@@ -85,9 +86,13 @@ async def generate_mechanical_words(
     prepared_input = state["prepared_input"]
     LOGGER.info("Mechanical word generation: requesting %s lexemes", len(prepared_input.lexemes))
     response_format = build_mechanical_word_generation_response_format(item_count=len(prepared_input.lexemes))
+    bound_llm = runtime.context["llm"].bind(prompt_cache_key=PROMPT_CACHE_KEY)
     llm = cast(
         StructuredOutputRunnable,
-        runtime.context["llm"].with_structured_output(response_format, method="json_schema"),
+        bound_llm.with_structured_output(  # type: ignore[attr-defined]  # LangChain bind() types erase chat-model helpers, but bound chat models still support structured output at runtime.
+            response_format,
+            method="json_schema",
+        ),
     )
     lexeme_lines = format_target_lexeme_lines(
         (lexeme.canonical_writing_ja, lexeme.reading_kana, lexeme.pos.value) for lexeme in prepared_input.lexemes

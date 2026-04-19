@@ -102,6 +102,7 @@ def list_completed_stage_identities(
         db.execute(
             select(CourseBuildStageRun.stage_index, CourseBuildStageRun.stage_name)
             .where(*filters)
+            .order_by(CourseBuildStageRun.stage_index)
             .distinct()
         )
         .tuples()

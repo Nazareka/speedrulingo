@@ -19,12 +19,13 @@ Example sentence rules:
   - en_text
 - Example sentences should be natural, useful, beginner-safe, and should use the generated word in its canonical writing. for example, use 私 not わたし
 - Example sentences must be ordinary Japanese utterances, not explanations about the target word itself.
-- Example sentence must use patterns from patterns_scope.
-- Use words only from existing_words.
-- Treat existing_words as a closed lexicon for example sentences.
-- Do not introduce any extra lemma that is not explicitly present in existing_words, including support verbs, light verbs, helper nouns, particles, or default collocations. The only exception is inflecting the target word itself when required by an allowed pattern.
+- Example sentence must use only patterns from patterns_scope. Do not use any grammar rules that are not explicitly present in patterns_scope.
+- Use words only from current_words.
+- Treat current_words as a closed lexicon for example sentences.
+- Do not introduce any extra lemma that is not explicitly present in current_words, including support verbs, light verbs, helper nouns, particles, or default collocations. The only exception is inflecting the target word itself when required by an allowed pattern.
 - Avoid unnatural, low-value, context-dependent, or overly dense combinations.
 - Avoid placeholder-like sentences.
+- Avoid fragment-like sentences.
 - Avoid category mistakes such as people being food or objects.
 - Avoid awkward beginner-Japanese errors such as malformed demonstrative usage, malformed question usage, or malformed possession usage.
 - Avoid overly literal English translations.
@@ -44,8 +45,8 @@ Example sentence rules:
 """
 
 HUMAN_PROMPT = """<anchored_word_generation_request>
-<patterns_scope>{patterns_scope}</patterns_scope>
 <current_words>{current_words}</current_words>
+<patterns_scope>{patterns_scope}</patterns_scope>
 <targets>{targets}</targets>
 </anchored_word_generation_request>"""
 ANCHORED_WORD_GENERATION_PROMPT: ChatPromptTemplate = build_chat_prompt(

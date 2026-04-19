@@ -4,7 +4,6 @@ from functools import lru_cache
 import logging
 from typing import Final, Literal, cast
 
-from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.graph import START, StateGraph
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.runtime import Runtime
@@ -46,7 +45,6 @@ class OutputState(TypedDict):
 
 class Context(TypedDict):
     config: CourseBuildConfig
-    llm: BaseChatModel
 
 
 class State(TypedDict):
@@ -112,7 +110,13 @@ async def run_current_pattern(
     for mechanical_batch in prepared.mechanical_batches:
         result = await mechanical_graph.ainvoke(
             {"prepared_input": mechanical_batch},
-            context={"config": runtime.context["config"], "llm": runtime.context["llm"]},
+            context={
+                "config": runtime.context["config"],
+                "llm": create_chat_openai(
+                    model=runtime.context["config"].llm.mechanical_word_generation.model,
+                    reasoning_effort=runtime.context["config"].llm.mechanical_word_generation.reasoning_effort,
+                ),
+            },
             config={"run_name": f"mechanicalWordGeneration:{prepared.pattern_code}"},
         )
         mechanical_result = cast(MechanicalWordGenerationResult, result["result"])
@@ -126,7 +130,13 @@ async def run_current_pattern(
                     update={"existing_words": existing_words},
                 )
             },
-            context={"config": runtime.context["config"], "llm": runtime.context["llm"]},
+            context={
+                "config": runtime.context["config"],
+                "llm": create_chat_openai(
+                    model=runtime.context["config"].llm.anchored_word_generation.model,
+                    reasoning_effort=runtime.context["config"].llm.anchored_word_generation.reasoning_effort,
+                ),
+            },
             config={"run_name": f"anchoredWordGeneration:{prepared.pattern_code}"},
         )
         anchored_result = cast(AnchoredWordGenerationResult, result["result"])
@@ -140,7 +150,13 @@ async def run_current_pattern(
                     update={"existing_words": existing_words},
                 )
             },
-            context={"config": runtime.context["config"], "llm": runtime.context["llm"]},
+            context={
+                "config": runtime.context["config"],
+                "llm": create_chat_openai(
+                    model=runtime.context["config"].llm.pattern_vocab_generation.model,
+                    reasoning_effort=runtime.context["config"].llm.pattern_vocab_generation.reasoning_effort,
+                ),
+            },
             config={"run_name": f"patternVocabGeneration:{prepared.pattern_code}"},
         )
         lexical_result = cast(PatternVocabGenerationResult, result["result"])
@@ -185,7 +201,6 @@ async def run_master_pattern_vocab_generation(
     if not prepared_input.prepared_patterns:
         return MasterPatternVocabGenerationResult()
     graph = get_master_pattern_vocab_graph()
-    llm = create_chat_openai(model=config.llm.pattern_vocab_generation_model)
     input_state: InputState = {
         "prepared_input": prepared_input,
         "pattern_index": 0,
@@ -194,7 +209,7 @@ async def run_master_pattern_vocab_generation(
     }
     result = await graph.ainvoke(
         input_state,
-        context={"config": config, "llm": llm},
+        context={"config": config},
         config={"run_name": "masterPatternVocabGeneration"},
     )
     return cast(MasterPatternVocabGenerationResult, result["result"])

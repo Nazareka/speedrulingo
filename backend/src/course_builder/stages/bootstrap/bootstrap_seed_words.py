@@ -38,9 +38,8 @@ def insert_bootstrap_seed_words(db: Session, *, context: BuildContext) -> Bootst
             gloss_alternatives_en=seed_word.gloss_alternatives_en,
             usage_note_en=seed_word.usage_note_en,
             pos=seed_word.pos.value,
-            is_safe_pool=False,
-            is_bootstrap_seed=is_seed_word,
             source_kind="manual_seed" if is_seed_word else "manual_support",
+            generation_pipeline=None,
         )
         words.append(word)
     db.add_all(words)
@@ -53,7 +52,7 @@ def insert_bootstrap_seed_words(db: Session, *, context: BuildContext) -> Bootst
             role="new",
         )
         for word in words
-        if word.is_bootstrap_seed
+        if word.source_kind == "manual_seed"
     ]
     db.add_all(section_words)
     db.commit()

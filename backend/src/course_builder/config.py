@@ -254,8 +254,15 @@ class RuntimeDistractorsConfig(StrictModel):
 
 
 class LlmConfig(StrictModel):
-    pattern_vocab_generation_model: str
-    unit_metadata_generation_model: str
+    mechanical_word_generation: LlmPipelineConfig
+    anchored_word_generation: LlmPipelineConfig
+    pattern_vocab_generation: LlmPipelineConfig
+    unit_metadata_generation: LlmPipelineConfig
+
+
+class LlmPipelineConfig(StrictModel):
+    model: str
+    reasoning_effort: str
 
 
 class CourseBuildConfig(StrictModel):
@@ -323,6 +330,28 @@ class CourseBuildConfig(StrictModel):
                         raise ValueError(msg)
                     example_lexeme_pos_by_key[lexeme_key] = lexeme.pos
             if pattern.code in scoped_pattern_codes:
+                if pattern.min_extra_words is None and pattern.max_extra_words is None:
+                    missing_non_generated_example_lexemes = sorted(
+
+                            f"{lexeme.canonical_writing_ja}/{lexeme.reading_kana}/{lexeme.pos.value}"
+                            for example in pattern.examples
+                            for lexeme in example.lexicon_used
+                            if not LexemePos.is_support(lexeme.pos)
+                            and (
+                                lexeme.canonical_writing_ja,
+                                lexeme.reading_kana,
+                                lexeme.pos,
+                            )
+                            not in bootstrap_word_keys
+
+                    )
+                    if missing_non_generated_example_lexemes:
+                        msg = (
+                            f"patterns[{pattern.code}] has example lexemes but no min_extra_words/max_extra_words; "
+                            "non-support example lexemes must be present in bootstrap_words: "
+                            f"{missing_non_generated_example_lexemes}"
+                        )
+                        raise ValueError(msg)
                 missing_anchor_refs = sorted(
                     (f"{anchor_ref.canonical_writing_ja}/{anchor_ref.reading_kana}/{anchor_ref.pos}")
                     for anchor_ref in pattern.anchor_word_refs

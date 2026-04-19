@@ -37,6 +37,7 @@ def _run_section_with_dbos_steps(
     request: BuildRequest,
     *,
     build_run_id: str | None = None,
+    resume_from_build_run_id: str | None = None,
     parent_build_run_id: str | None = None,
     workflow_id: str | None = None,
 ) -> SectionBuildSummary:
@@ -61,6 +62,7 @@ def _run_section_with_dbos_steps(
         request,
         stage_runner=dbos_stage_runner,
         build_run_id=build_run_id,
+        resume_from_build_run_id=resume_from_build_run_id,
         parent_build_run_id=parent_build_run_id,
         workflow_id=workflow_id,
     )
@@ -72,6 +74,7 @@ def build_section_workflow(
     build_version: int,
     section_code: str,
     all_stages: bool = True,
+    resume_from_build_run_id: str | None = None,
 ) -> SectionBuildSummary:
     return _run_section_with_dbos_steps(
         BuildRequest(
@@ -81,6 +84,7 @@ def build_section_workflow(
             all_stages=all_stages,
             all_sections=False,
         ),
+        resume_from_build_run_id=resume_from_build_run_id,
         workflow_id=DBOS.workflow_id,
     )
 

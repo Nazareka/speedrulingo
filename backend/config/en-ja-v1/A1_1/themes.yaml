@@ -2,8 +2,8 @@ themes:
   primary:
     - code: "HOME_AND_ROOMS"
       name: "Home and rooms"
-    - code: "DAILY_LIFE_AND_TIME"
-      name: "Daily life and time"
+    - code: "TIME_SCHEDULE_AND_NUMBERS"
+      name: "Time, schedule, and numbers"
     - code: "DESCRIPTION"
       name: "Description"
   secondary:

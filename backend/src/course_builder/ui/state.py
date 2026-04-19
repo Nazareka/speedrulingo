@@ -236,6 +236,34 @@ class CourseBuilderUIState(rx.State):
     def can_generate_selected_run_word_audio(self) -> bool:
         return self.can_generate_selected_run_audio
 
+    def _resume_source_build_run_id_for_request(self, request: BuildRequest) -> str | None:
+        if request.all_sections:
+            return None
+        if not request.all_stages:
+            return None
+        if request.section_code is None:
+            return None
+        selected_run = self.selected_run
+        if not isinstance(selected_run, dict) or not selected_run:
+            return None
+        if selected_run.get("scope_kind") != "section":
+            return None
+        if selected_run.get("status") not in {"failed", "cancelled"}:
+            return None
+        selected_run_id = selected_run.get("id")
+        selected_config_path = selected_run.get("config_path")
+        selected_build_version = selected_run.get("build_version")
+        selected_section_code = selected_run.get("section_code")
+        if not isinstance(selected_run_id, str) or not selected_run_id:
+            return None
+        if selected_config_path != str(request.config):
+            return None
+        if selected_build_version != request.build_version:
+            return None
+        if selected_section_code != request.section_code:
+            return None
+        return selected_run_id
+
     def set_config_path_value(self, value: str) -> None:
         self.config_path = value
         self._reload_available_section_codes()
@@ -341,15 +369,22 @@ class CourseBuilderUIState(rx.State):
                 request.all_stages,
             )
         else:
+            resume_source_build_run_id = self._resume_source_build_run_id_for_request(request)
             handle = DBOS.start_workflow(
                 build_section_workflow,  # type: ignore[arg-type]  # DBOS.start_workflow typing does not model overloads well.
                 str(request.config),
                 request.build_version,
                 request.section_code or "",
                 request.all_stages,
+                resume_source_build_run_id,
             )
         self.launched_workflow_id = handle.get_workflow_id()
-        self.launch_message = f"Started workflow {self.launched_workflow_id}"
+        if not request.all_sections and resume_source_build_run_id is not None:
+            self.launch_message = (
+                f"Started workflow {self.launched_workflow_id} from previous run {resume_source_build_run_id}"
+            )
+        else:
+            self.launch_message = f"Started workflow {self.launched_workflow_id}"
         self._reload_dashboard_data()
         return
 

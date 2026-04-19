@@ -41,6 +41,7 @@ VALIDATE_GENERATED_WORD_BATCH: Final[Literal["validate_generated_word_batch"]] =
 REQUIRED_EXAMPLE_SENTENCE_COUNT = 2
 END_NODE: Final[Literal["__end__"]] = "__end__"
 RouteAfterStateLoad = Literal["generate_pattern_vocab_with_model", "__end__"]
+PROMPT_CACHE_KEY: Final[str] = "course_builder:pattern_vocab_generation:v1"
 LOGGER = logging.getLogger(__name__)
 
 
@@ -119,9 +120,13 @@ async def generate_pattern_vocab_with_model(
         min_item_count=state["prepared_input"].min_words,
         max_item_count=state["prepared_input"].max_words,
     )
+    bound_llm = runtime.context["llm"].bind(prompt_cache_key=PROMPT_CACHE_KEY)
     llm = cast(
         StructuredOutputRunnable,
-        runtime.context["llm"].with_structured_output(response_format, method="json_schema"),
+        bound_llm.with_structured_output(  # type: ignore[attr-defined]  # LangChain bind() types erase chat-model helpers, but bound chat models still support structured output at runtime.
+            response_format,
+            method="json_schema",
+        ),
     )
     LOGGER.info(
         "Pattern vocab generation: requesting %s-%s words across %s allowed patterns",

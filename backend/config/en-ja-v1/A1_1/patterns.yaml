@@ -30,8 +30,8 @@ patterns:
     short_description: "Polite na-adjective predicate."
 
   - code: "ARIMASU_EXISTENCE"
-    min_extra_words: 4
-    max_extra_words: 7
+    min_extra_words: 6
+    max_extra_words: 9
     name: "X が あります"
     templates:
       - "X が あります"
@@ -124,8 +124,8 @@ patterns:
     short_description: "Topic plus location-of-existence statement."
 
   - code: "NI_TIME"
-    min_extra_words: 4
-    max_extra_words: 8
+    min_extra_words: 6
+    max_extra_words: 10
     name: "X に Vます"
     templates:
       - "TIME に Vます"
@@ -136,8 +136,8 @@ patterns:
     short_description: "Specific time marking."
 
   - code: "KARA_MADE_RANGE"
-    min_extra_words: 2
-    max_extra_words: 4
+    min_extra_words: 3
+    max_extra_words: 5
     name: "X から Y まで"
     templates:
       - "TIME から TIME まで"
@@ -152,8 +152,8 @@ patterns:
     short_description: "Range from A to B."
 
   - code: "GA_II_DESU"
-    min_extra_words: 3
-    max_extra_words: 6
+    min_extra_words: 4
+    max_extra_words: 7
     name: "X が いいです"
     templates:
       - "X が いいです"

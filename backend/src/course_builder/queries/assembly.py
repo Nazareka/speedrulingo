@@ -50,7 +50,6 @@ class WordPoolRow:
     word_id: str
     canonical_writing_ja: str
     intro_order: int
-    is_safe_pool: bool
 
 
 @dataclass(frozen=True, slots=True)
@@ -382,7 +381,6 @@ class AssemblyQueries(CourseVersionQueries):
                 Word.id,
                 Word.canonical_writing_ja,
                 Word.intro_order,
-                Word.is_safe_pool,
             )
             .join(source_lesson_word, source_lesson_word.word_id == Word.id)
             .join(source_lesson, source_lesson.id == source_lesson_word.lesson_id)
@@ -416,11 +414,10 @@ class AssemblyQueries(CourseVersionQueries):
                     word_id=row.id,
                     canonical_writing_ja=row.canonical_writing_ja,
                     intro_order=row.intro_order,
-                    is_safe_pool=row.is_safe_pool,
                 )
             )
         activation_word_rows = self.db.execute(
-            select(Word.id, Word.canonical_writing_ja, Word.intro_order, Word.is_safe_pool)
+            select(Word.id, Word.canonical_writing_ja, Word.intro_order)
             .join(LessonWord, LessonWord.word_id == Word.id)
             .join(Lesson, Lesson.id == LessonWord.lesson_id)
             .join(Unit, Unit.id == Lesson.unit_id)
@@ -441,7 +438,6 @@ class AssemblyQueries(CourseVersionQueries):
                     word_id=row.id,
                     canonical_writing_ja=row.canonical_writing_ja,
                     intro_order=row.intro_order,
-                    is_safe_pool=row.is_safe_pool,
                 )
             )
         pool.sort(key=lambda row: (row.intro_order, row.canonical_writing_ja))

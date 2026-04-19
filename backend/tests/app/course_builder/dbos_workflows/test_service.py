@@ -227,6 +227,83 @@ def test_run_section_until_done_returns_plain_summary(
     assert progress_updates == [0, 1]
 
 
+def test_run_section_until_done_seeds_completed_stages_into_new_run(
+    monkeypatch: pytest.MonkeyPatch,
+    db_session: Session,
+    tmp_path: Path,
+) -> None:
+    orchestrator = CourseBuildOrchestrator()
+    _insert_course_version(db_session)
+    source_build_run = CourseBuildRun(
+        workflow_id="workflow-source",
+        build_version=12,
+        config_path="config/en-ja-v1",
+        scope_kind="section",
+        section_code="PRE_A1",
+        status="failed",
+        all_stages=True,
+        total_stage_count=8,
+        course_version_id=COURSE_VERSION_ID,
+        completed_stage_count=1,
+    )
+    db_session.add(source_build_run)
+    db_session.flush()
+    source_stage_run = create_stage_run(
+        db_session,
+        build_run_id=source_build_run.id,
+        section_code="PRE_A1",
+        stage_name="create_course_build",
+        stage_index=0,
+    )
+    from course_builder.build_runs.run_state import mark_stage_run_completed
+
+    mark_stage_run_completed(source_stage_run)
+    db_session.commit()
+
+    monkeypatch.setattr(
+        "course_builder.build_runs.tracking.SessionLocal",
+        lambda: nullcontext(db_session),
+    )
+    monkeypatch.setattr(
+        "course_builder.engine.orchestration.SessionLocal",
+        lambda: nullcontext(db_session),
+    )
+
+    stage_calls: list[str] = []
+
+    def fake_stage_runner(**_: object) -> BuildStageRunResult:
+        stage_calls.append("bootstrap_catalog")
+        return BuildStageRunResult(
+            build_version=12,
+            course_version_id=COURSE_VERSION_ID,
+            completed_stage_name="bootstrap_catalog",
+            completed_stage_index=1,
+            remaining_stage_count=6,
+        )
+
+    summary = orchestrator.run_section_until_done(
+        BuildRequest(config=tmp_path / "config", build_version=12, section_code="PRE_A1", all_stages=False),
+        logger=logging.getLogger("test-course-builder"),
+        stage_runner=fake_stage_runner,
+        resume_from_build_run_id=source_build_run.id,
+    )
+
+    assert summary["build_run_id"] != source_build_run.id
+    assert summary["completed_stage"] == "bootstrap_catalog"
+    assert stage_calls == ["bootstrap_catalog"]
+
+    stage_runs = db_session.scalars(
+        select(CourseBuildStageRun)
+        .where(CourseBuildStageRun.build_run_id == summary["build_run_id"])
+        .order_by(CourseBuildStageRun.stage_index)
+    ).all()
+    assert [stage_run.stage_name for stage_run in stage_runs] == [
+        "create_course_build",
+        "bootstrap_catalog",
+    ]
+    assert [stage_run.status for stage_run in stage_runs] == ["completed", "completed"]
+
+
 def test_run_all_sections_until_done_skips_completed_sections(
     monkeypatch: pytest.MonkeyPatch,
     db_session: Session,

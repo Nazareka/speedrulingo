@@ -34,12 +34,14 @@ def build_japanese_sentence_analysis(*, sentence_ja: str, vocab: list[VocabItem]
 
 def tokenize_english_sentence(text: str) -> tuple[EnglishToken, ...]:
     normalized = normalize_english_sentence(text)
-    parts = re.findall(r"[^\W\d_]+(?:['\u2019][^\W\d_]+)?|\d+", normalized)
+    parts = re.findall(r"[^\W\d_]+(?:['\u2019][^\W\d_]+)?|\d+(?:[:./-]\d+)+|\d+", normalized)
     return tuple(
         EnglishToken(
-            surface=part,
-            lemma=part.lower(),
-            pos="number" if part.isdigit() else "word",
+            surface=re.sub(r"[:./-]", "", part) if any(separator in part for separator in ":./-") else part,
+            lemma=(re.sub(r"[:./-]", "", part) if any(separator in part for separator in ":./-") else part).lower(),
+            pos="number"
+            if (re.sub(r"[:./-]", "", part) if any(separator in part for separator in ":./-") else part).isdigit()
+            else "word",
         )
         for part in parts
     )

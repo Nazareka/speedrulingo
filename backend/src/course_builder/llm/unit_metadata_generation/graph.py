@@ -44,8 +44,8 @@ Graph = CompiledStateGraph[
 ]
 
 
-def create_chat_openai(*, model: str) -> object:
-    return _create_chat_openai(model=model)
+def create_chat_openai(*, model: str, reasoning_effort: str) -> object:
+    return _create_chat_openai(model=model, reasoning_effort=reasoning_effort)
 
 
 def generate_unit_metadata(state: State, runtime: Runtime[Context]) -> OutputState:
@@ -140,7 +140,10 @@ async def run_unit_metadata_generation(
     # Temporary stub while unit metadata prompt size is being reworked.
     # Previous call path:
     #
-    # llm = create_chat_openai(model=config.llm.unit_metadata_generation_model)
+    # llm = create_chat_openai(
+    #     model=config.llm.unit_metadata_generation.model,
+    #     reasoning_effort=config.llm.unit_metadata_generation.reasoning_effort,
+    # )
     # result = await graph.ainvoke(
     #     {"prepared_input": prepared_input},
     #     context={"config": config, "llm": llm},

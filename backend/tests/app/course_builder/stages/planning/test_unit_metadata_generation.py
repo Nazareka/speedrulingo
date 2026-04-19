@@ -54,7 +54,8 @@ def _make_word(
     reading: str,
     intro_order: int,
     pattern_code: str,
-    source_kind: str = "llm",
+    source_kind: str = "manual",
+    generation_pipeline: str | None = None,
     pos: str = "noun",
     example_pattern_codes: tuple[str, ...] | None = None,
 ) -> CurriculumWord:
@@ -64,8 +65,8 @@ def _make_word(
         reading_kana=reading,
         pos=pos,
         intro_order=intro_order,
-        is_bootstrap_seed=False,
         source_kind=source_kind,
+        generation_pipeline=generation_pipeline,
         example_pattern_codes=example_pattern_codes or (pattern_code,),
     )
 
@@ -146,6 +147,7 @@ def test_build_pattern_bundles_uses_origin_pattern_for_extra_words(tmp_path: Pat
             intro_order=2,
             pattern_code="KA_QUESTION",
             source_kind="pattern:KA_QUESTION",
+            generation_pipeline="pattern_vocab_generation",
             example_pattern_codes=("WA_DESU_STATEMENT", "KA_QUESTION"),
         ),
     ]
@@ -187,6 +189,7 @@ def test_build_pattern_bundles_keeps_new_expression_in_word_choice_intros(tmp_pa
             pattern_code="WA_DESU_STATEMENT",
             pos="expression",
             source_kind="pattern:WA_DESU_STATEMENT",
+            generation_pipeline="anchored_word_generation",
         ),
     ]
 
@@ -321,7 +324,11 @@ def test_generate_unit_metadata_persists_sentence_first_curriculum(
     import_section_config(db_session, context=context)
     insert_bootstrap_seed_words(db_session, context=context)
     unit_llm = SequentialStructuredLlm(payloads=[single_intro_unit_plan_payload()])
-    monkeypatch.setattr(unit_metadata_generation_graph, "create_chat_openai", lambda *, model: unit_llm)
+    monkeypatch.setattr(
+        unit_metadata_generation_graph,
+        "create_chat_openai",
+        lambda *, model, reasoning_effort: unit_llm,
+    )
 
     persist_section_curriculum(db_session, context=context)
     stats = generate_unit_metadata(db_session, context=context)

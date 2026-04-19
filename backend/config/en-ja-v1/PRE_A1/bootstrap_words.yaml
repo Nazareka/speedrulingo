@@ -10,9 +10,12 @@ bootstrap_words:
   - { canonical_writing_ja: "あなた", reading_kana: "あなた", gloss_primary_en: "you", gloss_alternatives_en: [], usage_note_en: "use carefully; often omitted in natural Japanese", pos: "pronoun" }
   - { canonical_writing_ja: "これ", reading_kana: "これ", gloss_primary_en: "this", gloss_alternatives_en: [], usage_note_en: "pronoun", pos: "pronoun" }
   - { canonical_writing_ja: "それ", reading_kana: "それ", gloss_primary_en: "that", gloss_alternatives_en: [], usage_note_en: "pronoun", pos: "pronoun" }
+  - { canonical_writing_ja: "あれ", reading_kana: "あれ", gloss_primary_en: "that over there", gloss_alternatives_en: [], usage_note_en: "pronoun", pos: "pronoun" }
   - { canonical_writing_ja: "何", reading_kana: "なに", gloss_primary_en: "what", gloss_alternatives_en: [], usage_note_en: "question word", pos: "pronoun" }
+  - { canonical_writing_ja: "誰", reading_kana: "だれ", gloss_primary_en: "who", gloss_alternatives_en: [], usage_note_en: "question word", pos: "pronoun" }
   - { canonical_writing_ja: "どこ", reading_kana: "どこ", gloss_primary_en: "where", gloss_alternatives_en: [], usage_note_en: "question word", pos: "pronoun" }
   - { canonical_writing_ja: "どれ", reading_kana: "どれ", gloss_primary_en: "which one", gloss_alternatives_en: [], usage_note_en: "question word", pos: "pronoun" }
+  - { canonical_writing_ja: "あの", reading_kana: "あの", gloss_primary_en: "that", gloss_alternatives_en: ["that over there"], usage_note_en: "modifier before noun", pos: "determiner" }
   - { canonical_writing_ja: "どの", reading_kana: "どの", gloss_primary_en: "which", gloss_alternatives_en: ["which + noun"], usage_note_en: "modifier before noun", pos: "determiner" }
   - { canonical_writing_ja: "その", reading_kana: "その", gloss_primary_en: "that", gloss_alternatives_en: [], usage_note_en: "modifier before noun", pos: "determiner" }
 
@@ -25,6 +28,13 @@ bootstrap_words:
   - { canonical_writing_ja: "先生", reading_kana: "せんせい", gloss_primary_en: "teacher", gloss_alternatives_en: ["instructor"], usage_note_en: null, pos: "noun" }
   - { canonical_writing_ja: "人", reading_kana: "ひと", gloss_primary_en: "person", gloss_alternatives_en: [], usage_note_en: null, pos: "noun" }
   - { canonical_writing_ja: "日本人", reading_kana: "にほんじん", gloss_primary_en: "Japanese person", gloss_alternatives_en: [], usage_note_en: "nationality noun", pos: "noun" }
+  - { canonical_writing_ja: "家族", reading_kana: "かぞく", gloss_primary_en: "family", gloss_alternatives_en: [], usage_note_en: null, pos: "noun" }
+  - { canonical_writing_ja: "父", reading_kana: "ちち", gloss_primary_en: "father", gloss_alternatives_en: [], usage_note_en: "humble/in-group family term", pos: "noun" }
+  - { canonical_writing_ja: "母", reading_kana: "はは", gloss_primary_en: "mother", gloss_alternatives_en: [], usage_note_en: "humble/in-group family term", pos: "noun" }
+  - { canonical_writing_ja: "弟", reading_kana: "おとうと", gloss_primary_en: "younger brother", gloss_alternatives_en: [], usage_note_en: null, pos: "noun" }
+  - { canonical_writing_ja: "三人", reading_kana: "さんにん", gloss_primary_en: "three people", gloss_alternatives_en: [], usage_note_en: "counter expression for people", pos: "noun" }
+  - { canonical_writing_ja: "四人", reading_kana: "よにん", gloss_primary_en: "four people", gloss_alternatives_en: [], usage_note_en: "counter expression for people", pos: "noun" }
+  - { canonical_writing_ja: "二歳", reading_kana: "にさい", gloss_primary_en: "two years old", gloss_alternatives_en: ["age two"], usage_note_en: "age expression", pos: "noun" }
 
   # names / countries commonly used in first lessons
   - { canonical_writing_ja: "山田", reading_kana: "やまだ", gloss_primary_en: "Yamada", gloss_alternatives_en: [], usage_note_en: "person name", pos: "proper_noun" }

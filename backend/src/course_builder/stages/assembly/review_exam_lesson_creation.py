@@ -116,7 +116,7 @@ def _attach_lesson_words(
             LessonWord(
                 lesson_id=lesson_id,
                 word_id=word.word_id,
-                role="safe_allowed" if word.is_safe_pool else "review",
+                role="review",
             )
         )
         created_count += 1

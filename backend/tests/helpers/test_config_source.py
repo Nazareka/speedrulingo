@@ -121,8 +121,18 @@ runtime_distractors:
     distractor_count: 2
 
 llm:
-  pattern_vocab_generation_model: "gpt-5.2"
-  unit_metadata_generation_model: "gpt-5.2"
+  mechanical_word_generation:
+    model: "gpt-5.2"
+    reasoning_effort: "medium"
+  anchored_word_generation:
+    model: "gpt-5.2"
+    reasoning_effort: "medium"
+  pattern_vocab_generation:
+    model: "gpt-5.2"
+    reasoning_effort: "medium"
+  unit_metadata_generation:
+    model: "gpt-5.2"
+    reasoning_effort: "medium"
 """
 
 

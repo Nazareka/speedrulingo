@@ -183,6 +183,7 @@ def generate_pattern_vocab(
                 context=context,
                 generated_words_payload=mechanical_result.words,
                 source_kind=f"pattern:{pattern_result.pattern_code}",
+                generation_pipeline="mechanical_word_generation",
             )
         for anchored_result in pattern_result.anchored_results:
             persist_generated_words(
@@ -190,6 +191,7 @@ def generate_pattern_vocab(
                 context=context,
                 generated_words_payload=tuple(anchored_result.words),
                 source_kind=f"pattern:{pattern_result.pattern_code}",
+                generation_pipeline="anchored_word_generation",
             )
             persist_generated_word_example_sentences(
                 db,
@@ -205,6 +207,7 @@ def generate_pattern_vocab(
             generated_words_payload=tuple(pattern_result.lexical_result.generated_words),
             assign_all_section_themes=True,
             source_kind=f"pattern:{pattern_result.pattern_code}",
+            generation_pipeline="pattern_vocab_generation",
         )
         persist_generated_word_example_sentences(
             db,

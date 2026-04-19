@@ -1,7 +1,7 @@
 section:
   title: "Starter basics"
   description: "Starter Japanese for self-introduction, simple identity statements, yes/no questions, possession with の, simple negation, first polite verbs, everyday actions, basic likes and dislikes, and saying where someone lives."
-  generation_description: "Prioritize the beginner reference-and-question toolkit very early. This section should introduce basic personal/object/location reference language. Keep examples concrete, short, and usable for identity, object identification, location questions, and possession."
+  generation_description: "Prioritize the beginner reference-and-question toolkit very early. This section should introduce basic personal, object, and location reference language, together with early family and personal-information language such as family size, age, and who someone is. Strongly prioritize functional question words and frames such as 何, 誰, どこ, どれ, どの, and concrete beginner questions built from them. De-prioritize polite directional alternatives such as こちら, そちら, あちら, and どちら unless they are required by examples."
   section_planning:
     min_sentence_introductions_per_normal_lesson: 4
     max_sentence_introductions_per_normal_lesson: 5

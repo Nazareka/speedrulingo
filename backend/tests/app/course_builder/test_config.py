@@ -137,3 +137,31 @@ def test_rejects_pattern_example_english_with_alternative_separator(tmp_path: Pa
 
     with pytest.raises(ValueError, match=r"pattern examples en must be one clean sentence"):
         CourseBuildConfigLoader.load_and_validate(write_config(tmp_path, invalid_yaml), section_code="PRE_A1")
+
+
+def test_rejects_non_generated_pattern_example_lexeme_missing_from_bootstrap(tmp_path: Path) -> None:
+    invalid_yaml = build_test_config_yaml(
+        appends={
+            ("patterns", 0, "examples"): [
+                {
+                    "ja": "家族は三人です。",
+                    "en": "There are three people in my family.",
+                    "lexicon_used": [
+                        {"canonical_writing_ja": "家族", "reading_kana": "かぞく", "pos": "noun"},
+                        {"canonical_writing_ja": "は", "reading_kana": "は", "pos": "particle"},
+                        {"canonical_writing_ja": "三人", "reading_kana": "さんにん", "pos": "noun"},
+                        {"canonical_writing_ja": "です", "reading_kana": "です", "pos": "copula"},
+                    ],
+                }
+            ]
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match=(
+            r"patterns\[WA_DESU_STATEMENT\] has example lexemes but no min_extra_words/max_extra_words; "
+            r"non-support example lexemes must be present in bootstrap_words: .*三人/さんにん/noun"
+        ),
+    ):
+        CourseBuildConfigLoader.load_and_validate(write_config(tmp_path, invalid_yaml), section_code="PRE_A1")

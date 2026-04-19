@@ -13,7 +13,11 @@ from course_builder.config import CourseBuildConfig
 from course_builder.llm.mechanical_word_generation import (
     get_mechanical_word_generation_graph,
 )
-from course_builder.llm.mechanical_word_generation.graph import Context as GraphContext, InputState as GraphInputState
+from course_builder.llm.mechanical_word_generation.graph import (
+    PROMPT_CACHE_KEY,
+    Context as GraphContext,
+    InputState as GraphInputState,
+)
 from course_builder.llm.mechanical_word_generation.models import (
     MechanicalLexemePromptInfo,
     MechanicalWordGenerationResult,
@@ -81,6 +85,7 @@ def test_mechanical_word_generation_graph_returns_metadata_for_requested_lexeme(
     assert len(result.words) == 1
     assert result.words[0].canonical_writing_ja == "さん"
     assert result.words[0].pos == LexemePos.SUFFIX
+    assert llm.bound_kwargs_history[-1] == {"prompt_cache_key": PROMPT_CACHE_KEY}
 
 
 def test_mechanical_word_generation_graph_rejects_changed_requested_identity(

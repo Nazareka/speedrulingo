@@ -249,12 +249,16 @@ class CourseBuildOrchestrator:
         progress_reporter: SectionProgressReporter | None = None,
         summary_reporter: SectionSummaryReporter | None = None,
         build_run_id: str | None = None,
+        resume_from_build_run_id: str | None = None,
         parent_build_run_id: str | None = None,
         workflow_id: str | None = None,
         requested_by: str | None = None,
     ) -> SectionBuildSummary:
         if request.section_code is None:
             msg = "Section build requires a section_code"
+            raise ValueError(msg)
+        if build_run_id is not None and resume_from_build_run_id is not None:
+            msg = "Cannot provide both build_run_id and resume_from_build_run_id"
             raise ValueError(msg)
         total_stage_count = len(get_build_stages()) + 1
         owns_build_run = build_run_id is None
@@ -266,6 +270,12 @@ class CourseBuildOrchestrator:
             workflow_id=workflow_id if parent_build_run_id is None else None,
             requested_by=requested_by,
         ).id
+        if build_run_id is None and resume_from_build_run_id is not None:
+            BuildRunTracking.seed_completed_stages_from_run(
+                source_build_run_id=resume_from_build_run_id,
+                target_build_run_id=active_build_run_id,
+                section_code=request.section_code,
+            )
         progress = self.read_build_progress(
             build_run_id=active_build_run_id,
             section_code=request.section_code,

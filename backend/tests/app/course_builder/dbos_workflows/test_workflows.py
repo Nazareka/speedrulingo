@@ -55,10 +55,12 @@ def test_build_section_workflow_uses_dbos_workflow_id_and_stage_step(
         *,
         stage_runner: Any,
         build_run_id: str | None = None,
+        resume_from_build_run_id: str | None = None,
         parent_build_run_id: str | None = None,
         workflow_id: str | None = None,
     ) -> SectionBuildSummary:
         assert request.section_code is not None
+        _ = resume_from_build_run_id
         calls["request"] = request
         calls["build_run_id"] = build_run_id
         calls["parent_build_run_id"] = parent_build_run_id
@@ -93,6 +95,7 @@ def test_build_section_workflow_uses_dbos_workflow_id_and_stage_step(
         build_version=9,
         section_code="PRE_A1",
         all_stages=True,
+        resume_from_build_run_id=None,
     )
 
     assert summary["section_code"] == "PRE_A1"
@@ -109,6 +112,62 @@ def test_build_section_workflow_uses_dbos_workflow_id_and_stage_step(
     assert calls["stage_result"].completed_stage_name == "create_course_build"
 
 
+def test_build_section_workflow_passes_resume_source_build_run_id(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    calls: dict[str, Any] = {}
+
+    class FakeDBOS:
+        workflow_id = "workflow-789"
+
+    def fake_run_section_until_done(
+        self: object,
+        request: BuildRequest,
+        *,
+        stage_runner: Any,
+        build_run_id: str | None = None,
+        resume_from_build_run_id: str | None = None,
+        parent_build_run_id: str | None = None,
+        workflow_id: str | None = None,
+    ) -> SectionBuildSummary:
+        _ = stage_runner
+        _ = parent_build_run_id
+        calls["build_run_id"] = build_run_id
+        calls["resume_from_build_run_id"] = resume_from_build_run_id
+        calls["workflow_id"] = workflow_id
+        return {
+            "build_run_id": "run-2",
+            "build_version": request.build_version,
+            "section_code": request.section_code or "PRE_A1",
+            "course_version_id": "course-version-1",
+            "completed_stage": "bootstrap_catalog",
+            "completed_stage_index": 1,
+            "remaining_stage_count": 6,
+            "ran_stage_count": 1,
+            "ran_stages": ["bootstrap_catalog"],
+            "was_noop": False,
+        }
+
+    monkeypatch.setattr("course_builder.workflows.course_build.DBOS", FakeDBOS)
+    monkeypatch.setattr(
+        "course_builder.workflows.course_build.CourseBuildOrchestrator.run_section_until_done",
+        fake_run_section_until_done,
+    )
+
+    summary = build_section_workflow.__wrapped__(  # type: ignore[attr-defined]  # DBOS preserves the wrapped function.
+        config="config/en-ja-v1",
+        build_version=9,
+        section_code="PRE_A1",
+        all_stages=True,
+        resume_from_build_run_id="build-run-42",
+    )
+
+    assert summary["build_run_id"] == "run-2"
+    assert calls["build_run_id"] is None
+    assert calls["resume_from_build_run_id"] == "build-run-42"
+    assert calls["workflow_id"] == "workflow-789"
+
+
 def test_build_all_sections_workflow_passes_section_runner_and_workflow_id(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -123,10 +182,12 @@ def test_build_all_sections_workflow_passes_section_runner_and_workflow_id(
         *,
         stage_runner: Any,
         build_run_id: str | None = None,
+        resume_from_build_run_id: str | None = None,
         parent_build_run_id: str | None = None,
         workflow_id: str | None = None,
     ) -> SectionBuildSummary:
         assert request.section_code is not None
+        _ = resume_from_build_run_id
         calls["section_request"] = request
         calls["section_build_run_id"] = build_run_id
         calls["section_parent_build_run_id"] = parent_build_run_id

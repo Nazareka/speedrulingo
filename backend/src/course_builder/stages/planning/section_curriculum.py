@@ -63,6 +63,14 @@ def _origin_pattern_code(*, source_kind: str) -> str | None:
     return None
 
 
+def _is_manual_bootstrap_word(*, word: CurriculumWord) -> bool:
+    return word.source_kind in {"manual_seed", "manual_support"}
+
+
+def _is_generated_word(*, word: CurriculumWord) -> bool:
+    return word.generation_pipeline is not None
+
+
 def _is_nonverb_kanji_word(*, word: CurriculumWord) -> bool:
     if word.pos == "verb":
         return False
@@ -170,7 +178,7 @@ def build_pattern_bundles(
             [
                 word.canonical_writing_ja
                 for word in words_by_lemma.values()
-                if not word.is_bootstrap_seed
+                if _is_generated_word(word=word)
                 and _origin_pattern_code(source_kind=word.source_kind) == pattern.code
                 and word.canonical_writing_ja not in example_lexical_lemmas
             ]
@@ -204,7 +212,7 @@ def build_pattern_bundles(
         [
             word
             for word in words_by_lemma.values()
-            if not word.is_bootstrap_seed and word.canonical_writing_ja not in known_word_lemmas
+            if not _is_manual_bootstrap_word(word=word) and word.canonical_writing_ja not in known_word_lemmas
         ],
         key=lambda word: (word.intro_order, word.canonical_writing_ja),
     )

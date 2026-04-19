@@ -13,7 +13,11 @@ from course_builder.config import AnchorWordRefConfig, CourseBuildConfig
 from course_builder.llm.anchored_word_generation import (
     get_anchored_word_generation_graph,
 )
-from course_builder.llm.anchored_word_generation.graph import Context as GraphContext, InputState as GraphInputState
+from course_builder.llm.anchored_word_generation.graph import (
+    PROMPT_CACHE_KEY,
+    Context as GraphContext,
+    InputState as GraphInputState,
+)
 from course_builder.llm.anchored_word_generation.models import (
     AnchoredWordGenerationResult,
     PreparedAnchoredWordGenerationInput,
@@ -113,6 +117,7 @@ def test_anchored_word_generation_graph_returns_metadata_for_requested_lexeme(
     assert len(result.words) == 1
     assert result.words[0].canonical_writing_ja == "みせ"
     assert result.words[0].pos == LexemePos.NOUN
+    assert llm.bound_kwargs_history[-1] == {"prompt_cache_key": PROMPT_CACHE_KEY}
     prompt_text = "\n".join(getattr(message, "content", "") for message in llm.messages[0])
     assert "<patterns_scope>WA_DESU_STATEMENT | templates=X は Y です</patterns_scope>" in prompt_text
     assert prompt_text.index("<patterns_scope>") < prompt_text.index("<targets>")

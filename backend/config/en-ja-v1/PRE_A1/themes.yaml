@@ -4,10 +4,10 @@ themes:
       name: "Self and people"
     - code: "REFERENCE_AND_QUESTIONS"
       name: "Reference and questions"
+    - code: "FAMILY_AND_PERSONAL_INFO"
+      name: "Family and personal information"
+  secondary:
     - code: "EVERYDAY_THINGS"
       name: "Everyday things"
-  secondary:
     - code: "PLACES_AND_LOCATIONS"
       name: "Places and locations"
-    - code: "FOOD_AND_PREFERENCES"
-      name: "Food and preferences"

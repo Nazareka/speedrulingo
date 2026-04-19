@@ -46,7 +46,11 @@ def build_sentence_ready_course(
     build_seeded_section(db_session=db_session, context=context)
 
     unit_llm = SequentialStructuredLlm(payloads=unit_payloads)
-    monkeypatch.setattr(unit_metadata_generation_graph, "create_chat_openai", lambda *, model: unit_llm)
+    monkeypatch.setattr(
+        unit_metadata_generation_graph,
+        "create_chat_openai",
+        lambda *, model, reasoning_effort: unit_llm,
+    )
     persist_section_curriculum(db_session, context=context)
     generate_unit_metadata(db_session, context=context)
     plan_normal_lessons(db_session, context=context)

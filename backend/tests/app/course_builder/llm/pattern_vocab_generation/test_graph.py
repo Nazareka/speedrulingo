@@ -16,6 +16,7 @@ from course_builder.llm.pattern_vocab_generation import (
     get_pattern_vocab_graph,
 )
 from course_builder.llm.pattern_vocab_generation.graph import (
+    PROMPT_CACHE_KEY,
     Context as GraphContext,
     InputState as GraphInputState,
 )
@@ -203,6 +204,7 @@ def test_pattern_vocab_generation_graph_accepts_single_bounded_batch(
     assert result.iterations == 1
     assert result.inventory_complete is True
     assert [word.canonical_writing_ja for word in result.generated_words] == ["くるま", "まち"]
+    assert llm.bound_kwargs_history[-1] == {"prompt_cache_key": PROMPT_CACHE_KEY}
     message_text = "\n".join(getattr(message, "content", "") for message in llm.messages[0])
     assert "<existing_words>" in message_text
     assert "<validation_feedback>" not in message_text

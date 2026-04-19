@@ -107,6 +107,7 @@ def persist_generated_mechanical_words(
     context: BuildContext,
     generated_words_payload: list[MechanicalWordPayload],
     source_kind: str = "llm",
+    generation_pipeline: str = "mechanical_word_generation",
 ) -> int:
     if not generated_words_payload:
         return 0
@@ -131,9 +132,8 @@ def persist_generated_mechanical_words(
             gloss_alternatives_en=candidate.gloss_alternatives_en,
             usage_note_en=candidate.usage_note_en,
             pos=candidate.pos.value,
-            is_safe_pool=False,
-            is_bootstrap_seed=False,
             source_kind=source_kind,
+            generation_pipeline=generation_pipeline,
         )
         db.add(word)
         db.flush()
@@ -152,6 +152,7 @@ def persist_generated_words(
     generated_words_payload: tuple[AnchoredWordPayload | WordBatchItemPayload, ...],
     assign_all_section_themes: bool = False,
     source_kind: str = "llm",
+    generation_pipeline: str = "pattern_vocab_generation",
 ) -> int:
     if not generated_words_payload:
         return 0
@@ -189,9 +190,8 @@ def persist_generated_words(
             gloss_alternatives_en=candidate.gloss_alternatives_en,
             usage_note_en=candidate.usage_note_en,
             pos=candidate.pos.value,
-            is_safe_pool=False,
-            is_bootstrap_seed=False,
             source_kind=source_kind,
+            generation_pipeline=generation_pipeline,
         )
         db.add(word)
         db.flush()
@@ -288,6 +288,8 @@ def persist_generated_word_example_sentences(
                     en_text=normalized_en_text,
                     target_word_id=generated_word.id,
                     target_pattern_id=None,
+                    source_kind=generated_word.source_kind,
+                    generation_pipeline=generated_word.generation_pipeline,
                 )
                 db.add(sentence_row)
                 db.flush()

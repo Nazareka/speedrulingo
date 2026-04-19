@@ -11,6 +11,7 @@ class SequentialStructuredLlm:
         self._payloads = payloads
         self.calls = 0
         self.messages: list[list[BaseMessage]] = []
+        self.bound_kwargs_history: list[dict[str, object]] = []
         self._record_messages = record_messages
         self._schema: object | None = None
 
@@ -24,6 +25,10 @@ class SequentialStructuredLlm:
         _ = method
         _ = kwargs
         self._schema = schema
+        return self
+
+    def bind(self, **kwargs: object) -> SequentialStructuredLlm:
+        self.bound_kwargs_history.append(dict(kwargs))
         return self
 
     def invoke(self, messages: object) -> object:

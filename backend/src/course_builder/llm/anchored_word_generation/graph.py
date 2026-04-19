@@ -32,6 +32,7 @@ from course_builder.sentence_processing import VocabItem, build_japanese_sentenc
 from course_builder.sentence_processing.errors import UnsupportedSentenceStructureError
 
 GENERATE: Final[Literal["generate_anchored_words"]] = "generate_anchored_words"
+PROMPT_CACHE_KEY: Final[str] = "course_builder:anchored_word_generation:v1"
 LOGGER = logging.getLogger(__name__)
 
 
@@ -70,9 +71,13 @@ async def generate_anchored_words(state: State, runtime: Runtime[Context]) -> Ou
         len(prepared_input.allowed_pattern_codes),
     )
     response_format = build_anchored_word_generation_response_format(item_count=len(prepared_input.targets))
+    bound_llm = runtime.context["llm"].bind(prompt_cache_key=PROMPT_CACHE_KEY)
     llm = cast(
         StructuredOutputRunnable,
-        runtime.context["llm"].with_structured_output(response_format, method="json_schema"),
+        bound_llm.with_structured_output(  # type: ignore[attr-defined]  # LangChain bind() types erase chat-model helpers, but bound chat models still support structured output at runtime.
+            response_format,
+            method="json_schema",
+        ),
     )
     target_lines = format_target_lexeme_lines(
         (target.canonical_writing_ja, target.reading_kana, target.pos.value) for target in prepared_input.targets

@@ -113,28 +113,15 @@ pattern_examples:
 
   - code: ARIMASU_EXISTENCE
     examples:
-      - ja: 本があります。
-        en: There is a book.
-        lexicon_used:
-          - canonical_writing_ja: 本
-            reading_kana: ほん
-            pos: noun
-          - canonical_writing_ja: が
-            reading_kana: が
-            pos: particle
-          - canonical_writing_ja: ある
-            reading_kana: ある
-            pos: verb
-          - canonical_writing_ja: ます
-            reading_kana: ます
-            pos: auxiliary
-
-      - ja: 机があります。
-        en: There is a desk.
+      - ja: 机が一つあります。
+        en: There is one desk.
         lexicon_used:
           - canonical_writing_ja: 机
             reading_kana: つくえ
             pos: noun
+          - canonical_writing_ja: 一つ
+            reading_kana: ひとつ
+            pos: noun
           - canonical_writing_ja: が
             reading_kana: が
             pos: particle
@@ -145,11 +132,30 @@ pattern_examples:
             reading_kana: ます
             pos: auxiliary
 
-      - ja: 水があります。
-        en: There is water.
+      - ja: 椅子が二つあります。
+        en: There are two chairs.
         lexicon_used:
-          - canonical_writing_ja: 水
-            reading_kana: みず
+          - canonical_writing_ja: 椅子
+            reading_kana: いす
+            pos: noun
+          - canonical_writing_ja: 二つ
+            reading_kana: ふたつ
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: ある
+            reading_kana: ある
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+
+      - ja: 時計があります。
+        en: There is a clock.
+        lexicon_used:
+          - canonical_writing_ja: 時計
+            reading_kana: とけい
             pos: noun
           - canonical_writing_ja: が
             reading_kana: が
@@ -195,11 +201,14 @@ pattern_examples:
             reading_kana: ます
             pos: auxiliary
 
-      - ja: 友達がいます。
-        en: There is a friend.
+      - ja: 友達が二人います。
+        en: There are two friends.
         lexicon_used:
           - canonical_writing_ja: 友達
             reading_kana: ともだち
+            pos: noun
+          - canonical_writing_ja: 二人
+            reading_kana: ふたり
             pos: noun
           - canonical_writing_ja: が
             reading_kana: が
@@ -213,8 +222,8 @@ pattern_examples:
 
   - code: NI_LOCATION_EXISTENCE
     examples:
-      - ja: 部屋に机があります。
-        en: There is a desk in the room.
+      - ja: 部屋に椅子が二つあります。
+        en: There are two chairs in the room.
         lexicon_used:
           - canonical_writing_ja: 部屋
             reading_kana: へや
@@ -222,8 +231,11 @@ pattern_examples:
           - canonical_writing_ja: に
             reading_kana: に
             pos: particle
-          - canonical_writing_ja: 机
-            reading_kana: つくえ
+          - canonical_writing_ja: 椅子
+            reading_kana: いす
+            pos: noun
+          - canonical_writing_ja: 二つ
+            reading_kana: ふたつ
             pos: noun
           - canonical_writing_ja: が
             reading_kana: が
@@ -257,11 +269,11 @@ pattern_examples:
             reading_kana: ます
             pos: auxiliary
 
-      - ja: 学校に先生がいます。
-        en: There is a teacher at school.
+      - ja: 教室に先生がいます。
+        en: There is a teacher in the classroom.
         lexicon_used:
-          - canonical_writing_ja: 学校
-            reading_kana: がっこう
+          - canonical_writing_ja: 教室
+            reading_kana: きょうしつ
             pos: noun
           - canonical_writing_ja: に
             reading_kana: に
@@ -334,23 +346,23 @@ pattern_examples:
             reading_kana: ます
             pos: auxiliary
 
-      - ja: 猫は部屋にいます。
-        en: The cat is in the room.
+      - ja: テレビはリビングにあります。
+        en: The television is in the living room.
         lexicon_used:
-          - canonical_writing_ja: 猫
-            reading_kana: ねこ
+          - canonical_writing_ja: テレビ
+            reading_kana: てれび
             pos: noun
           - canonical_writing_ja: は
             reading_kana: は
             pos: particle
-          - canonical_writing_ja: 部屋
-            reading_kana: へや
+          - canonical_writing_ja: リビング
+            reading_kana: りびんぐ
             pos: noun
           - canonical_writing_ja: に
             reading_kana: に
             pos: particle
-          - canonical_writing_ja: いる
-            reading_kana: いる
+          - canonical_writing_ja: ある
+            reading_kana: ある
             pos: verb
           - canonical_writing_ja: ます
             reading_kana: ます
@@ -358,6 +370,25 @@ pattern_examples:
 
   - code: NI_TIME
     examples:
+      - ja: 何時に起きますか。
+        en: What time do you get up?
+        lexicon_used:
+          - canonical_writing_ja: 何時
+            reading_kana: なんじ
+            pos: noun
+          - canonical_writing_ja: に
+            reading_kana: に
+            pos: particle
+          - canonical_writing_ja: 起きる
+            reading_kana: おきる
+            pos: verb
+          - canonical_writing_ja: ます
+            reading_kana: ます
+            pos: auxiliary
+          - canonical_writing_ja: か
+            reading_kana: か
+            pos: particle
+
       - ja: 私は七時に起きます。
         en: I get up at seven.
         lexicon_used:
@@ -375,31 +406,6 @@ pattern_examples:
             pos: particle
           - canonical_writing_ja: 起きる
             reading_kana: おきる
-            pos: verb
-          - canonical_writing_ja: ます
-            reading_kana: ます
-            pos: auxiliary
-
-      - ja: ケンさんは九時に寝ます。
-        en: Ken goes to bed at nine.
-        lexicon_used:
-          - canonical_writing_ja: ケン
-            reading_kana: けん
-            pos: proper_noun
-          - canonical_writing_ja: さん
-            reading_kana: さん
-            pos: suffix
-          - canonical_writing_ja: は
-            reading_kana: は
-            pos: particle
-          - canonical_writing_ja: 九時
-            reading_kana: くじ
-            pos: noun
-          - canonical_writing_ja: に
-            reading_kana: に
-            pos: particle
-          - canonical_writing_ja: 寝る
-            reading_kana: ねる
             pos: verb
           - canonical_writing_ja: ます
             reading_kana: ます
@@ -432,8 +438,8 @@ pattern_examples:
 
   - code: KARA_MADE_RANGE
     examples:
-      - ja: 学校は九時から三時までです。
-        en: School is from nine to three.
+      - ja: 学校は午前九時から午後三時までです。
+        en: School is from nine in the morning to three in the afternoon.
         lexicon_used:
           - canonical_writing_ja: 学校
             reading_kana: がっこう
@@ -441,12 +447,18 @@ pattern_examples:
           - canonical_writing_ja: は
             reading_kana: は
             pos: particle
+          - canonical_writing_ja: 午前
+            reading_kana: ごぜん
+            pos: noun
           - canonical_writing_ja: 九時
             reading_kana: くじ
             pos: noun
           - canonical_writing_ja: から
             reading_kana: から
             pos: particle
+          - canonical_writing_ja: 午後
+            reading_kana: ごご
+            pos: noun
           - canonical_writing_ja: 三時
             reading_kana: さんじ
             pos: noun
@@ -509,6 +521,25 @@ pattern_examples:
 
   - code: GA_II_DESU
     examples:
+      - ja: いつがいいですか。
+        en: When is good for you?
+        lexicon_used:
+          - canonical_writing_ja: いつ
+            reading_kana: いつ
+            pos: noun
+          - canonical_writing_ja: が
+            reading_kana: が
+            pos: particle
+          - canonical_writing_ja: いい
+            reading_kana: いい
+            pos: adjective_i
+          - canonical_writing_ja: です
+            reading_kana: です
+            pos: copula
+          - canonical_writing_ja: か
+            reading_kana: か
+            pos: particle
+
       - ja: 金曜日がいいです。
         en: Friday is good for me.
         lexicon_used:
@@ -525,27 +556,14 @@ pattern_examples:
             reading_kana: です
             pos: copula
 
-      - ja: 七時がいいです。
-        en: Seven o'clock is good.
+      - ja: 八時半がいいです。
+        en: Eight thirty is good.
         lexicon_used:
-          - canonical_writing_ja: 七時
-            reading_kana: しちじ
+          - canonical_writing_ja: 八時
+            reading_kana: はちじ
             pos: noun
-          - canonical_writing_ja: が
-            reading_kana: が
-            pos: particle
-          - canonical_writing_ja: いい
-            reading_kana: いい
-            pos: adjective_i
-          - canonical_writing_ja: です
-            reading_kana: です
-            pos: copula
-
-      - ja: 日曜日がいいです。
-        en: Sunday is good.
-        lexicon_used:
-          - canonical_writing_ja: 日曜日
-            reading_kana: にちようび
+          - canonical_writing_ja: 半
+            reading_kana: はん
             pos: noun
           - canonical_writing_ja: が
             reading_kana: が

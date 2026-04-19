@@ -85,7 +85,7 @@ def _configure_llm_cache() -> None:
     set_llm_cache(HashedSQLAlchemyCache(create_engine(cache_database_url, pool_pre_ping=True)))
 
 
-def create_chat_openai(*, model: str) -> ChatOpenAI:
+def create_chat_openai(*, model: str, reasoning_effort: str) -> ChatOpenAI:
     _configure_llm_cache()
     settings = get_settings()
     api_key = settings.openai_api_key
@@ -95,7 +95,7 @@ def create_chat_openai(*, model: str) -> ChatOpenAI:
     return ChatOpenAI(
         model=model,
         api_key=api_key.get_secret_value(),
-        reasoning={"effort": "low"},
+        reasoning={"effort": reasoning_effort},
         base_url=settings.openai_base_url,
         timeout=settings.llm_timeout_seconds,
     )

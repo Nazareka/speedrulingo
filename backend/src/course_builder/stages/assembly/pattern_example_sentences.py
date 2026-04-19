@@ -199,6 +199,8 @@ def persist_pattern_example_sentences(
                     en_text=normalized_en_text,
                     target_word_id=None,
                     target_pattern_id=target_pattern_id,
+                    source_kind="config_example",
+                    generation_pipeline=None,
                 )
                 db.add(sentence_row)
                 db.flush()

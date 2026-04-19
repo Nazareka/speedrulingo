@@ -330,12 +330,10 @@ class Word(Base):
     usage_note_en: Mapped[str | None] = mapped_column(Text, nullable=True)
     # * `pos text not null` — part of speech.
     pos: Mapped[str] = mapped_column(Text, nullable=False)
-    # * `is_safe_pool bool not null default false` — whether the word is part of the configured safe/support subset.
-    is_safe_pool: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
-    # * `is_bootstrap_seed bool not null default false` — whether the word came from bootstrap seed config.
-    is_bootstrap_seed: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False, server_default="false")
-    # * `source_kind text not null default 'llm'` — origin marker such as `llm|manual_seed|manual_support|pattern:<code>`.
-    source_kind: Mapped[str] = mapped_column(Text, nullable=False, default="llm", server_default="llm")
+    # * `source_kind text not null default 'manual'` — origin marker such as `manual_seed|manual_support|config_example|pattern:<code>`.
+    source_kind: Mapped[str] = mapped_column(Text, nullable=False, default="manual", server_default="manual")
+    # * `generation_pipeline text null` — LLM pipeline that generated the word, if any.
+    generation_pipeline: Mapped[str | None] = mapped_column(Text, nullable=True)
     # * `unique (course_version_id, intro_order)` — stable intro order.
     # * `unique (course_version_id, canonical_writing_ja, reading_kana)` — prevents duplicate lexemes.
 
@@ -698,6 +696,10 @@ class Sentence(Base):
         ForeignKey("patterns.id", ondelete="SET NULL"),
         nullable=True,
     )
+    # * `source_kind text not null default 'manual'` — origin marker such as `config_example|pattern:<code>|manual`.
+    source_kind: Mapped[str] = mapped_column(Text, nullable=False, default="manual", server_default="manual")
+    # * `generation_pipeline text null` — LLM pipeline that generated the sentence, if any.
+    generation_pipeline: Mapped[str | None] = mapped_column(Text, nullable=True)
     # * `unique (course_version_id, ja_text, en_text, target_word_id, target_pattern_id)` — one row per target context.
 
 

@@ -40,7 +40,11 @@ def test_plan_normal_lessons_persists_normal_lessons_for_all_units(
     insert_bootstrap_seed_words(db_session, context=context)
 
     unit_llm = FakeStructuredLlm(payloads=[single_intro_unit_plan_payload()])
-    monkeypatch.setattr(unit_metadata_generation_graph, "create_chat_openai", lambda *, model: unit_llm)
+    monkeypatch.setattr(
+        unit_metadata_generation_graph,
+        "create_chat_openai",
+        lambda *, model, reasoning_effort: unit_llm,
+    )
     persist_section_curriculum(db_session, context=context)
     generate_unit_metadata(db_session, context=context)
 

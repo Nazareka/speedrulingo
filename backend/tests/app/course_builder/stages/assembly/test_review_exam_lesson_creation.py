@@ -206,7 +206,7 @@ def test_create_algorithmic_review_exam_lessons_skips_exam_when_unit_has_no_curr
     def fake_list_word_pool(self: object, *, unit_ids: list[str]) -> list[WordPoolRow]:
         if unit_ids == [second_unit.id]:
             return []
-        return [WordPoolRow(word_id=word_id, canonical_writing_ja="学生", intro_order=1, is_safe_pool=False)]
+        return [WordPoolRow(word_id=word_id, canonical_writing_ja="学生", intro_order=1)]
 
     def fake_list_pattern_pool(self: object, *, unit_ids: list[str]) -> list[PatternPoolRow]:
         if unit_ids == [second_unit.id]:

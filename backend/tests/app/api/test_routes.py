@@ -686,6 +686,8 @@ def test_sqladmin_can_wipe_all_sentence_audio(
             en_text="This is a test.",
             target_word_id=None,
             target_pattern_id=None,
+            source_kind="manual",
+            generation_pipeline=None,
         )
         audio_dir = tmp_path / "sentence-audio-admin-test" / "elevenlabs" / "voice-1"
         audio_dir.mkdir(parents=True, exist_ok=True)
@@ -795,9 +797,8 @@ def test_sqladmin_can_wipe_all_word_audio(
             gloss_alternatives_en=[],
             usage_note_en=None,
             pos="noun",
-            is_safe_pool=False,
-            is_bootstrap_seed=False,
             source_kind="manual",
+            generation_pipeline=None,
         )
         audio_dir = tmp_path / "word-audio-admin-test" / "elevenlabs" / "voice-1"
         audio_dir.mkdir(parents=True, exist_ok=True)

@@ -397,3 +397,9 @@ def test_tokenize_english_sentence_normalizes_dotted_abbreviations() -> None:
     tokens = tokenize_english_sentence("I go home at 3 p.m.")
 
     assert [token.surface for token in tokens] == ["I", "go", "home", "at", "3", "pm"]
+
+
+def test_tokenize_english_sentence_keeps_compound_numbers_as_one_tile_token() -> None:
+    tokens = tokenize_english_sentence("I wake up at 8:20.")
+
+    assert [token.surface for token in tokens] == ["I", "wake", "up", "at", "820"]

@@ -75,7 +75,11 @@ def test_generate_pattern_vocab_noops_when_inventory_already_complete(
     insert_bootstrap_seed_words(db_session, context=context)
     llm = FakeStructuredLlm(payloads=[])
 
-    monkeypatch.setattr(master_pattern_vocab_generation_graph, "create_chat_openai", lambda *, model: llm)
+    monkeypatch.setattr(
+        master_pattern_vocab_generation_graph,
+        "create_chat_openai",
+        lambda *, model, reasoning_effort: llm,
+    )
     stats = generate_pattern_vocab(db_session, context=context)
 
     assert stats == PatternVocabGenerationStats(
@@ -122,7 +126,11 @@ def test_generate_pattern_vocab_inserts_generated_words_when_needed(
         ]
     )
 
-    monkeypatch.setattr(master_pattern_vocab_generation_graph, "create_chat_openai", lambda *, model: llm)
+    monkeypatch.setattr(
+        master_pattern_vocab_generation_graph,
+        "create_chat_openai",
+        lambda *, model, reasoning_effort: llm,
+    )
     stats = generate_pattern_vocab(db_session, context=context)
 
     assert stats == PatternVocabGenerationStats(
@@ -197,7 +205,11 @@ def test_generate_pattern_vocab_rejects_duplicate_generated_lemma(
         ]
     )
 
-    monkeypatch.setattr(master_pattern_vocab_generation_graph, "create_chat_openai", lambda *, model: llm)
+    monkeypatch.setattr(
+        master_pattern_vocab_generation_graph,
+        "create_chat_openai",
+        lambda *, model, reasoning_effort: llm,
+    )
     with pytest.raises(ValueError, match=r"already exists in inventory|existing lemma"):
         generate_pattern_vocab(db_session, context=context)
     assert llm.calls >= 1
@@ -238,7 +250,11 @@ def test_test_runner_runs_word_generation_step(
             PatternVocabGenerationStage(),
         ]
     )
-    monkeypatch.setattr(master_pattern_vocab_generation_graph, "create_chat_openai", lambda *, model: llm)
+    monkeypatch.setattr(
+        master_pattern_vocab_generation_graph,
+        "create_chat_openai",
+        lambda *, model, reasoning_effort: llm,
+    )
 
     context = runner.run(db=db_session, config=config)
 
@@ -301,7 +317,11 @@ def test_generate_pattern_vocab_generates_missing_pattern_example_lexeme_before_
             }
         ]
     )
-    monkeypatch.setattr(master_pattern_vocab_generation_graph, "create_chat_openai", lambda *, model: llm)
+    monkeypatch.setattr(
+        master_pattern_vocab_generation_graph,
+        "create_chat_openai",
+        lambda *, model, reasoning_effort: llm,
+    )
 
     stats = generate_pattern_vocab(db_session, context=context)
 

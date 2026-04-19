@@ -303,7 +303,6 @@ def test_build_normal_lesson_item_specs_puts_kanji_intro_before_sentences(
             usage_note_en=None,
             pos="noun",
             intro_order=1,
-            is_bootstrap_seed=False,
             source_kind="config_example",
         )
     ]
@@ -378,7 +377,6 @@ def test_build_normal_lesson_item_specs_for_kanji_activation_builds_kana_to_kanj
             usage_note_en=None,
             pos="noun",
             intro_order=1,
-            is_bootstrap_seed=False,
             source_kind="config_example",
         )
     ]
@@ -487,7 +485,6 @@ def test_build_normal_lesson_item_specs_does_not_add_review_filler_word_choices(
             usage_note_en=None,
             pos="noun",
             intro_order=1,
-            is_bootstrap_seed=False,
             source_kind="config_example",
         ),
         Word(
@@ -500,7 +497,6 @@ def test_build_normal_lesson_item_specs_does_not_add_review_filler_word_choices(
             usage_note_en=None,
             pos="noun",
             intro_order=2,
-            is_bootstrap_seed=False,
             source_kind="config_example",
         ),
         Word(
@@ -513,7 +509,6 @@ def test_build_normal_lesson_item_specs_does_not_add_review_filler_word_choices(
             usage_note_en=None,
             pos="noun",
             intro_order=3,
-            is_bootstrap_seed=False,
             source_kind="config_example",
         ),
         Word(
@@ -526,7 +521,6 @@ def test_build_normal_lesson_item_specs_does_not_add_review_filler_word_choices(
             usage_note_en=None,
             pos="noun",
             intro_order=4,
-            is_bootstrap_seed=False,
             source_kind="config_example",
         ),
     ]
@@ -586,7 +580,6 @@ def test_build_normal_lesson_item_specs_adds_required_word_choice_intro_before_s
             usage_note_en=None,
             pos="noun",
             intro_order=1,
-            is_bootstrap_seed=False,
             source_kind="config_example",
         ),
         Word(
@@ -599,7 +592,6 @@ def test_build_normal_lesson_item_specs_adds_required_word_choice_intro_before_s
             usage_note_en=None,
             pos="noun",
             intro_order=2,
-            is_bootstrap_seed=False,
             source_kind="config_example",
         ),
     ]
@@ -659,7 +651,6 @@ def test_build_normal_lesson_item_specs_does_not_surface_sentence_when_lesson_do
             usage_note_en=None,
             pos="pronoun",
             intro_order=1,
-            is_bootstrap_seed=False,
             source_kind="config_example",
         ),
         Word(
@@ -672,7 +663,6 @@ def test_build_normal_lesson_item_specs_does_not_surface_sentence_when_lesson_do
             usage_note_en=None,
             pos="noun",
             intro_order=2,
-            is_bootstrap_seed=False,
             source_kind="config_example",
         ),
     ]
@@ -732,7 +722,6 @@ def test_build_normal_lesson_item_specs_does_not_create_intro_for_non_target_wor
             usage_note_en=None,
             pos="noun",
             intro_order=1,
-            is_bootstrap_seed=False,
             source_kind="llm_generated",
         )
     ]

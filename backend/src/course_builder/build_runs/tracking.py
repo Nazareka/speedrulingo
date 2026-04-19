@@ -8,6 +8,7 @@ from course_builder.build_runs.queries import (
     get_build_run,
     get_stage_run,
     list_active_stage_runs,
+    list_completed_stage_identities,
     list_descendant_build_runs,
 )
 from course_builder.build_runs.run_state import (
@@ -112,6 +113,45 @@ class BuildRunTracking:
                 event_type="build_run.progress_updated",
                 build_run_id=build_run_id,
                 parent_build_run_id=build_run.parent_build_run_id,
+            )
+
+    @staticmethod
+    def seed_completed_stages_from_run(
+        *,
+        source_build_run_id: str,
+        target_build_run_id: str,
+        section_code: str,
+    ) -> None:
+        with SessionLocal() as db:
+            source_build_run = get_build_run(db, build_run_id=source_build_run_id)
+            if source_build_run is None:
+                msg = f"Unknown source_build_run_id={source_build_run_id}"
+                raise ValueError(msg)
+            target_build_run = get_build_run(db, build_run_id=target_build_run_id)
+            if target_build_run is None:
+                msg = f"Unknown target_build_run_id={target_build_run_id}"
+                raise ValueError(msg)
+            completed_stage_rows = list_completed_stage_identities(
+                db,
+                build_run_id=source_build_run_id,
+                section_code=section_code,
+            )
+            for stage_index, stage_name in completed_stage_rows:
+                stage_run = create_stage_run(
+                    db,
+                    build_run_id=target_build_run_id,
+                    section_code=section_code,
+                    stage_name=stage_name,
+                    stage_index=stage_index,
+                )
+                mark_stage_run_completed(stage_run)
+            if source_build_run.course_version_id is not None:
+                target_build_run.course_version_id = source_build_run.course_version_id
+            db.commit()
+            publish_build_run_event(
+                event_type="build_run.progress_updated",
+                build_run_id=target_build_run_id,
+                parent_build_run_id=target_build_run.parent_build_run_id,
             )
 
     @staticmethod

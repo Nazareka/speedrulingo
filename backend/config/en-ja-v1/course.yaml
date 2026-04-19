@@ -59,5 +59,15 @@ runtime_distractors:
     distractor_count: 4
 
 llm:
-  pattern_vocab_generation_model: "gpt-5.4"
-  unit_metadata_generation_model: "gpt-5.4"
+  mechanical_word_generation:
+    model: "gpt-5.4"
+    reasoning_effort: "low"
+  anchored_word_generation:
+    model: "gpt-5.4"
+    reasoning_effort: "medium"
+  pattern_vocab_generation:
+    model: "gpt-5.4"
+    reasoning_effort: "medium"
+  unit_metadata_generation:
+    model: "gpt-5.4"
+    reasoning_effort: "medium"
